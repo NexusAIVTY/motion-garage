@@ -8,684 +8,140 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;600&display=swap" rel="stylesheet" />
-  <style>
-:root {
-  --bg: #0a0a0b;
-  --bg-2: #121214;
-  --panel: #161618;
-  --line: #26262a;
-  --red: #e10600;
-  --red-soft: #ff3b30;
-  --text: #f2f2f2;
-  --muted: #9a9aa2;
-  --font-display: 'Bebas Neue', Impact, sans-serif;
-  --font-body: 'Inter', system-ui, sans-serif;
-}
-
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-html { scroll-behavior: smooth; }
-
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font-body);
-  overflow-x: hidden;
-  min-height: 100vh;
-}
-
-::selection { background: var(--red); color: #fff; }
-
-a { color: inherit; text-decoration: none; }
-
-/* ---------- Custom cursor ---------- */
-.cursor-dot, .cursor-ring {
-  position: fixed;
-  top: 0; left: 0;
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: var(--red);
-  pointer-events: none;
-  z-index: 9999;
-  transform: translate(-50%, -50%);
-}
-.cursor-ring {
-  width: 36px; height: 36px;
-  background: transparent;
-  border: 1px solid rgba(225, 6, 0, 0.55);
-}
-@media (hover: none) {
-  .cursor-dot, .cursor-ring { display: none; }
-}
-
-/* ---------- Background layers ---------- */
-.speed-lines {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-.speed-line {
-  position: absolute;
-  height: 1px;
-  width: 12vw;
-  background: linear-gradient(90deg, transparent, rgba(225, 6, 0, 0.5), transparent);
-  opacity: 0.5;
-}
-.speed-line.white {
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
-}
-
-.particles {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-}
-.particle {
-  position: absolute;
-  border-radius: 50%;
-  background: var(--red);
-  opacity: 0.35;
-  box-shadow: 0 0 8px rgba(225, 6, 0, 0.8);
-}
-
-/* ---------- Nav ---------- */
-.nav {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 18px 40px;
-  background: linear-gradient(180deg, rgba(10,10,11,0.9), rgba(10,10,11,0));
-  backdrop-filter: blur(6px);
-}
-.logo {
-  font-family: var(--font-display);
-  font-size: 24px;
-  letter-spacing: 3px;
-}
-.logo span { color: var(--red); }
-.nav-links { display: flex; gap: 34px; }
-.nav-link {
-  position: relative;
-  font-size: 13px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--muted);
-  transition: color 0.25s ease;
-}
-.nav-link::after {
-  content: '';
-  position: absolute;
-  left: 0; bottom: -6px;
-  width: 100%; height: 2px;
-  background: var(--red);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.3s ease;
-}
-.nav-link:hover { color: var(--text); }
-.nav-link:hover::after { transform: scaleX(1); }
-
-/* ---------- Buttons ---------- */
-.btn {
-  display: inline-block;
-  font-family: var(--font-display);
-  letter-spacing: 3px;
-  font-size: 17px;
-  padding: 12px 30px;
-  position: relative;
-  overflow: hidden;
-  transition: color 0.3s ease, box-shadow 0.3s ease;
-  will-change: transform;
-}
-.btn-nav { font-size: 14px; padding: 8px 20px; }
-.btn-primary {
-  background: var(--red);
-  color: #fff;
-  clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
-}
-.btn-primary:hover {
-  box-shadow: 0 0 30px rgba(225, 6, 0, 0.6);
-}
-.btn-ghost {
-  border: 1px solid var(--line);
-  color: var(--muted);
-}
-.btn-ghost:hover {
-  border-color: var(--red);
-  color: #fff;
-  box-shadow: inset 0 0 24px rgba(225, 6, 0, 0.18);
-}
-.btn::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent);
-  transform: translateX(-120%);
-  transition: transform 0.5s ease;
-}
-.btn:hover::before { transform: translateX(120%); }
-
-/* ---------- Hero ---------- */
-.hero {
-  position: relative;
-  z-index: 1;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 120px 24px 60px;
-  overflow: hidden;
-}
-.hero-bg-glow {
-  position: absolute;
-  top: 40%; left: 50%;
-  width: 900px; height: 500px;
-  transform: translate(-50%, -50%);
-  background: radial-gradient(ellipse at center, rgba(225,6,0,0.14), transparent 65%);
-  pointer-events: none;
-}
-.hero-eyebrow {
-  font-size: 13px;
-  letter-spacing: 6px;
-  text-transform: uppercase;
-  color: var(--red);
-  margin-bottom: 18px;
-  opacity: 0;
-}
-.hero-title {
-  font-family: var(--font-display);
-  font-size: clamp(64px, 14vw, 190px);
-  line-height: 0.9;
-  letter-spacing: 6px;
-}
-.hero-title .char {
-  display: inline-block;
-  opacity: 0;
-  transform-origin: 50% 100%;
-}
-.hero-sub {
-  margin-top: 22px;
-  color: var(--muted);
-  font-weight: 300;
-  font-size: 16px;
-  line-height: 1.7;
-  opacity: 0;
-}
-
-.hero-car-stage {
-  position: relative;
-  width: min(1000px, 94vw);
-  margin-top: 10px;
-}
-.car { width: 100%; height: auto; overflow: visible; }
-
-.car-solid { opacity: 0; }
-.car-body { fill: url(#bodyGrad); }
-.car-glass { fill: url(#glassGrad); }
-.car-spoiler { fill: #1c1c1e; }
-.car-accent { fill: var(--red); }
-.car-intake { fill: var(--red); opacity: 0.9; }
-.car-light { fill: #fff8e0; }
-.car-taillight { fill: var(--red-soft); }
-
-.car-line {
-  fill: none;
-  stroke: var(--red);
-  stroke-width: 2.5;
-  stroke-linecap: round;
-  filter: drop-shadow(0 0 6px rgba(225,6,0,0.7));
-}
-
-.tyre { fill: #0c0c0d; stroke: #2a2a2e; stroke-width: 3; }
-.rim { fill: none; stroke: #4a4a50; stroke-width: 2; }
-.spokes rect { fill: #7a7a82; }
-.hub { fill: var(--red); }
-
-.road-lines {
-  position: absolute;
-  left: 0; right: 0;
-  bottom: -6px;
-  height: 2px;
-  overflow: hidden;
-}
-.road-line {
-  position: absolute;
-  height: 2px;
-  width: 90px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
-}
-
-.hero-cta {
-  display: flex;
-  gap: 22px;
-  margin-top: 48px;
-  opacity: 0;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.scroll-hint {
-  position: absolute;
-  bottom: 28px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  opacity: 0;
-}
-.scroll-hint-text {
-  font-size: 11px;
-  letter-spacing: 4px;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.scroll-hint-line {
-  width: 1px;
-  height: 48px;
-  background: var(--red);
-  transform-origin: top;
-}
-
-/* ---------- Sections shared ---------- */
-.section {
-  position: relative;
-  z-index: 1;
-  padding: 140px 24px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-.section-label {
-  font-size: 12px;
-  letter-spacing: 5px;
-  text-transform: uppercase;
-  color: var(--red);
-  margin-bottom: 14px;
-}
-.section-title {
-  font-family: var(--font-display);
-  font-size: clamp(44px, 7vw, 90px);
-  letter-spacing: 3px;
-  line-height: 1;
-  margin-bottom: 56px;
-}
-.section-title .char { display: inline-block; opacity: 0; }
-
-/* ---------- Stats ---------- */
-.stats { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--bg-2); max-width: none; padding-left: 8vw; padding-right: 8vw; }
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 40px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-.stat { text-align: center; }
-.stat-number, .stat-suffix {
-  font-family: var(--font-display);
-  font-size: clamp(52px, 6vw, 84px);
-  color: var(--text);
-}
-.stat-suffix { color: var(--red); margin-left: 6px; }
-.stat-label {
-  margin-top: 6px;
-  color: var(--muted);
-  font-size: 13px;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-}
-
-/* ---------- Models ---------- */
-.models-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 26px;
-}
-.model-card {
-  position: relative;
-  background: linear-gradient(160deg, var(--panel), #101012);
-  border: 1px solid var(--line);
-  padding: 34px 28px 28px;
-  overflow: hidden;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  will-change: transform;
-}
-.model-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 50% 0%, rgba(225,6,0,0.16), transparent 60%);
-  opacity: 0;
-  transition: opacity 0.35s ease;
-}
-.model-card:hover {
-  border-color: rgba(225,6,0,0.7);
-  box-shadow: 0 20px 60px rgba(225,6,0,0.15);
-}
-.model-card:hover::before { opacity: 1; }
-.model-number {
-  position: absolute;
-  top: 18px; right: 22px;
-  font-family: var(--font-display);
-  font-size: 44px;
-  color: transparent;
-  -webkit-text-stroke: 1px rgba(225,6,0,0.5);
-}
-.model-visual { margin: 0 0 18px; }
-.mini-car {
-  fill: none;
-  stroke: var(--red);
-  stroke-width: 2;
-  stroke-linejoin: round;
-}
-.mini-wheel { fill: #0c0c0d; stroke: #7a7a82; stroke-width: 2; }
-.model-name {
-  font-family: var(--font-display);
-  font-size: 30px;
-  letter-spacing: 2px;
-  margin-bottom: 8px;
-}
-.model-desc { color: var(--muted); font-size: 14px; line-height: 1.6; min-height: 44px; }
-.model-tags { display: flex; gap: 8px; margin: 18px 0 22px; flex-wrap: wrap; }
-.model-tags span {
-  font-size: 11px;
-  letter-spacing: 2px;
-  border: 1px solid var(--line);
-  padding: 5px 10px;
-  color: var(--muted);
-  transition: border-color 0.25s ease, color 0.25s ease;
-}
-.model-card:hover .model-tags span { border-color: rgba(225,6,0,0.6); color: var(--text); }
-.model-link {
-  font-size: 13px;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  color: var(--red);
-  display: inline-block;
-  transition: transform 0.25s ease, text-shadow 0.25s ease;
-}
-.model-link:hover { transform: translateX(6px); text-shadow: 0 0 14px rgba(225,6,0,0.8); }
-
-/* ---------- Manifest ---------- */
-.manifest { text-align: center; overflow: hidden; }
-.manifest-bg-word {
-  position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  font-family: var(--font-display);
-  font-size: clamp(140px, 30vw, 420px);
-  color: transparent;
-  -webkit-text-stroke: 1px rgba(225, 6, 0, 0.12);
-  pointer-events: none;
-  user-select: none;
-  white-space: nowrap;
-}
-.manifest-quote {
-  position: relative;
-  font-family: var(--font-display);
-  font-size: clamp(30px, 4.5vw, 56px);
-  letter-spacing: 2px;
-  line-height: 1.25;
-  max-width: 900px;
-  margin: 0 auto 30px;
-}
-.manifest-quote .word { display: inline-block; opacity: 0; margin-right: 0.28em; }
-.manifest-author { color: var(--muted); letter-spacing: 3px; text-transform: uppercase; font-size: 13px; }
-
-/* ---------- CTA ---------- */
-.cta { text-align: center; overflow: hidden; }
-.cta-ring {
-  position: absolute;
-  top: 50%; left: 50%;
-  width: 560px; height: 560px;
-  margin: -280px 0 0 -280px;
-  border: 1px solid rgba(225,6,0,0.2);
-  border-radius: 50%;
-  pointer-events: none;
-}
-.cta-ring::after {
-  content: '';
-  position: absolute;
-  inset: -60px;
-  border: 1px dashed rgba(225,6,0,0.25);
-  border-radius: 50%;
-}
-.cta-sub { color: var(--muted); margin: -30px 0 40px; }
-.btn-large { font-size: 22px; padding: 18px 44px; }
-
-/* ---------- Footer / marquee ---------- */
-.footer {
-  position: relative;
-  z-index: 1;
-  border-top: 1px solid var(--line);
-  background: var(--bg-2);
-  overflow: hidden;
-}
-.marquee {
-  overflow: hidden;
-  white-space: nowrap;
-  padding: 26px 0;
-  border-bottom: 1px solid var(--line);
-}
-.marquee-track {
-  display: inline-block;
-  animation: marquee 18s linear infinite;
-  font-family: var(--font-display);
-  font-size: 40px;
-  letter-spacing: 4px;
-  color: transparent;
-  -webkit-text-stroke: 1px rgba(225, 6, 0, 0.55);
-}
-.marquee-track span { padding-right: 20px; }
-@keyframes marquee {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-.footer-note {
-  text-align: center;
-  padding: 22px;
-  color: var(--muted);
-  font-size: 13px;
-}
-.footer-note a { color: var(--red); }
-.footer-note a:hover { text-shadow: 0 0 10px rgba(225,6,0,0.8); }
-
-/* ---------- Reveal default state ---------- */
-.reveal { opacity: 0; transform: translateY(40px); }
-
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation: none !important; transition: none !important; }
-  .reveal, .hero-eyebrow, .hero-sub, .hero-cta, .scroll-hint, .car-solid { opacity: 1 !important; transform: none !important; }
-  .hero-title .char, .manifest-quote .word { opacity: 1 !important; }
-}
-
-</style>
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
   <div class="cursor-dot"></div>
   <div class="cursor-ring"></div>
-
-  <div class="speed-lines" aria-hidden="true"></div>
-  <div class="particles" aria-hidden="true"></div>
+  <div class="scroll-progress"></div>
 
   <header class="nav">
     <a class="logo" href="#hero">MOTION<span>GARAGE</span></a>
     <nav class="nav-links">
-      <a href="#models" class="nav-link">Models</a>
-      <a href="#specs" class="nav-link">Specs</a>
-      <a href="#manifest" class="nav-link">Manifest</a>
+      <a href="#experience" class="nav-link">Experience</a>
+      <a href="#performance" class="nav-link">Performance</a>
+      <a href="#collection" class="nav-link">Collection</a>
       <a href="#contact" class="nav-link">Contact</a>
     </nav>
-    <a href="#contact" class="btn btn-ghost btn-nav">Book a drive</a>
+    <a href="#contact" class="btn btn-ghost btn-nav magnetic">Book a drive</a>
   </header>
 
   <main>
-    <!-- HERO -->
+    <!-- HERO — fullscreen photograph -->
     <section class="hero" id="hero">
-      <div class="hero-bg-glow"></div>
-      <p class="hero-eyebrow">Concept Studio &mdash; EST. 2025</p>
-      <h1 class="hero-title" data-split>MOTION GARAGE</h1>
-      <p class="hero-sub">Every frame is a machine. Every pixel, motion.<br/>De demonen van asfalt — gebouwd in beweging.</p>
-
-      <div class="hero-car-stage">
-        <svg class="car" viewBox="0 0 900 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Stylised concept car">
-          <defs>
-            <linearGradient id="bodyGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#232323"/>
-              <stop offset="100%" stop-color="#0d0d0d"/>
-            </linearGradient>
-            <linearGradient id="glassGrad" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#3a0a0a"/>
-              <stop offset="100%" stop-color="#120303"/>
-            </linearGradient>
-            <radialGradient id="glowGrad" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stop-color="#e10600" stop-opacity="0.35"/>
-              <stop offset="100%" stop-color="#e10600" stop-opacity="0"/>
-            </radialGradient>
-          </defs>
-
-          <ellipse class="car-shadow" cx="450" cy="248" rx="380" ry="22" fill="url(#glowGrad)"/>
-          <ellipse class="car-glow-pulse" cx="450" cy="230" rx="300" ry="40" fill="url(#glowGrad)"/>
-
-          <g class="car-float">
-            <g class="car-fill">
-              <path class="car-solid car-body" d="M60 208 C42 190 46 158 78 148 L118 140 C160 130 196 96 276 78 C340 64 420 66 464 84 C520 104 588 120 656 128 C736 138 796 158 818 178 C834 192 830 204 812 208 L738 208 A62 62 0 0 0 602 208 L292 208 A62 62 0 0 0 156 208 Z"/>
-              <path class="car-solid car-glass" d="M296 94 C348 80 418 82 456 96 C512 114 566 126 616 132 L594 138 C524 130 462 116 408 106 C368 98 328 96 296 94 Z"/>
-              <rect class="car-solid car-spoiler" x="96" y="128" width="52" height="8" rx="4"/>
-              <path class="car-solid car-accent" d="M120 168 C260 150 480 150 704 172 L704 178 C480 156 262 156 122 174 Z"/>
-              <path class="car-solid car-intake" d="M700 178 L770 186 C780 190 778 198 768 198 L706 192 Z"/>
-              <polygon class="car-solid car-light" points="800,172 830,182 828,192 798,180"/>
-              <polygon class="car-solid car-taillight" points="86,150 118,142 116,152 88,158"/>
-            </g>
-
-            <g class="car-strokes">
-              <path class="car-line car-outline" d="M60 208 C42 190 46 158 78 148 L118 140 C160 130 196 96 276 78 C340 64 420 66 464 84 C520 104 588 120 656 128 C736 138 796 158 818 178 C834 192 830 204 812 208 L738 208 A62 62 0 0 0 602 208 L292 208 A62 62 0 0 0 156 208 Z"/>
-              <path class="car-line car-wing" d="M96 128 L148 128 L148 136 L96 136 Z"/>
-              <path class="car-line car-doorline" d="M430 92 C470 130 486 168 478 206"/>
-              <path class="car-line car-skirt" d="M250 226 L370 226 M540 226 L660 226"/>
-            </g>
-
-            <g class="wheels">
-              <g class="wheel" transform="translate(224,210)">
-                <circle class="tyre" r="52"/>
-                <circle class="rim" r="30"/>
-                <g class="spokes">
-                  <rect x="-3" y="-30" width="6" height="60" rx="3"/>
-                  <rect x="-3" y="-30" width="6" height="60" rx="3" transform="rotate(60)"/>
-                  <rect x="-3" y="-30" width="6" height="60" rx="3" transform="rotate(120)"/>
-                </g>
-                <circle class="hub" r="6"/>
-              </g>
-              <g class="wheel" transform="translate(670,210)">
-                <circle class="tyre" r="52"/>
-                <circle class="rim" r="30"/>
-                <g class="spokes">
-                  <rect x="-3" y="-30" width="6" height="60" rx="3"/>
-                  <rect x="-3" y="-30" width="6" height="60" rx="3" transform="rotate(60)"/>
-                  <rect x="-3" y="-30" width="6" height="60" rx="3" transform="rotate(120)"/>
-                </g>
-                <circle class="hub" r="6"/>
-              </g>
-            </g>
-          </g>
-        </svg>
-        <div class="road-lines" aria-hidden="true"></div>
+      <div class="hero-media" data-scroll-media data-parallax-strength="0.35">
+        <img class="media-img" src="assets/cars/hero-huracan.jpg" alt="Lamborghini Huracán in rood licht" />
+        <div class="media-veil"></div>
       </div>
-
-      <div class="hero-cta">
-        <a href="#models" class="btn btn-primary magnetic">Explore the fleet</a>
-        <a href="#manifest" class="btn btn-ghost magnetic">Our manifesto</a>
+      <div class="hero-content">
+        <p class="hero-eyebrow">Concept Studio &mdash; EST. 2025</p>
+        <h1 class="hero-title" data-split>MOTION GARAGE</h1>
+        <p class="hero-sub">De auto als beeld. De beweging als verhaal.<br/>Welkom in de garage.</p>
+        <div class="hero-cta">
+          <a href="#collection" class="btn btn-primary magnetic">Enter the garage</a>
+          <a href="#experience" class="btn btn-ghost magnetic">The experience</a>
+        </div>
       </div>
       <div class="scroll-hint">
         <span class="scroll-hint-text">Scroll</span>
         <span class="scroll-hint-line"></span>
       </div>
+      <div class="hero-dust" aria-hidden="true"></div>
     </section>
 
-    <!-- STATS -->
-    <section class="stats section" id="specs">
-      <div class="section-label reveal">02 &mdash; Performance</div>
-      <h2 class="section-title reveal" data-split>NUMBERS DON'T LIE</h2>
-      <div class="stats-grid">
-        <div class="stat reveal">
-          <span class="stat-number" data-target="1250">0</span>
-          <span class="stat-suffix">HP</span>
-          <p class="stat-label">Peak output</p>
+    <!-- EXPERIENCE 01 -->
+    <section class="showcase" id="experience" data-showcase>
+      <div class="showcase-media" data-scroll-media data-parallax-strength="0.3">
+        <img class="media-img" src="assets/cars/midnight-v10.jpg" alt="Lamborghini Huracán in een donkere garage met blauw licht" />
+        <div class="media-veil"></div>
+      </div>
+      <div class="showcase-text">
+        <div class="section-label reveal">Experience 01</div>
+        <h2 class="showcase-title" data-split>MIDNIGHT V10</h2>
+        <p class="showcase-copy reveal">Zes cilinders, geen turbo's, geen excuses. De Huracán ademt onder blauw neonlicht en het natte asfalt reflecteert elke scherpe lijn — de nacht hoort bij haar.</p>
+        <ul class="showcase-stats reveal">
+          <li><strong>640 HP</strong><span>naturally aspirated V10</span></li>
+          <li><strong>2.9 s</strong><span>0 &ndash; 100 km/h</span></li>
+          <li><strong>325 km/h</strong><span>topsnelheid</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- PERFORMANCE -->
+    <section class="performance section" id="performance">
+      <div class="section-label reveal">Performance</div>
+      <h2 class="section-title reveal" data-split>NUMBERS THAT BURN</h2>
+      <div class="perf-grid">
+        <div class="perf-stats">
+          <div class="perf-stat reveal">
+            <div class="perf-value"><span class="counter" data-target="1250">0</span><small>HP</small></div>
+            <div class="perf-bar"><div class="perf-bar-fill" data-value="100"></div></div>
+            <p class="perf-label">Vermogen</p>
+          </div>
+          <div class="perf-stat reveal">
+            <div class="perf-value"><span class="counter" data-target="350" data-decimals="0">0</span><small>KM/H</small></div>
+            <div class="perf-bar"><div class="perf-bar-fill" data-value="86"></div></div>
+            <p class="perf-label">Topsnelheid</p>
+          </div>
+          <div class="perf-stat reveal">
+            <div class="perf-value"><span class="counter" data-target="2.1" data-decimals="1">0</span><small>S</small></div>
+            <div class="perf-bar"><div class="perf-bar-fill" data-value="92"></div></div>
+            <p class="perf-label">0 &ndash; 100 km/h</p>
+          </div>
+          <div class="perf-stat reveal">
+            <div class="perf-value"><span class="counter" data-target="1180">0</span><small>NM</small></div>
+            <div class="perf-bar"><div class="perf-bar-fill" data-value="78"></div></div>
+            <p class="perf-label">Koppel</p>
+          </div>
         </div>
-        <div class="stat reveal">
-          <span class="stat-number" data-target="340">0</span>
-          <span class="stat-suffix">KM/H</span>
-          <p class="stat-label">Top speed</p>
-        </div>
-        <div class="stat reveal">
-          <span class="stat-number" data-target="1.9" data-decimals="1">0</span>
-          <span class="stat-suffix">S</span>
-          <p class="stat-label">0 &ndash; 100 km/h</p>
-        </div>
-        <div class="stat reveal">
-          <span class="stat-number" data-target="98">0</span>
-          <span class="stat-suffix">%</span>
-          <p class="stat-label">Built in-house</p>
+        <div class="perf-note reveal">
+          <h3>Techniek zonder excuse</h3>
+          <p>Elke prestatiewaarde wordt op de strip geverifieerd, niet in de brochure. Tien sensoren, één doel: performance die je voelt in plaats van leest.</p>
+          <div class="perf-chips">
+            <span>Carbon monocoque</span><span>Active aero</span><span>Torque vectoring</span><span>Ceramic brakes</span>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- MODELS -->
-    <section class="models section" id="models">
-      <div class="section-label reveal">01 &mdash; The fleet</div>
-      <h2 class="section-title reveal" data-split>PICK YOUR POISON</h2>
-      <div class="models-grid">
-        <article class="model-card reveal" data-tilt>
-          <div class="model-number">01</div>
-          <div class="model-visual">
-            <svg viewBox="0 0 200 80"><path class="mini-car" d="M10 60 C6 52 8 42 20 38 L40 34 C56 30 70 18 100 14 C130 10 160 18 172 30 C184 40 184 50 176 54 L156 56 A18 18 0 0 0 122 56 L78 56 A18 18 0 0 0 44 56 Z"/><circle class="mini-wheel" cx="62" cy="58" r="10"/><circle class="mini-wheel" cx="140" cy="58" r="10"/></svg>
-          </div>
-          <h3 class="model-name">GT-01 Venom</h3>
-          <p class="model-desc">V12 hypercoupe. Hand-built, track-bred, street legal.</p>
-          <div class="model-tags"><span>1250 HP</span><span>V12</span><span>RWD</span></div>
-          <a class="model-link" href="#contact">Configure &rarr;</a>
-        </article>
-        <article class="model-card reveal" data-tilt>
-          <div class="model-number">02</div>
-          <div class="model-visual">
-            <svg viewBox="0 0 200 80"><path class="mini-car" d="M8 60 C6 50 14 40 34 36 C60 30 68 22 96 18 C126 14 156 22 170 32 C182 40 184 50 176 54 L156 56 A18 18 0 0 0 122 56 L78 56 A18 18 0 0 0 44 56 Z"/><circle class="mini-wheel" cx="62" cy="58" r="10"/><circle class="mini-wheel" cx="140" cy="58" r="10"/></svg>
-          </div>
-          <h3 class="model-name">RS-9 Phantom</h3>
-          <p class="model-desc">Twin-turbo grand tourer. Silence at a standing start.</p>
-          <div class="model-tags"><span>840 HP</span><span>V8</span><span>AWD</span></div>
-          <a class="model-link" href="#contact">Configure &rarr;</a>
-        </article>
-        <article class="model-card reveal" data-tilt>
-          <div class="model-number">03</div>
-          <div class="model-visual">
-            <svg viewBox="0 0 200 80"><path class="mini-car" d="M12 58 C10 50 16 40 34 36 C52 32 66 20 94 16 C136 10 162 20 172 32 C182 42 182 50 174 54 L154 56 A18 18 0 0 0 120 56 L80 56 A18 18 0 0 0 46 56 Z"/><circle class="mini-wheel" cx="64" cy="58" r="10"/><circle class="mini-wheel" cx="138" cy="58" r="10"/></svg>
-          </div>
-          <h3 class="model-name">EV-X Auron</h3>
-          <p class="model-desc">Tri-motor electric. Torque like a thunderclap.</p>
-          <div class="model-tags"><span>1050 HP</span><span>EV</span><span>4WD</span></div>
-          <a class="model-link" href="#contact">Configure &rarr;</a>
-        </article>
+    <!-- EXPERIENCE 02 -->
+    <section class="showcase showcase-right" data-showcase>
+      <div class="showcase-media" data-scroll-media data-parallax-strength="0.3">
+        <img class="media-img" src="assets/cars/hyperleggera.jpg" alt="Hypercar vliegtuigprofiel in rood neonlicht" />
+        <div class="media-veil"></div>
+      </div>
+      <div class="showcase-text">
+        <div class="section-label reveal">Experience 02</div>
+        <h2 class="showcase-title" data-split>HYPERLEGGERA</h2>
+        <p class="showcase-copy reveal">Kogelvormig profiel, gekarteld door de wind. Gebouwd in het laboratorium, gehard op de ring. Alles wat eraf kon, is eraf. Wat overblijft: koolstof, koeling en 1500 paardenkracht.</p>
+        <ul class="showcase-stats reveal">
+          <li><strong>1500 HP</strong><span>quad-turbo velocity</span></li>
+          <li><strong>2.2 s</strong><span>0 &ndash; 100 km/h</span></li>
+          <li><strong>420 km/h</strong><span>topsnelheid</span></li>
+        </ul>
       </div>
     </section>
 
-    <!-- MANIFEST / CINEMATIC QUOTE -->
-    <section class="manifest section" id="manifest">
-      <div class="manifest-bg-word" data-parallax="0.15">SPEED</div>
-      <div class="section-label reveal">03 &mdash; Manifest</div>
-      <blockquote class="manifest-quote" data-split-words>
-        We don't build websites. We build the feeling of a redline rev at midnight &mdash; frame by frame, curve by curve.
+    <!-- EXPERIENCE 03 — cinematic wide band -->
+    <section class="cinema" data-showcase>
+      <div class="cinema-media" data-scroll-media data-parallax-strength="0.4">
+        <img class="media-img" src="assets/cars/ronin-gt.jpg" alt="Supercar in rode rook" />
+        <div class="media-veil"></div>
+      </div>
+      <blockquote class="cinema-quote" data-split-words>
+        Snelheid is rust in de storm. Rood licht, zwarte lijnen &mdash; en even houdt de wereld haar adem in.
       </blockquote>
-      <p class="manifest-author reveal">— The Motion Garage crew</p>
     </section>
 
-    <!-- CONTACT / CTA -->
+    <!-- COLLECTION -->
+    <section class="collection section" id="collection">
+      <div class="section-label reveal">Collection</div>
+      <h2 class="section-title reveal" data-split>THE GARAGE FLEET</h2>
+      <p class="collection-sub reveal">Zes machines. Elk een eigen karakter. Klik een projecterend hoofdstuk open.</p>
+      <div class="collection-grid" id="collectionGrid"></div>
+    </section>
+
+    <!-- CONTACT -->
     <section class="cta section" id="contact">
       <div class="cta-ring" data-parallax="0.08"></div>
       <h2 class="section-title reveal" data-split>READY TO MOVE?</h2>
@@ -693,6 +149,25 @@ a { color: inherit; text-decoration: none; }
       <a href="mailto:hello@motiongarage.dev" class="btn btn-primary btn-large magnetic">Start the engine</a>
     </section>
   </main>
+
+  <!-- CAR DETAIL MODAL -->
+  <div class="car-modal" id="carModal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="car-modal-backdrop" data-modal-close></div>
+    <div class="car-modal-panel">
+      <button class="car-modal-close" data-modal-close aria-label="Sluiten">&times;</button>
+      <div class="car-modal-media">
+        <img id="carModalImg" src="" alt="" />
+        <div class="media-veil"></div>
+      </div>
+      <div class="car-modal-info">
+        <div class="section-label" id="carModalTag"></div>
+        <h2 class="car-modal-name" id="carModalName"></h2>
+        <p class="car-modal-copy" id="carModalCopy"></p>
+        <dl class="car-modal-specs" id="carModalSpecs"></dl>
+        <a href="#contact" class="btn btn-primary" data-modal-close>Configure</a>
+      </div>
+    </div>
+  </div>
 
   <footer class="footer">
     <div class="marquee" aria-hidden="true">
@@ -705,440 +180,6 @@ a { color: inherit; text-decoration: none; }
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
-  <script>
-/* Motion Garage — powered by anime.js v3 */
-(function () {
-  'use strict';
-
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  /* ---------- Text splitting helpers ---------- */
-  function splitChars(el) {
-    const text = el.textContent;
-    el.textContent = '';
-    const frag = document.createDocumentFragment();
-    for (const ch of text) {
-      if (ch === ' ') {
-        frag.appendChild(document.createTextNode('\u00A0\u00A0'));
-      } else {
-        const span = document.createElement('span');
-        span.className = 'char';
-        span.textContent = ch;
-        frag.appendChild(span);
-      }
-    }
-    el.appendChild(frag);
-    return el.querySelectorAll('.char');
-  }
-
-  function splitWords(el) {
-    const text = el.textContent.trim();
-    el.textContent = '';
-    const frag = document.createDocumentFragment();
-    text.split(/\s+/).forEach((word) => {
-      const span = document.createElement('span');
-      span.className = 'word';
-      span.textContent = word;
-      frag.appendChild(span);
-    });
-    el.appendChild(frag);
-    return el.querySelectorAll('.word');
-  }
-
-  /* ---------- Hero: cinematic intro timeline ---------- */
-  function heroIntro() {
-    const chars = splitChars(document.querySelector('.hero-title'));
-
-    const tl = anime.timeline({ easing: 'easeOutExpo' });
-
-    tl.add({
-      targets: '.hero-eyebrow',
-      opacity: [0, 1],
-      translateY: [24, 0],
-      duration: 900
-    })
-      .add(
-        {
-          targets: chars,
-          opacity: [0, 1],
-          translateY: [90, 0],
-          rotateX: [-95, 0],
-          duration: 1100,
-          delay: anime.stagger(45)
-        },
-        '-=500'
-      )
-      .add(
-        {
-          targets: '.hero-sub',
-          opacity: [0, 1],
-          translateY: [26, 0],
-          duration: 900
-        },
-        '-=700'
-      )
-      .add(
-        {
-          targets: '.car-line',
-          strokeDashoffset: [anime.setDashoffset, 0],
-          duration: 2300,
-          easing: 'easeInOutSine',
-          delay: anime.stagger(160)
-        },
-        '-=900'
-      )
-      .add(
-        {
-          targets: '.car-solid',
-          opacity: [0, 1],
-          duration: 1300,
-          delay: anime.stagger(70)
-        },
-        '-=1500'
-      )
-      .add(
-        {
-          targets: '.wheels',
-          opacity: [0, 1],
-          translateY: [-30, 0],
-          duration: 900,
-          delay: anime.stagger(120)
-        },
-        '-=1100'
-      )
-      .add(
-        {
-          targets: '.hero-cta',
-          opacity: [0, 1],
-          translateY: [30, 0],
-          duration: 800
-        },
-        '-=700'
-      )
-      .add(
-        {
-          targets: '.scroll-hint',
-          opacity: [0, 1],
-          duration: 700
-        },
-        '-=500'
-      );
-
-    if (reduceMotion) tl.pause();
-  }
-
-  /* ---------- Loops: car idle, wheels, road, speed lines, particles ---------- */
-  function startLoops() {
-    if (reduceMotion) return;
-
-    anime({
-      targets: '.car-float',
-      translateY: [-5, 5],
-      direction: 'alternate',
-      loop: true,
-      duration: 2200,
-      easing: 'easeInOutSine'
-    });
-
-    anime({
-      targets: '.car-glow-pulse',
-      opacity: [0.4, 1],
-      scale: [0.98, 1.03],
-      direction: 'alternate',
-      loop: true,
-      duration: 1600,
-      easing: 'easeInOutSine'
-    });
-
-    anime({
-      targets: '.spokes',
-      rotate: 360,
-      loop: true,
-      duration: 1400,
-      easing: 'linear'
-    });
-
-    const road = document.querySelector('.road-lines');
-    for (let i = 0; i < 8; i++) {
-      const line = document.createElement('div');
-      line.className = 'road-line';
-      line.style.top = '0';
-      line.style.left = Math.random() * 100 + '%';
-      road.appendChild(line);
-      anime({
-        targets: line,
-        translateX: [-160, 1100],
-        opacity: [0, 1, 0],
-        duration: anime.random(700, 1600),
-        delay: anime.random(0, 1200),
-        loop: true,
-        easing: 'linear'
-      });
-    }
-
-    const speedWrap = document.querySelector('.speed-lines');
-    for (let i = 0; i < 18; i++) {
-      const line = document.createElement('div');
-      line.className = 'speed-line' + (Math.random() > 0.6 ? ' white' : '');
-      line.style.top = Math.random() * 100 + '%';
-      line.style.left = '-15vw';
-      speedWrap.appendChild(line);
-      anime({
-        targets: line,
-        translateX: [0, window.innerWidth * 1.35],
-        duration: anime.random(1200, 3600),
-        delay: anime.random(0, 3000),
-        loop: true,
-        easing: 'linear'
-      });
-    }
-
-    const particleWrap = document.querySelector('.particles');
-    for (let i = 0; i < 26; i++) {
-      const p = document.createElement('div');
-      p.className = 'particle';
-      const size = anime.random(2, 5);
-      p.style.width = size + 'px';
-      p.style.height = size + 'px';
-      p.style.left = Math.random() * 100 + '%';
-      p.style.top = Math.random() * 100 + '%';
-      particleWrap.appendChild(p);
-      anime({
-        targets: p,
-        translateY: [-anime.random(60, 220), anime.random(20, 120)],
-        translateX: () => anime.random(-60, 60),
-        opacity: [0, 0.6, 0],
-        duration: anime.random(2600, 6200),
-        delay: anime.random(0, 3000),
-        loop: true,
-        easing: 'easeInOutSine'
-      });
-    }
-
-    anime({
-      targets: '.cta-ring',
-      rotate: 360,
-      loop: true,
-      duration: 24000,
-      easing: 'linear'
-    });
-  }
-
-  /* ---------- Scroll animations ---------- */
-  function setupObserver() {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          const el = entry.target;
-          observer.unobserve(el);
-
-          if (el.classList.contains('section-title') && el.dataset.split !== undefined) {
-            const chars = splitChars(el);
-            anime({
-              targets: chars,
-              opacity: [0, 1],
-              translateY: [50, 0],
-              rotateX: [-80, 0],
-              duration: 900,
-              delay: anime.stagger(35),
-              easing: 'easeOutExpo'
-            });
-            return;
-          }
-
-          if (el.classList.contains('manifest-quote')) {
-            anime({
-              targets: el.querySelectorAll('.word'),
-              opacity: [0, 1],
-              translateY: [40, 0],
-              filter: ['blur(8px)', 'blur(0px)'],
-              duration: 700,
-              delay: anime.stagger(70),
-              easing: 'easeOutCubic'
-            });
-            return;
-          }
-
-          if (el.classList.contains('stat')) {
-            const counter = el.querySelector('.stat-number');
-            const target = parseFloat(counter.dataset.target);
-            const decimals = parseInt(counter.dataset.decimals || '0', 10);
-            anime({
-              targets: counter,
-              innerHTML: [0, target],
-              round: decimals === 0 ? 1 : Math.pow(10, decimals),
-              duration: 1800,
-              easing: 'easeOutExpo',
-              update: (a) => {
-                counter.innerHTML = Number(a.animations[0].currentValue).toFixed(decimals);
-              }
-            });
-          }
-
-          anime({
-            targets: el,
-            opacity: [0, 1],
-            translateY: [40, 0],
-            duration: 1000,
-            delay: anime.random(0, 120),
-            easing: 'easeOutCubic'
-          });
-        });
-      },
-      { threshold: 0.2 }
-    );
-
-    document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
-    document.querySelectorAll('[data-split]').forEach((el) => {
-      if (!el.closest('.hero')) observer.observe(el);
-    });
-    observer.observe(document.querySelector('.manifest-quote'));
-  }
-
-  /* ---------- Parallax on scroll ---------- */
-  function parallax() {
-    const items = document.querySelectorAll('[data-parallax]');
-    let ticking = false;
-    window.addEventListener(
-      'scroll',
-      () => {
-        if (ticking) return;
-        ticking = true;
-        requestAnimationFrame(() => {
-          items.forEach((el) => {
-            const speed = parseFloat(el.dataset.parallax) || 0.1;
-            const offset = window.scrollY * speed;
-            if (el.classList.contains('manifest-bg-word')) {
-              el.style.transform = `translate(-50%, calc(-50% + ${offset * 0.4}px))`;
-            } else {
-              el.style.transform = `translate(-50%, -50%) translateY(${offset * speed}px)`;
-            }
-          });
-          ticking = false;
-        });
-      },
-      { passive: true }
-    );
-  }
-
-  /* ---------- Custom cursor ---------- */
-  function cursor() {
-    if (window.matchMedia('(hover: none)').matches || reduceMotion) return;
-    const dot = document.querySelector('.cursor-dot');
-    const ring = document.querySelector('.cursor-ring');
-    let mx = -100, my = -100, rx = -100, ry = -100;
-
-    window.addEventListener('mousemove', (e) => {
-      mx = e.clientX;
-      my = e.clientY;
-      dot.style.left = mx + 'px';
-      dot.style.top = my + 'px';
-    });
-
-    const render = () => {
-      rx += (mx - rx) * 0.14;
-      ry += (my - ry) * 0.14;
-      ring.style.left = rx + 'px';
-      ring.style.top = ry + 'px';
-      requestAnimationFrame(render);
-    };
-    render();
-
-    document.querySelectorAll('a, .model-card').forEach((el) => {
-      el.addEventListener('mouseenter', () => {
-        anime.remove(ring);
-        anime({ targets: ring, scale: 1.8, borderColor: 'rgba(225,6,0,1)', duration: 250, easing: 'easeOutQuad' });
-      });
-      el.addEventListener('mouseleave', () => {
-        anime.remove(ring);
-        anime({ targets: ring, scale: 1, borderColor: 'rgba(225,6,0,0.55)', duration: 250, easing: 'easeOutQuad' });
-      });
-    });
-  }
-
-  /* ---------- Magnetic buttons ---------- */
-  function magnetic() {
-    if (window.matchMedia('(hover: none)').matches) return;
-    document.querySelectorAll('.magnetic').forEach((el) => {
-      el.addEventListener('mousemove', (e) => {
-        const rect = el.getBoundingClientRect();
-        const x = e.clientX - rect.left - rect.width / 2;
-        const y = e.clientY - rect.top - rect.height / 2;
-        anime.remove(el);
-        anime({ targets: el, translateX: x * 0.25, translateY: y * 0.35, duration: 300, easing: 'easeOutQuad' });
-      });
-      el.addEventListener('mouseleave', () => {
-        anime.remove(el);
-        anime({ targets: el, translateX: 0, translateY: 0, duration: 500, easing: 'easeOutElastic(1, .5)' });
-      });
-    });
-  }
-
-  /* ---------- Card tilt + 3D hover ---------- */
-  function cardTilt() {
-    if (window.matchMedia('(hover: none)').matches) return;
-    document.querySelectorAll('[data-tilt]').forEach((card) => {
-      card.style.transformStyle = 'preserve-3d';
-
-      card.addEventListener('mousemove', (e) => {
-        const rect = card.getBoundingClientRect();
-        const px = (e.clientX - rect.left) / rect.width - 0.5;
-        const py = (e.clientY - rect.top) / rect.height - 0.5;
-        anime.remove(card);
-        anime({
-          targets: card,
-          rotateY: px * 10,
-          rotateX: -py * 10,
-          scale: 1.03,
-          duration: 300,
-          easing: 'easeOutQuad'
-        });
-        const visual = card.querySelector('.model-visual');
-        anime.remove(visual);
-        anime({ targets: visual, translateX: px * 14, duration: 300, easing: 'easeOutQuad' });
-      });
-
-      card.addEventListener('mouseleave', () => {
-        anime.remove(card);
-        anime({
-          targets: card,
-          rotateY: 0,
-          rotateX: 0,
-          scale: 1,
-          duration: 700,
-          easing: 'easeOutElastic(1, .5)'
-        });
-        const visual = card.querySelector('.model-visual');
-        anime.remove(visual);
-        anime({ targets: visual, translateX: 0, duration: 500, easing: 'easeOutQuad' });
-      });
-
-      card.addEventListener('mouseenter', () => {
-        const mini = card.querySelector('.mini-car');
-        anime.remove(mini);
-        anime({
-          targets: mini,
-          strokeDashoffset: [anime.setDashoffset, 0],
-          duration: 1400,
-          easing: 'easeInOutSine'
-        });
-      });
-    });
-  }
-
-  /* ---------- Init ---------- */
-  window.addEventListener('DOMContentLoaded', () => {
-    heroIntro();
-    startLoops();
-    setupObserver();
-    parallax();
-    cursor();
-    magnetic();
-    cardTilt();
-  });
-})();
-
-</script>
+  <script src="js/main.js"></script>
 </body>
 </html>

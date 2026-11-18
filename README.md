@@ -12,7 +12,10 @@ Geserveerd via GitHub Pages: **https://nexusaivty.github.io/motion-garage/**
 - **Gesynchroniseerde tekst** — titels openen per letter, quotes per woord met blur, synchroon met de beelden via IntersectionObserver.
 - **Interactieve prestaties** — geanimeerde tellers (vermogen, topsnelheid, acceleratie, koppel) en performance-balken.
 - **Interactieve collectie** — 6 projectkaarten met hover-zoom, rode accentlijnen en click-to-open detailmodal met vloeiende overgangen.
-- **Anime.js homepage-grid** — fullscreen raster van cellen dat vanuit het midden rippelt (zoals op animejs.com), met muis-ripple en klik-burst.
+- **Anime.js signature wall** — continu levend raster (rAF-engine) met ronddwarrelende rode energie-golven, muis-halo, klik-burst én cellen die de letters van "MOTION GARAGE" natekenen.
+- **Cinematische hero-slices** — de hero-foto is in verticale stroken gesneden die zich montage-stijl van het midden uit samenstellen; replaybaar via de nav-knop.
+- **F1-startlights ignition** — vijf startlichten die een-voor-een rood worden en预 "lights out" tellers + performance-balken opnieuw doen exploderen.
+- **Scroll-scrub woorden** — enorme outline-woorden ("GARAGE", "MOTION") die horizontaal meebewegen met scrollpositie.
 - **Concept & Design-secties** — "Gebouwd rond beleving" met feature-kaarten, en "Elk detail een reden" met langzaam draaiende rode design-ringen.
 - **Replay intro** — nav-knop die de hero-intro opnieuw afspeelt.
 - **Rustige composities** — mat zwart/donkergrijs, rood als enige accent, witte typografie, weinig maar krachtige beweging (plus `prefers-reduced-motion`-support).

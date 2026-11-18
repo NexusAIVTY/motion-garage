@@ -31,9 +31,10 @@
     <!-- HERO — fullscreen photograph -->
     <section class="hero" id="hero">
       <div class="hero-media" data-scroll-media data-parallax-strength="0.35">
-        <img class="media-img" src="assets/cars/car-hero.jpg" alt="Zwarte sportauto met rode accenten in rook en rood licht" />
+        <div class="hero-slices" data-media-transform></div>
         <div class="media-veil hero-veil"></div>
       </div>
+      <img class="hero-fallback" src="assets/cars/car-hero.jpg" alt="Zwarte sportauto met rode accenten in rook en rood licht" style="display:none" />
       <div class="hero-content">
         <p class="hero-eyebrow">Driven by <em>passion</em> &mdash; EST. 2025</p>
         <h1 class="hero-title" data-split>MOTION GARAGE</h1>
@@ -119,11 +120,15 @@
           </div>
         </div>
         <div class="perf-note reveal">
+          <div class="start-lights" id="startLights" aria-hidden="true">
+            <span class="light"></span><span class="light"></span><span class="light"></span><span class="light"></span><span class="light"></span>
+          </div>
           <h3>Techniek zonder excuse</h3>
           <p>Elke prestatiewaarde wordt op de strip geverifieerd, niet in de brochure. Tien sensoren, één doel: performance die je voelt in plaats van leest.</p>
           <div class="perf-chips">
             <span>Carbon monocoque</span><span>Active aero</span><span>Torque vectoring</span><span>Ceramic brakes</span>
           </div>
+          <button class="btn btn-ghost ignite-btn" id="igniteBtn" type="button">Ignition &nearr;</button>
         </div>
       </div>
     </section>
@@ -159,6 +164,7 @@
 
     <!-- COLLECTION -->
     <section class="collection section" id="collection">
+      <div class="scrub-word" data-scrub-word data-scrub-speed="-0.25" aria-hidden="true">GARAGE</div>
       <div class="section-label reveal">Collection</div>
       <h2 class="section-title reveal" data-split>THE GARAGE FLEET</h2>
       <p class="collection-sub reveal">Zes machines. Elk een eigen karakter. Klik een projecterend hoofdstuk open.</p>
@@ -187,6 +193,7 @@
 
     <!-- CONTACT -->
     <section class="cta section" id="contact">
+      <div class="scrub-word" data-scrub-word data-scrub-speed="0.2" aria-hidden="true">MOTION</div>
       <div class="cta-ring" data-parallax="0.08"></div>
       <h2 class="section-title reveal" data-split>ERVAAR DE KRACHT VAN BEWEGING</h2>
       <p class="cta-sub reveal">Boek een sessie in de garage. Wij draaien de motor al op gang.</p>

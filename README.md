@@ -14,7 +14,7 @@ Geserveerd via GitHub Pages: **https://nexusaivty.github.io/motion-garage/**
 - **Interactieve collectie** — 6 projectkaarten met hover-zoom, rode accentlijnen en click-to-open detailmodal met vloeiende overgangen.
 - **Anime.js signature wall** — continu levend raster (rAF-engine) met ronddwarrelende rode energie-golven, muis-halo, klik-burst én cellen die de letters van "MOTION GARAGE" natekenen.
 - **Cinematische hero-slices** — de hero-foto is in verticale stroken gesneden die zich montage-stijl van het midden uit samenstellen; replaybaar via de nav-knop.
-- **F1-startlights ignition** — vijf startlichten die een-voor-een rood worden en预 "lights out" tellers + performance-balken opnieuw doen exploderen.
+- **F1-startlights ignition** — vijf startlichten die een-voor-een rood worden en bij "lights out" dwingen + performance-balken opnieuw doen exploderen.
 - **Scroll-scrub woorden** — enorme outline-woorden ("GARAGE", "MOTION") die horizontaal meebewegen met scrollpositie.
 - **Concept & Design-secties** — "Gebouwd rond beleving" met feature-kaarten, en "Elk detail een reden" met langzaam draaiende rode design-ringen.
 - **Replay intro** — nav-knop die de hero-intro opnieuw afspeelt.

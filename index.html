@@ -18,11 +18,12 @@
   <header class="nav">
     <a class="logo" href="#hero">MOTION<span>GARAGE</span></a>
     <nav class="nav-links">
-      <a href="#experience" class="nav-link">Experience</a>
+      <a href="#concept" class="nav-link">Concept</a>
       <a href="#performance" class="nav-link">Performance</a>
       <a href="#collection" class="nav-link">Collection</a>
-      <a href="#contact" class="nav-link">Contact</a>
+      <a href="#design" class="nav-link">Design</a>
     </nav>
+    <button class="nav-replay" id="replayIntro" type="button">Replay intro &nearr;</button>
     <a href="#contact" class="btn btn-ghost btn-nav magnetic">Book a drive</a>
   </header>
 
@@ -30,23 +31,46 @@
     <!-- HERO — fullscreen photograph -->
     <section class="hero" id="hero">
       <div class="hero-media" data-scroll-media data-parallax-strength="0.35">
-        <img class="media-img" src="assets/cars/hero-huracan.jpg" alt="Lamborghini Huracán in rood licht" />
-        <div class="media-veil"></div>
+        <img class="media-img" src="assets/cars/car-hero.jpg" alt="Zwarte sportauto met rode accenten in rook en rood licht" />
+        <div class="media-veil hero-veil"></div>
       </div>
       <div class="hero-content">
-        <p class="hero-eyebrow">Concept Studio &mdash; EST. 2025</p>
+        <p class="hero-eyebrow">Driven by <em>passion</em> &mdash; EST. 2025</p>
         <h1 class="hero-title" data-split>MOTION GARAGE</h1>
-        <p class="hero-sub">De auto als beeld. De beweging als verhaal.<br/>Welkom in de garage.</p>
+        <p class="hero-sub">Performance. Design. Innovation.<br/>De ultieme rijbeleving, tot in detail.</p>
         <div class="hero-cta">
-          <a href="#collection" class="btn btn-primary magnetic">Enter the garage</a>
-          <a href="#experience" class="btn btn-ghost magnetic">The experience</a>
+          <a href="#concept" class="btn btn-primary magnetic">Ontdek meer &nearr;</a>
+          <a href="#collection" class="btn btn-ghost magnetic">Bekijk de collectie &rarr;</a>
         </div>
+        <p class="hero-tiny">Een concept in beweging &middot; Anime.js</p>
       </div>
       <div class="scroll-hint">
         <span class="scroll-hint-text">Scroll</span>
         <span class="scroll-hint-line"></span>
       </div>
       <div class="hero-dust" aria-hidden="true"></div>
+    </section>
+
+    <!-- ANIME.JS SIGNATURE GRID -->
+    <section class="signature" id="signature">
+      <div class="signature-wall" id="signatureWall" aria-hidden="true"></div>
+      <div class="signature-copy">
+        <p class="signature-kicker">Powered by anime.js</p>
+        <h2 class="signature-title" data-split>RAUWE MOTIE</h2>
+        <p class="signature-sub">Beweeg je muis over het raster &mdash; de website antwoordt.</p>
+      </div>
+    </section>
+
+    <!-- CONCEPT -->
+    <section class="section section-dark concept" id="concept">
+      <p class="section-label reveal">01 / Het concept</p>
+      <h2 class="section-title reveal" data-split>GEGEBOUWD ROND BELEVING</h2>
+      <p class="section-intro reveal">Een goede automotive-ervaring draait om meer dan snelheid. Het is de combinatie van techniek, vormgeving en details die samen &eacute;&eacute;n sterk geheel vormen.</p>
+      <div class="feature-grid">
+        <article class="feature reveal"><span class="feature-ico">&#9675;</span><strong>Maximale performance</strong><p>Ervaar kracht, controle en snelheid in ieder detail.</p></article>
+        <article class="feature reveal"><span class="feature-ico">&#9671;</span><strong>Premium design</strong><p>Een uitgesproken ontwerp met een rustige, verfijnde afwerking.</p></article>
+        <article class="feature reveal"><span class="feature-ico">&#10003;</span><strong>Betrouwbare kwaliteit</strong><p>Doordachte techniek en aandacht voor wat echt belangrijk is.</p></article>
+      </div>
     </section>
 
     <!-- EXPERIENCE 01 -->
@@ -141,12 +165,32 @@
       <div class="collection-grid" id="collectionGrid"></div>
     </section>
 
+    <!-- DESIGN & TECHNIEK -->
+    <section class="section section-dark design" id="design">
+      <div class="design-band">
+        <div>
+          <p class="section-label reveal">02 / Design &amp; techniek</p>
+          <h2 class="section-title reveal" data-split>ELK DETAIL EEN REDEN</h2>
+          <p class="section-intro reveal">Animatie brengt hier onderdelen subtieel tot leven: van typografie en details tot interactieve accenten die reageren op de bezoeker.</p>
+          <div class="spec-row reveal">
+            <div class="spec"><strong>01</strong><span>Design</span></div>
+            <div class="spec"><strong>02</strong><span>Techniek</span></div>
+            <div class="spec"><strong>03</strong><span>Beleving</span></div>
+          </div>
+        </div>
+        <div class="design-panel reveal" aria-label="Abstracte rode designvisual">
+          <div class="design-ring" id="designRing1"></div>
+          <div class="design-ring design-ring-2" id="designRing2"></div>
+        </div>
+      </div>
+    </section>
+
     <!-- CONTACT -->
     <section class="cta section" id="contact">
       <div class="cta-ring" data-parallax="0.08"></div>
-      <h2 class="section-title reveal" data-split>READY TO MOVE?</h2>
+      <h2 class="section-title reveal" data-split>ERVAAR DE KRACHT VAN BEWEGING</h2>
       <p class="cta-sub reveal">Boek een sessie in de garage. Wij draaien de motor al op gang.</p>
-      <a href="mailto:hello@motiongarage.dev" class="btn btn-primary btn-large magnetic">Start the engine</a>
+      <a href="#hero" class="btn btn-primary btn-large magnetic">Terug naar boven &uarr;</a>
     </section>
   </main>
 

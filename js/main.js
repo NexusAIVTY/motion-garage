@@ -7,6 +7,18 @@
   /* ---------- Car data ---------- */
   const CARS = [
     {
+      img: 'assets/cars/car-hero.jpg',
+      tag: 'Studio',
+      name: 'STAGE ONE',
+      copy: 'Rook, rood licht en remklauwen die branden. De belichaming van Motion Garage: een zwarte sportauto die de camera alle nadruk geeft.',
+      specs: [
+        ['Vermogen', '640 HP'],
+        ['Motor', 'V10'],
+        ['0 – 100', '2.9 s'],
+        ['Top', '325 km/h']
+      ]
+    },
+    {
       img: 'assets/cars/hero-huracan.jpg',
       tag: 'Huracán',
       name: 'RAGING BULL',
@@ -113,11 +125,18 @@
     return el.querySelectorAll('.word');
   }
 
-  /* ---------- Hero intro timeline ---------- */
+  /* ---------- Hero intro timeline (replayable) ---------- */
   function heroIntro() {
-    const chars = splitChars(document.querySelector('.hero-title'));
+    const title = document.querySelector('.hero-title');
+    title.innerHTML = '';
+    const chars = splitChars(title);
 
     const tl = anime.timeline({ easing: 'easeOutExpo' });
+
+    anime.remove(chars);
+    anime.remove('.hero-eyebrow, .hero-sub, .hero-cta, .hero-tiny, .scroll-hint, .scroll-hint-line, .hero-media .media-img');
+    document.querySelectorAll('.hero-title .char').forEach((c) => (c.style.opacity = 0));
+    anime.set('.hero-eyebrow, .hero-sub, .hero-cta, .hero-tiny, .scroll-hint', { opacity: 0 });
 
     tl.add(
       {
@@ -164,6 +183,14 @@
           complete: () => scrollHintPulse()
         },
         1900
+      )
+      .add(
+        {
+          targets: '.hero-tiny',
+          opacity: [0, 1],
+          duration: 600
+        },
+        1400
       );
   }
 
@@ -201,6 +228,125 @@
         easing: 'easeInOutSine'
       });
     }
+  }
+
+  /* ---------- Signature grid (anime.js homepage style) ---------- */
+  function signatureWall() {
+    const wall = document.getElementById('signatureWall');
+    if (!wall) return;
+    if (reduceMotion) return;
+
+    const cell = 76;
+    const cols = Math.max(8, Math.round(window.innerWidth / cell));
+    const rows = Math.max(6, Math.round((window.innerHeight * 1.0) / cell));
+    const total = cols * rows;
+    wall.style.gridTemplateColumns = 'repeat(' + cols + ', 1fr)';
+    wall.style.gridTemplateRows = 'repeat(' + rows + ', 1fr)';
+
+    const frag = document.createDocumentFragment();
+    for (let i = 0; i < total; i++) {
+      const d = document.createElement('div');
+      d.className = 'sig-cell';
+      frag.appendChild(d);
+    }
+    wall.appendChild(frag);
+    const tiles = wall.querySelectorAll('.sig-cell');
+
+    let played = false;
+    function playWall(fromIndex) {
+      const from = fromIndex == null ? Math.floor(total / 2) - Math.floor(cols / 2) : fromIndex;
+      anime.remove(tiles);
+      anime({
+        targets: tiles,
+        scale: [
+          { value: 0.1, easing: 'easeOutExpo', duration: 0 },
+          { value: 1, easing: 'easeOutElastic', duration: 1300 },
+          { value: 0.9, easing: 'easeOutQuart', duration: 400 },
+          { value: 1, duration: 600 }
+        ],
+        opacity: [
+          { value: 0.9, easing: 'easeOutExpo', duration: 50 },
+          { value: 1, duration: 600 }
+        ],
+        backgroundColor: [
+          { value: 'rgba(225,6,0,0.75)', duration: 240, delay: anime.stagger(30, { grid: [cols, rows], from }) },
+          { value: 'rgba(255,255,255,0.045)', duration: 900, delay: anime.stagger(60, { grid: [cols, rows], from }) }
+        ],
+        delay: anime.stagger(60, { grid: [cols, rows], from })
+      });
+    }
+
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting && !played) {
+          played = true;
+          setTimeout(() => playWall(), 350);
+          io.disconnect();
+        }
+      });
+    }, { threshold: 0.3 });
+    io.observe(document.getElementById('signature'));
+
+    let lastWave = 0;
+    document.getElementById('signature').addEventListener('mousemove', (e) => {
+      const now = performance.now();
+      if (now - lastWave < 140) return;
+      lastWave = now;
+      const rect = wall.getBoundingClientRect();
+      const cx = e.clientX - rect.left;
+      const cy = e.clientY - rect.top;
+      const col = Math.floor((cx / rect.width) * cols);
+      const row = Math.floor((cy / rect.height) * rows);
+      if (col < 0 || col >= cols || row < 0 || row >= rows) return;
+      const from = row * cols + col;
+      anime.remove(tiles);
+      anime({
+        targets: tiles,
+        scale: [
+          { value: 0.72, duration: 50 },
+          { value: 1, duration: 900, easing: 'easeOutElastic' }
+        ],
+        backgroundColor: [
+          { value: 'rgba(225,6,0,0.7)', duration: 160, delay: anime.stagger(24, { grid: [cols, rows], from }) },
+          { value: 'rgba(255,255,255,0.045)', duration: 700, delay: anime.stagger(50, { grid: [cols, rows], from }) }
+        ],
+        delay: anime.stagger(30, { grid: [cols, rows], from })
+      });
+    });
+
+    document.getElementById('signature').addEventListener('click', () => {
+      const from = anime.random(0, total - 1);
+      playWall(from);
+    });
+  }
+
+  /* ---------- Design rings ---------- */
+  function designRings() {
+    if (reduceMotion) return;
+    anime({
+      targets: '.design-ring',
+      rotate: 360,
+      direction: 'alternate',
+      easing: 'easeInOutSine',
+      duration: 26000,
+      loop: true
+    });
+    anime({
+      targets: '.design-ring-2',
+      rotate: -360,
+      easing: 'linear',
+      duration: 38000,
+      loop: true
+    });
+  }
+
+  /* ---------- Replay intro ---------- */
+  function wireReplay() {
+    const btn = document.getElementById('replayIntro');
+    btn.addEventListener('click', () => {
+      heroIntro();
+      document.querySelector('#hero').scrollIntoView({ behavior: 'smooth' });
+    });
   }
 
   /* ---------- Collection ---------- */
@@ -511,6 +657,9 @@
     buildCollection();
     heroIntro();
     heroDust();
+    signatureWall();
+    designRings();
+    wireReplay();
     wireModal();
     setupObserver();
     scrollEngine();

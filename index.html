@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=15" />
+  <link rel="stylesheet" href="css/style.css?v=16" />
 </head>
 <body>
   <div class="cursor-dot"></div>
@@ -285,32 +285,32 @@
       <p class="collection-sub reveal">Drie spelletjes, &eacute;&eacute;n garage. Kies je race.</p>
 
       <div class="game-tabs reveal" role="tablist">
-        <button class="game-tab active" data-game-tab="dash" type="button" role="tab">01 &mdash; Apex</button>
+        <button class="game-tab active" data-game-tab="dash" type="button" role="tab">01 &mdash; Launch</button>
         <button class="game-tab" data-game-tab="redline" type="button" role="tab">02 &mdash; Redline</button>
         <button class="game-tab" data-game-tab="match" type="button" role="tab">03 &mdash; Spec Match</button>
       </div>
 
       <div class="game-panel active" data-game-panel="dash">
         <div class="game-frame reveal" data-game-frame>
-          <canvas id="apexCanvas" aria-label="Apex speelveld"></canvas>
+          <canvas id="launchCanvas" aria-label="Launch speelveld"></canvas>
 
           <div class="game-hud" aria-hidden="true">
-            <span>Afstand <strong data-apex-score>0 m</strong></span>
-            <span>Snelheid <strong data-apex-speed>0 km/h</strong></span>
-            <span>Boost <strong data-apex-power>&mdash;</strong></span>
-            <span>Record <strong data-apex-best>0 m</strong></span>
+            <span>Tijd <strong data-drag-time>0.00 s</strong></span>
+            <span>Snelheid <strong data-drag-speed>0 km/h</strong></span>
+            <span>Versnelling <strong data-drag-gear>&mdash;</strong></span>
+            <span>Record <strong data-drag-best>&mdash;</strong></span>
           </div>
 
-          <div class="game-overlay" data-apex-start>
-            <h3>APEX</h3>
-            <p>De weg kronkelt &mdash; stuur met &larr; &rarr; of A/D, of sleep op de weg. Ontwijk de kegels, snijd de apex aan voor bonuspunten, pak NITRO en x2.</p>
-            <button class="btn btn-primary" data-apex-go type="button">Start &nearr;</button>
+          <div class="game-overlay" data-drag-start>
+            <h3>LAUNCH</h3>
+            <p>Kwart mijl tegen de klok. Houd SPATIE (of de baan) ingedrukt om gas te geven en houd de toeren in het groen wanneer de lichten op groen springen. Laat daarna los en druk snel opnieuw in om omhoog te schakelen &mdash; precies rond het toergebied oogst de perfecte shift. 402 m: vol gas, geen rem.</p>
+            <button class="btn btn-primary" data-drag-go type="button">Start &nearr;</button>
           </div>
 
-          <div class="game-overlay" data-apex-over hidden>
-            <h3>&mdash; Van de baan &mdash;</h3>
-            <p class="gameover-score" data-apex-final>0 m</p>
-            <button class="btn btn-ghost" data-apex-again type="button">Opnieuw &nearr;</button>
+          <div class="game-overlay" data-drag-over hidden>
+            <h3>&mdash; Finish &mdash;</h3>
+            <p class="gameover-score" data-drag-final>&mdash;</p>
+            <button class="btn btn-ghost" data-drag-again type="button">Nog een run &nearr;</button>
           </div>
         </div>
       </div>
@@ -386,6 +386,7 @@
         <div class="section-label" id="carModalTag"></div>
         <h2 class="car-modal-name" id="carModalName"></h2>
         <p class="car-modal-alias" id="carModalAlias"></p>
+        <p class="car-modal-fact" id="carModalFact"></p>
         <p class="car-modal-copy" id="carModalCopy"></p>
         <dl class="car-modal-specs" id="carModalSpecs"></dl>
         <a href="#contact" class="btn btn-primary" data-modal-close>Configure</a>
@@ -404,6 +405,6 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
-  <script src="js/main.js?v=15"></script>
+  <script src="js/main.js?v=16"></script>
 </body>
 </html>

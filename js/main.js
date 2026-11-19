@@ -37,6 +37,7 @@
       name: 'FERRARI LAFERRARI',
       alias: 'Rosso Apex',
       copy: 'Rood op matzwart. In een garage waar het licht alleen voor haar werkt, staat de belichaming van Motion Garage: stil, maar tijdens het nadenken gevaarlijk.',
+      fact: 'De HY-KERS komt rechtstreeks uit de F1: 163 elektrische pk die alleen loskomen als haar gas vol open staat.',
       specs: [
         ['Vermogen', '963 PK'],
         ['Motor', 'V12 + HY-KERS'],
@@ -50,6 +51,7 @@
       name: 'AUDI RS6',
       alias: 'Phantom',
       copy: 'Zwart op een lege landweg. Waar de laatste lantaarn uitgaat, gaat zij aan \u2014 iedereen hoort haar, niemand ziet haar wegrijden.',
+      fact: 'Met alleen software loopt ze op het stoplicht voorbij aan supercars die het dubbele kosten.',
       specs: [
         ['Vermogen', '600 PK'],
         ['Motor', 'V8 biturbo'],
@@ -63,6 +65,7 @@
       name: 'BMW M4',
       alias: 'Nighthawk',
       copy: 'Grille als gepantserd front, koplampen als bliksemafleiders. De nacht legt haar ontwerp bloot \u2014 symmetrie is voor doe-het-zelvers.',
+      fact: 'Elke S58-motor wordt met de hand gebouwd; in elke M4 hangt een plaquette met de naam van de monteur.',
       specs: [
         ['Vermogen', '510 PK'],
         ['Motor', 'R6 biturbo'],
@@ -75,7 +78,8 @@
       tag: 'Heritage',
       name: 'FORD MUSTANG GT',
       alias: 'Heritage',
-      copy: 'Amerikaans staal in een rauwer tijdperk, gewassen in nachtelijk licht. De V8 zingt nog precies zoals de veelheid beloofde.',
+      copy: 'Amerikaans staal uit een rauwer tijdperk, gewassen in nachtelijk licht. De V8 zingt nog precies zoals het embleem belooft.',
+      fact: 'De naam is geen toeval: ontwerper John Najjar was fan van de P-51 Mustang-jager.',
       specs: [
         ['Vermogen', '460 PK'],
         ['Motor', 'V8 5.0'],
@@ -89,6 +93,7 @@
       name: 'BUGATTI CHIRON',
       alias: 'Arctic Ghost',
       copy: 'Wit op de nachtstad: koplampen als flitsen, stilte als jachtveld, comfort en brutaliteit in \u00e9\u00e9n spiegelglans.',
+      fact: 'De teller loopt tot 500 \u2014 de software houdt haar bij 420 vast, puur om de banden te sparen.',
       specs: [
         ['Vermogen', '1500 PK'],
         ['Motor', 'W16 quad-turbo'],
@@ -102,11 +107,54 @@
       name: 'AUDI R8',
       alias: 'Nachtvogel',
       copy: 'Middenmotor tussen de stadslichten. Terwijl de zonsondergang onscherp verdwijnt, blijft alleen haar silhouet scherp.',
+      fact: 'Halve Lamborghini: de R8 deelt haar platform \u2014 en haar V10 \u2014 met de Hurac\u00e1n.',
       specs: [
         ['Vermogen', '620 PK'],
         ['Motor', 'V10'],
         ['0 \u2013 100', '3.1 s'],
         ['Top', '331 km/h']
+      ]
+    },
+    {
+      img: 'assets/cars/card-gt3.jpg',
+      tag: 'Circuit',
+      name: 'PORSCHE 911 GT3',
+      alias: 'Flat Six',
+      copy: 'Matzwart in het laatste schemerlicht. Geen turbo, geen compromis: vier liter boxersix met een racevleugel die van het circuit rechtstreeks naar de openbare weg ontsnapt.',
+      fact: 'Bij topsnelheid duwt de vleugel haar met bijna 200 kilogram de asfalt in \u2014 grip die je voelt in je maag.',
+      specs: [
+        ['Vermogen', '510 PK'],
+        ['Motor', '4.0 flat-6'],
+        ['0 \u2013 100', '3.4 s'],
+        ['Top', '318 km/h']
+      ]
+    },
+    {
+      img: 'assets/cars/card-huracan.jpg',
+      tag: 'Nachtjacht',
+      name: 'LAMBORGHINI HURAC\u00c1N',
+      alias: 'Orkaan',
+      copy: 'Oranje scherpte tussen de stadslantaarns: tien cilinders, zes hoekige uitlaten, nul geduld.',
+      fact: 'De naam komt van een Spaanse vechtstier uit 1879 \u2014 en betekent letterlijk orkaan.',
+      specs: [
+        ['Vermogen', '640 PK'],
+        ['Motor', 'V10'],
+        ['0 \u2013 100', '2.9 s'],
+        ['Top', '325 km/h']
+      ]
+    },
+    {
+      img: 'assets/cars/card-challenger.jpg',
+      tag: 'Muscle',
+      name: 'DODGE CHALLENGER',
+      alias: 'Thunder',
+      copy: 'Zwart op de nacht, met een lichtband van rand tot rand. Ze bijt zich vast in de nacht als donder boven een eindeloos rechte weg.',
+      fact: 'De doorlopende achterlichtband heet officieel de \u201cracetrack\u201d \u2014 een buiging aan het circuit van Daytona.',
+      specs: [
+        ['Vermogen', '375 PK'],
+        ['Motor', 'V8 HEMI 5.7'],
+        ['0 \u2013 100', '5.9 s'],
+        ['Top', '250 km/h']
       ]
     },
   ];
@@ -579,6 +627,7 @@
     document.getElementById('carModalTag').textContent = car.tag;
     document.getElementById('carModalName').textContent = car.name;
     document.getElementById('carModalAlias').textContent = 'Bijnaam: \u201c' + car.alias + '\u201d';
+    document.getElementById('carModalFact').textContent = 'Wist je: ' + car.fact;
     document.getElementById('carModalCopy').textContent = car.copy;
     img.src = car.img;
     img.alt = car.tag + ' — ' + car.name;
@@ -1314,7 +1363,7 @@
     if (!ring || !host) return;
     if (ring.children.length) return;
 
-    CARS.slice(0, 6).forEach((car) => {
+    CARS.forEach((car) => {
       const card = document.createElement('div');
       card.className = 'rotunda-card';
       card.innerHTML = `<img src="${car.img}" alt="${car.name}" /><div class="rotunda-alias">&ldquo;${car.alias}&rdquo;</div>`;
@@ -1325,7 +1374,7 @@
     const place = () => {
       const card = ring.querySelector('.rotunda-card');
       const cw = card ? card.offsetWidth || 0 : 0;
-      radius = Math.max(240, cw * 1.08);
+      radius = Math.max(240, (cw * ring.children.length) / (Math.PI * 2) * 1.14);
       Array.from(ring.children).forEach((card, i) => {
         const a = (360 / ring.children.length) * i;
         card.style.transform = `rotateY(${a}deg) translateZ(${radius.toFixed(0)}px)`;
@@ -1513,53 +1562,48 @@
     });
   }
 
-  /* ---------- Garage Dash game ---------- */
+  /* ---------- LAUNCH \u2014 kwart-mijl dragrace ---------- */
   const gameApi = { pauseDash: null, resizeDash: null, pauseRed: null, resizeRed: null };
 
-  function buildGame() {
-    const canvas = document.getElementById('apexCanvas');
+  function buildLaunch() {
+    const canvas = document.getElementById('launchCanvas');
     const frame = document.querySelector('[data-game-frame]');
-    const startOverlay = document.querySelector('[data-apex-start]');
-    const overOverlay = document.querySelector('[data-apex-over]');
-    const scoreEl = document.querySelector('[data-apex-score]');
-    const speedEl = document.querySelector('[data-apex-speed]');
-    const bestEl = document.querySelector('[data-apex-best]');
-    const finalEl = document.querySelector('[data-apex-final]');
-    const powerEl = document.querySelector('[data-apex-power]');
+    const startOverlay = document.querySelector('[data-drag-start]');
+    const overOverlay = document.querySelector('[data-drag-over]');
+    const timeEl = document.querySelector('[data-drag-time]');
+    const speedEl = document.querySelector('[data-drag-speed]');
+    const gearEl = document.querySelector('[data-drag-gear]');
+    const bestEl = document.querySelector('[data-drag-best]');
+    const finalEl = document.querySelector('[data-drag-final]');
     if (!canvas || !frame) return;
     const c = canvas.getContext ? canvas.getContext('2d') : null;
     if (!c) return;
 
     let W = 0, H = 0, dpr = 1;
     let best = 0;
-    try { best = parseInt(localStorage.getItem('mgApexBest') || '0', 10) || 0; } catch (e) {}
-    if (bestEl) bestEl.textContent = best + ' m';
+    try {
+      const b = parseFloat(localStorage.getItem('mgDragBest') || '0');
+      if (b > 0) best = b;
+    } catch (e) {}
+    if (bestEl) bestEl.textContent = best ? best.toFixed(2) + ' s' : '\u2014';
 
-    let state = 'idle';
+    let state = 'idle'; /* idle | tree | run | over */
     let rafId = null, visible = true;
-    let px = 0, vel = 0;
-    let frames = 0, speed = 4.6, distance = 0, traveled = 0, dashOffset = 0;
-    let pickups = [], particles = [], floaters = [], cones = [];
-    let nitroIn = 260;
-    let nitroUntil = 0, mult = 1, multUntil = 0, apexCool = 0;
-    let coneIn = 300;
-    let leftHeld = false, rightHeld = false, steering = false;
-    let phase1 = 0, phase2 = 0;
+    let holding = false;
+    let frames = 0, treeT = 0, greenAt = 0, raceT = 0;
+    let rpm = 1200, gear = 1, speed = 0, distance = 0;
+    let launchMod = 1, launchModUntil = 0, weakUntil = 0, limiterUntil = 0, limiterWarned = false;
+    let shiftFlash = 0, floaters = [], particles = [], launchQ = '';
+    let ambers = [false, false, false], green = false;
 
-    const diff = () => Math.min(1, frames / 7000);
-    const carWf = () => Math.max(30 * dpr, W * 0.085);
-    const carHf = () => carWf() * 1.7;
-    const playerRow = () => H - carHf() - 18 * dpr;
-    const A1 = () => 0.16 * W;
-    const A2 = () => 0.062 * W;
-    const k1 = () => (Math.PI * 2) / (2.2 * Math.max(1, W));
-    const k2 = () => (Math.PI * 2) / (1.55 * Math.max(1, W));
-    const halfW = () => Math.max(carWf() * 1.35, W * (0.3 - 0.095 * diff()));
+    const REDLINE = 9000, IDLE = 1200;
+    const GEARS = [0, 92, 152, 208, 258, 302, 344];
+    const BASE = [0, 56, 43, 34, 27, 21, 16];
+    const dt = 1 / 60;
 
-    const keySpeed = () => Math.max(17.5, 0.028 * W);
-
-    const centerX = (wy) => W / 2 + A1() * Math.sin(wy * k1() + phase1) + A2() * Math.sin(wy * k2() + phase2);
-    const slopeAt = (wy) => A1() * k1() * Math.cos(wy * k1() + phase1) + A2() * k2() * Math.cos(wy * k2() + phase2);
+    const py = () => H - H * 0.17;
+    const carW = () => Math.max(46 * dpr, W * 0.13);
+    const carH = () => carW() * 0.42;
 
     function roundRect(x, y, w, h, r) {
       c.beginPath();
@@ -1574,9 +1618,146 @@
     function burst(x, y, n, color) {
       for (let i = 0; i < n; i++) {
         const a = Math.random() * Math.PI * 2;
-        const sp = (1 + Math.random() * 3.5) * dpr;
-        particles.push({ x: x, y: y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 1.2 * dpr, life: 34 + Math.random() * 22, size: (1.4 + Math.random() * 2.2) * dpr, color: color || '#e10600' });
+        const sp = (1 + Math.random() * 4) * dpr;
+        particles.push({ x: x, y: y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 26 + Math.random() * 18, size: (1.2 + Math.random() * 2.2) * dpr, color: color || '#e10600' });
       }
+    }
+
+    function launchSound(kind) {
+      if (!soundOn) return;
+      try {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return;
+        const ctx = new AC();
+        const t0 = ctx.currentTime;
+        const o = ctx.createOscillator();
+        o.type = 'square';
+        o.frequency.setValueAtTime(kind === 'shift' ? 740 : kind === 'green' ? 880 : 300, t0);
+        o.frequency.exponentialRampToValueAtTime(kind === 'shift' ? 980 : kind === 'green' ? 1320 : 180, t0 + 0.09);
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0.06, t0);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.12);
+        o.connect(g);
+        g.connect(ctx.destination);
+        o.start(t0);
+        o.stop(t0 + 0.13);
+        setTimeout(() => ctx.close().catch(() => {}), 220);
+      } catch (e) {}
+    }
+
+    function hold() {
+      if (state === 'run') {
+        shiftAttempt();
+      }
+      holding = true;
+    }
+
+    function shiftAttempt() {
+      if (gear >= GEARS.length - 1) return;
+      if (rpm >= 7400) {
+        gear++;
+        if (rpm >= 8100 && rpm <= 8850) {
+          shiftFlash = 26;
+          speed = Math.min(GEARS[gear], speed + 3);
+          floaters.push({ x: W / 2, y: py() - carH() - 26 * dpr, text: 'PERFECT', life: 40 });
+        }
+        launchSound('shift');
+      } else {
+        weakUntil = frames + 26;
+        floaters.push({ x: W / 2, y: py() - carH() - 26 * dpr, text: 'TE VROEG', life: 36 });
+      }
+    }
+
+    function rel() {
+      holding = false;
+    }
+
+    function step() {
+      if (state === 'tree') {
+        frames++;
+        treeT++;
+        ambers[0] = treeT >= 30;
+        ambers[1] = treeT >= 90;
+        ambers[2] = treeT >= 150;
+        if (ambers[0] && treeT === 30) launchSound('amber');
+        if (ambers[1] && treeT === 90) launchSound('amber');
+        if (ambers[2] && treeT === 150) launchSound('amber');
+        if (treeT >= greenAt) {
+          green = true;
+          launchSound('green');
+          if (rpm > 7400) { launchQ = 'wheels'; launchMod = 0.55; launchModUntil = frames + 60; floaters.push({ x: W / 2, y: py() - 60 * dpr, text: 'WHEELSPIN', life: 44 }); }
+          else if (rpm >= 5200) { launchQ = 'perfect'; launchMod = 1.18; launchModUntil = frames + 180; floaters.push({ x: W / 2, y: py() - 60 * dpr, text: 'PERFECT LAUNCH', life: 50 }); }
+          else { launchQ = 'bog'; launchMod = 0.35; launchModUntil = frames + 45; floaters.push({ x: W / 2, y: py() - 60 * dpr, text: 'TE TRAAG', life: 40 }); }
+          state = 'run';
+        } else {
+          if (holding) rpm = Math.min(REDLINE, rpm + 95);
+          else rpm = Math.max(IDLE, rpm - 130);
+        }
+      } else if (state === 'run') {
+        frames++;
+        treeT++;
+        raceT++;
+        const mod = launchMod && frames < launchModUntil ? launchMod : 1;
+        const weak = frames < weakUntil ? 0.6 : 1;
+        const limited = frames < limiterUntil ? 0.15 : 1;
+        if (speed < GEARS[gear] - 0.1) {
+          if (holding) speed += BASE[gear] * mod * weak * limited * dt;
+          else speed = Math.max(0, speed - (7 + speed * 0.03) * dt);
+        } else {
+          speed = GEARS[gear] - 0.1;
+          if (holding && limiterUntil <= frames && !limiterWarned) {
+            limiterUntil = frames + 16;
+            limiterWarned = true;
+            floaters.push({ x: W / 2, y: py() - carH() - 24 * dpr, text: 'LIMITER', life: 30 });
+          }
+        }
+        if (gear < GEARS.length - 1 || speed < GEARS[gear] - 0.2) limiterWarned = holding && speed >= GEARS[gear] - 0.2;
+        const gmin = GEARS[gear - 1], gmax = GEARS[gear];
+        rpm = Math.max(IDLE, Math.min(REDLINE, IDLE + ((speed - gmin) / (gmax - gmin)) * (REDLINE - 1300)));
+        distance += (speed / 3.6) * dt;
+        if (holding && speed > 30 && frames % 3 === 0) burst(W / 2 - carW() * 0.5, py() + 6 * dpr, 2, speed > 220 ? 'rgba(255,255,255,0.75)' : '#e10600');
+
+        if (shiftFlash > 0) shiftFlash--;
+
+        for (let i = particles.length - 1; i >= 0; i--) {
+          const p = particles[i];
+          p.x += p.vx; p.y += p.vy; p.life--;
+          if (p.life <= 0) particles.splice(i, 1);
+        }
+        for (let i = floaters.length - 1; i >= 0; i--) {
+          floaters[i].y -= 0.9 * dpr;
+          floaters[i].life--;
+          if (floaters[i].life <= 0) floaters.splice(i, 1);
+        }
+
+        if (frames % 5 === 0) {
+          if (timeEl) timeEl.textContent = (raceT / 60).toFixed(2) + ' s';
+          if (speedEl) speedEl.textContent = Math.floor(speed) + ' km/h';
+          if (gearEl) gearEl.textContent = String(gear);
+        }
+
+        if (distance >= 402) {
+          const t = raceT / 60;
+          state = 'over';
+          holding = false;
+          let txt = t.toFixed(2) + ' s';
+          if (!best || t < best) {
+            best = t;
+            txt += ' \u2014 nieuw record';
+            try { localStorage.setItem('mgDragBest', String(best)); } catch (e) {}
+            if (bestEl) bestEl.textContent = best.toFixed(2) + ' s';
+          }
+          if (finalEl) finalEl.textContent = txt;
+          if (overOverlay) {
+            overOverlay.hidden = false;
+            if (!reduceMotion) {
+              anime({ targets: overOverlay, opacity: [0, 1], duration: 350, easing: 'easeOutQuad' });
+            }
+          }
+        }
+      }
+      draw();
+      rafId = state === 'run' || state === 'tree' ? requestAnimationFrame(step) : null;
     }
 
     function draw() {
@@ -1584,117 +1765,148 @@
       c.fillStyle = '#0b0b0e';
       c.fillRect(0, 0, W, H);
 
-      const step = 22 * dpr;
-      const pr = playerRow();
-      const hw = halfW();
-      const pts = [];
-      for (let y = -step; y <= H + step; y += step) {
-        const wy = traveled + (pr - y);
-        pts.push({ y: y, cx: centerX(wy) });
-      }
+      const vx = W / 2, vTop = H * 0.34;
+      c.fillStyle = '#121215';
+      c.beginPath();
+      c.moveTo(W * 0.09, H);
+      c.lineTo(W * 0.36, vTop);
+      c.lineTo(W * 0.64, vTop);
+      c.lineTo(W * 0.91, H);
+      c.closePath();
+      c.fill();
 
-      c.fillStyle = '#141418';
-      pts.forEach((p) => {
-        c.fillRect(p.cx - hw, p.y - step / 2, hw * 2, step + 1);
-      });
-
-      c.strokeStyle = 'rgba(225,6,0,0.72)';
-      c.lineWidth = 3 * dpr;
-      c.shadowColor = 'rgba(225,6,0,0.5)';
-      c.shadowBlur = 8 * dpr;
-      for (const side of [-1, 1]) {
-        c.beginPath();
-        pts.forEach((p, i) => {
-          const ex = p.cx + side * hw;
-          if (i === 0) c.moveTo(ex, p.y);
-          else c.lineTo(ex, p.y);
-        });
-        c.stroke();
-      }
+      c.strokeStyle = 'rgba(225,6,0,0.65)';
+      c.lineWidth = 2.5 * dpr;
+      c.shadowColor = 'rgba(225,6,0,0.4)';
+      c.shadowBlur = 7 * dpr;
+      c.beginPath(); c.moveTo(W * 0.09, H); c.lineTo(W * 0.36, vTop); c.stroke();
+      c.beginPath(); c.moveTo(W * 0.91, H); c.lineTo(W * 0.64, vTop); c.stroke();
       c.shadowBlur = 0;
 
-      c.strokeStyle = 'rgba(255,255,255,0.14)';
-      c.lineWidth = 2 * dpr;
-      c.setLineDash([24 * dpr, 36 * dpr]);
-      c.lineDashOffset = -dashOffset - traveled;
+      c.strokeStyle = 'rgba(255,255,255,0.16)';
+      c.lineWidth = 1.6 * dpr;
+      c.setLineDash([18 * dpr, 30 * dpr]);
       c.beginPath();
-      pts.forEach((p, i) => {
-        if (i === 0) c.moveTo(p.cx, p.y);
-        else c.lineTo(p.cx, p.y);
-      });
+      c.moveTo(vx, H);
+      c.setLineDashOffset = 0;
+      for (let i = 0; i <= 10; i++) {
+        const t = i / 10;
+        const ly = H + (vTop - H) * t;
+        const lw = W * 0.5 * (1 - t * 0.86);
+        if (i === 0) c.moveTo(vx, ly);
+        else c.lineTo(vx, ly);
+      }
       c.stroke();
       c.setLineDash([]);
 
-      cones.forEach((q) => {
-        if (q.sy < -20 || q.sy > H + 20) return;
-        const qx = centerX(q.wy) + q.rel * hw;
-        const s2 = 10 * dpr;
-        c.beginPath();
-        c.moveTo(qx, q.sy - s2);
-        c.lineTo(qx + s2 * 0.75, q.sy + s2 * 0.8);
-        c.lineTo(qx - s2 * 0.75, q.sy + s2 * 0.8);
-        c.closePath();
-        c.fillStyle = '#1a1a1e';
-        c.fill();
-        c.strokeStyle = 'rgba(225,6,0,0.9)';
+      const markRows = [402, 301, 201, 100];
+      markRows.forEach((m) => {
+        const t = m / 440;
+        const y = H + (vTop - H) * t;
+        const half = W * 0.455 * (1 - t * 0.86);
+        c.strokeStyle = 'rgba(255,255,255,0.14)';
+        c.lineWidth = 1.4 * dpr;
+        c.beginPath(); c.moveTo(vx - half, y); c.lineTo(vx + half, y); c.stroke();
+        c.fillStyle = 'rgba(255,255,255,0.4)';
+        c.font = '600 ' + Math.round(9 * dpr) + 'px "Space Grotesk", sans-serif';
+        c.textAlign = 'left';
+        c.fillText(m + ' m', vx + half + 4 * dpr, y + 3 * dpr);
+      });
+      if (distance > 30) {
+        const t = Math.min(1, distance / 440) * 0.999;
+        const y = H + (vTop - H) * t;
+        const half = W * 0.455 * (1 - t * 0.86);
+        c.strokeStyle = 'rgba(225,6,0,0.85)';
         c.lineWidth = 2 * dpr;
-        c.shadowColor = 'rgba(225,6,0,0.6)';
-        c.shadowBlur = 8 * dpr;
-        c.stroke();
+        c.beginPath(); c.moveTo(vx - half, y); c.lineTo(vx + half, y); c.stroke();
+      }
+
+      ambers.forEach((on, i) => {
+        const lx = W / 2 + (i - 1) * 26 * dpr;
+        c.beginPath();
+        c.arc(lx, vTop - 66 * dpr, 9 * dpr, 0, Math.PI * 2);
+        c.fillStyle = on ? 'rgba(230,150,10,0.95)' : 'rgba(60,60,64,1)';
+        if (on) { c.shadowColor = 'rgba(230,150,10,0.6)'; c.shadowBlur = 10 * dpr; }
+        c.fill();
         c.shadowBlur = 0;
       });
-
-      pickups.forEach((p) => {
-        if (p.sy < -20 || p.sy > H + 20) return;
-        const s = 11 * dpr;
-        c.save();
-        c.translate(p.x, p.sy);
-        c.rotate(Math.PI / 4 + frames * 0.05);
-        c.fillStyle = '#e10600';
-        c.shadowColor = 'rgba(225,6,0,0.7)';
-        c.shadowBlur = 12 * dpr;
-        c.fillRect(-s / 2, -s / 2, s, s);
+      if (green) {
+        c.beginPath();
+        c.arc(W / 2, vTop - 40 * dpr, 11 * dpr, 0, Math.PI * 2);
+        c.fillStyle = 'rgba(20,220,90,0.95)';
+        c.shadowColor = 'rgba(20,220,90,0.7)';
+        c.shadowBlur = 14 * dpr;
+        c.fill();
         c.shadowBlur = 0;
-        c.restore();
-        c.fillStyle = '#ffffff';
-        c.font = '700 ' + Math.round(9 * dpr) + 'px "Space Grotesk", sans-serif';
-        c.textAlign = 'center';
-        c.textBaseline = 'middle';
-        c.fillText(p.kind === 'nitro' ? 'N' : '2', p.x, p.sy);
-      });
+      }
 
-      const py = pr + carHf() * 0.05;
+      const cx = W / 2, wy = py();
+      if (speed > 150) {
+        c.fillStyle = 'rgba(255,255,255,0.3)';
+        for (let i = 0; i < 9; i++) {
+          const h2 = (6 + ((i * 53 + frames * 11) % 26)) * dpr;
+          c.fillRect(W * 0.08 + (i * 37 % Math.max(1, (W * 0.1))), H * 0.4 + i * H * 0.06, 2 * dpr, h2);
+          c.fillRect(W * 0.9 - (i * 29 % Math.max(1, (W * 0.1))), H * 0.42 + i * H * 0.055, 2 * dpr, h2);
+        }
+      }
+
+      const bob = shiftFlash > 0 ? Math.sin(shiftFlash) * 2 * dpr : 0;
       c.save();
-      c.translate(px, py + carHf() / 2);
-      c.rotate(Math.max(-0.16, Math.min(0.16, vel * 0.012 / dpr)));
-      c.translate(-px, -py - carHf() / 2);
-      c.fillStyle = 'rgba(0,0,0,0.5)';
-      c.fillRect(px - carWf() / 2 + 4 * dpr, py + carHf() * 0.12, carWf(), carHf() * 0.85);
+      c.translate(cx, wy + bob);
+      c.fillStyle = 'rgba(0,0,0,0.55)';
+      roundRect(-carW() / 2 + 3 * dpr, -carH() * 0.35, carW(), carH(), carH() * 0.34);
+      c.fill();
       c.fillStyle = '#e10600';
-      roundRect(px - carWf() / 2, py, carWf(), carHf(), 8 * dpr);
+      roundRect(-carW() / 2, -carH(), carW(), carH(), carH() * 0.34);
       c.fill();
       c.fillStyle = 'rgba(0,0,0,0.55)';
-      roundRect(px - carWf() * 0.3, py + carHf() * 0.22, carWf() * 0.6, carHf() * 0.3, 4 * dpr);
+      roundRect(-carW() * 0.3, -carH() * 0.82, carW() * 0.6, carH() * 0.34, 3 * dpr);
       c.fill();
-      c.fillStyle = 'rgba(255,255,255,0.85)';
-      c.fillRect(px - carWf() * 0.36, py + 2 * dpr, carWf() * 0.2, 2.5 * dpr);
-      c.fillRect(px + carWf() * 0.16, py + 2 * dpr, carWf() * 0.2, 2.5 * dpr);
-      c.fillStyle = 'rgba(225,6,0,0.9)';
-      c.fillRect(px - carWf() * 0.36, py + carHf() - 6 * dpr, carWf() * 0.2, 2.5 * dpr);
-      c.fillRect(px + carWf() * 0.16, py + carHf() - 6 * dpr, carWf() * 0.2, 2.5 * dpr);
+      c.fillStyle = 'rgba(255,255,255,0.9)';
+      c.fillRect(-carW() * 0.38, -carH() * 0.16, carW() * 0.18, 2.4 * dpr);
+      c.fillRect(carW() * 0.2, -carH() * 0.16, carW() * 0.18, 2.4 * dpr);
+      c.fillStyle = '#141418';
+      c.beginPath(); c.arc(-carW() * 0.3, 0, carH() * 0.26, 0, Math.PI * 2); c.fill();
+      c.beginPath(); c.arc(carW() * 0.3, 0, carH() * 0.26, 0, Math.PI * 2); c.fill();
+      if (shiftFlash > 10) {
+        c.strokeStyle = 'rgba(255,255,255,0.85)';
+        c.lineWidth = 2 * dpr;
+        c.strokeRect(-carW() / 2 - 4 * dpr, -carH() - 4 * dpr, carW() + 8 * dpr, carH() + 8 * dpr);
+      }
       c.restore();
 
-      if (frames < nitroUntil) {
-        c.fillStyle = 'rgba(255,255,255,0.35)';
-        for (let i = 0; i < 10; i++) {
-          const h2 = (8 + ((i * 37 + frames * 9) % 22)) * dpr;
-          c.fillRect(px - carWf() * 0.3 + (i % 2) * carWf() * 0.45 + ((i * 13) % 5) * dpr, py + carHf() + 2 * dpr + i * 4.2 * dpr, 2.4 * dpr, h2);
-        }
+      const bw = W * 0.74, bx = (W - bw) / 2, by = H - 22 * dpr, bh = 9 * dpr;
+      c.fillStyle = 'rgba(255,255,255,0.08)';
+      c.fillRect(bx, by, bw, bh);
+      const winStart = bx + (5200 / REDLINE) * bw, winEnd = bx + (7400 / REDLINE) * bw;
+      c.fillStyle = 'rgba(20,220,90,0.5)';
+      c.fillRect(winStart, by, winEnd - winStart, bh);
+      const shiftStart = bx + (8100 / REDLINE) * bw;
+      c.fillStyle = 'rgba(225,6,0,0.55)';
+      c.fillRect(shiftStart, by, bx + bw - shiftStart, bh);
+      const fx = bx + (rpm / REDLINE) * bw;
+      c.fillStyle = rpm >= 8100 ? '#ffffff' : '#e10600';
+      c.fillRect(fx - 1.6 * dpr, by - 3 * dpr, 3.2 * dpr, bh + 6 * dpr);
+      c.fillStyle = 'rgba(255,255,255,0.55)';
+      c.font = '600 ' + Math.round(9.5 * dpr) + 'px "Space Grotesk", sans-serif';
+      c.textAlign = 'left';
+      c.fillText('TOEREN', bx, by - 6 * dpr);
+      c.fillText(Math.round(rpm) + ' rpm', bx, H - 34 * dpr + 12 * dpr);
+      c.textAlign = 'right';
+      c.fillText('SHIFT', bx + bw, by - 6 * dpr);
+      if (gearEl) { /* gear big */
+        c.fillStyle = '#ffffff';
+        c.font = '700 ' + Math.round(30 * dpr) + 'px "Anton", sans-serif';
+        c.textAlign = 'right';
+        c.fillText(String(gear), W - 14 * dpr, vTop - 52 * dpr);
+        c.fillStyle = 'rgba(255,255,255,0.4)';
+        c.font = '600 ' + Math.round(9 * dpr) + 'px "Space Grotesk", sans-serif';
+        c.fillText('VERSNELLING', W - 14 * dpr, vTop - 38 * dpr);
       }
 
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
-        c.globalAlpha = Math.max(0, Math.min(1, p.life / 40));
+        c.globalAlpha = Math.max(0, Math.min(1, p.life / 34));
         c.fillStyle = p.color;
         c.fillRect(p.x, p.y, p.size, p.size);
       }
@@ -1704,7 +1916,7 @@
       for (let i = 0; i < floaters.length; i++) {
         const f = floaters[i];
         c.globalAlpha = Math.max(0, Math.min(1, f.life / 30));
-        c.fillStyle = '#ffffff';
+        c.fillStyle = f.text === 'PERFECT' || f.text === 'PERFECT LAUNCH' ? 'rgba(20,220,90,0.95)' : '#ffffff';
         c.font = '700 ' + Math.round(13 * dpr) + 'px "Space Grotesk", sans-serif';
         c.fillText(f.text, f.x, f.y);
       }
@@ -1721,222 +1933,26 @@
       canvas.width = W;
       canvas.height = H;
       canvas.style.height = cssH.toFixed(0) + 'px';
-      px = W / 2;
       draw();
     }
     resize();
     window.addEventListener('resize', resize);
     gameApi.resizeDash = resize;
 
-    function dashSound(kind) {
-      if (!soundOn) return;
-      try {
-        const AC = window.AudioContext || window.webkitAudioContext;
-        if (!AC) return;
-        const ctx = new AC();
-        const t0 = ctx.currentTime;
-        if (kind === 'move' || kind === 'pup') {
-          const o = ctx.createOscillator();
-          o.type = kind === 'pup' ? 'square' : 'triangle';
-          o.frequency.setValueAtTime(kind === 'pup' ? 520 : 340, t0);
-          o.frequency.exponentialRampToValueAtTime(kind === 'pup' ? 880 : 180, t0 + 0.09);
-          const g = ctx.createGain();
-          g.gain.setValueAtTime(0.07, t0);
-          g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.1);
-          o.connect(g);
-          g.connect(ctx.destination);
-          o.start(t0);
-          o.stop(t0 + 0.11);
-          setTimeout(() => ctx.close().catch(() => {}), 220);
-        } else {
-          const len = Math.floor(ctx.sampleRate * 0.35);
-          const buf = ctx.createBuffer(1, len, ctx.sampleRate);
-          const d = buf.getChannelData(0);
-          for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 1.6);
-          const src = ctx.createBufferSource();
-          src.buffer = buf;
-          const g = ctx.createGain();
-          g.gain.value = 0.3;
-          src.connect(g);
-          g.connect(ctx.destination);
-          src.start(t0);
-          setTimeout(() => ctx.close().catch(() => {}), 500);
-        }
-      } catch (e) {}
-    }
-
-    function crash() {
-      state = 'over';
-      dashSound('crash');
-      burst(px, playerRow() + carHf() / 2, 26);
-      const score = Math.floor(distance);
-      if (score > best) {
-        best = score;
-        try { localStorage.setItem('mgApexBest', String(best)); } catch (e) {}
-        if (bestEl) bestEl.textContent = best + ' m';
-      }
-      if (finalEl) finalEl.textContent = score + ' m';
-      if (powerEl) powerEl.textContent = '\u2014';
-      if (overOverlay) {
-        overOverlay.hidden = false;
-        if (!reduceMotion) {
-          anime({
-            targets: frame,
-            translateX: [0, -12, 10, -7, 4, 0],
-            duration: 420,
-            easing: 'easeInOutQuad'
-          });
-          anime({ targets: overOverlay, opacity: [0, 1], duration: 350, easing: 'easeOutQuad' });
-        }
-      }
-    }
-
     function start() {
-      pickups = [];
-      particles = [];
-      floaters = [];
-      frames = 0;
-      speed = 4.6;
-      distance = 0;
-      traveled = 0;
-      nitroIn = 260;
-      nitroUntil = 0;
-      mult = 1;
-      multUntil = 0;
-      apexCool = 0;
-      cones = [];
-      coneIn = 300;
-      leftHeld = false;
-      rightHeld = false;
-      phase1 = Math.random() * Math.PI * 2;
-      phase2 = Math.random() * Math.PI * 2;
-      px = canvas.width / 2;
-      if (scoreEl) scoreEl.textContent = '0 m';
+      frames = 0; treeT = 0; raceT = 0;
+      rpm = IDLE; gear = 1; speed = 0; distance = 0;
+      launchMod = 1; launchModUntil = 0; weakUntil = 0; limiterUntil = 0; limiterWarned = false;
+      shiftFlash = 0; floaters = []; particles = [];
+      ambers = [false, false, false]; green = false; launchQ = '';
+      greenAt = Math.floor(195 + Math.random() * 60);
+      if (timeEl) timeEl.textContent = '0.00 s';
       if (speedEl) speedEl.textContent = '0 km/h';
-      if (powerEl) powerEl.textContent = '\u2014';
+      if (gearEl) gearEl.textContent = '1';
       if (startOverlay) startOverlay.hidden = true;
       if (overOverlay) overOverlay.hidden = true;
-      state = 'run';
+      state = 'tree';
       if (rafId === null && visible) rafId = requestAnimationFrame(step);
-    }
-
-    function step() {
-      if (state === 'run') {
-        frames++;
-        speed = Math.min(13.8, 5.4 + frames * 0.0035) + (frames < nitroUntil ? 3.8 : 0);
-        distance += (speed * 1.7) / dpr * mult;
-        traveled += speed * 1.15;
-        dashOffset = (dashOffset + speed) % (70 * dpr);
-
-        if (leftHeld) px -= keySpeed();
-        if (rightHeld) px += keySpeed();
-        if (frames < 25) {
-          px += (centerX(traveled) - px) * 0.03;
-        }
-        px = Math.max(carWf() * 0.55, Math.min(W - carWf() * 0.55, px));
-
-        nitroIn--;
-        if (nitroIn <= 0) {
-          const wy = traveled + 720 * dpr;
-          const reach = Math.min(360 * dpr, halfW() * 0.55);
-          pickups.push({ wy: wy, x: centerX(wy) + (Math.random() * 2 - 1) * reach, kind: Math.random() < 0.55 ? 'nitro' : 'x2', sy: 0 });
-          nitroIn = Math.round(240 + Math.random() * 160);
-        }
-
-        coneIn--;
-        if (coneIn <= 0 && cones.length < 5) {
-          const wy = traveled + 900 * dpr;
-          const slots = [-0.62, 0, 0.62];
-          for (let i = slots.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            const t = slots[i]; slots[i] = slots[j]; slots[j] = t;
-          }
-          const n = diff() < 0.25 ? 1 : 2;
-          for (let cslot = 0; cslot < n; cslot++) cones.push({ wy: wy, rel: slots[cslot] });
-          coneIn = Math.round(170 + Math.random() * 120 - diff() * 60);
-        }
-
-        const py = playerRow() + carHf() * 0.05;
-        for (let i = pickups.length - 1; i >= 0; i--) {
-          const p = pickups[i];
-          p.sy = py - (p.wy - traveled);
-          if (p.sy > py - 6 * dpr && p.sy < playerRow() + carHf() && Math.abs(p.x - px) < carWf() * 0.85) {
-            if (p.kind === 'nitro') {
-              nitroUntil = frames + 140;
-              floaters.push({ x: px, y: py - 10 * dpr, text: 'NITRO', life: 46 });
-            } else {
-              mult = 2;
-              multUntil = frames + 480;
-              floaters.push({ x: px, y: py - 10 * dpr, text: 'SCORE x2', life: 46 });
-            }
-            burst(px, py, 10, '#ffffff');
-            dashSound('pup');
-            pickups.splice(i, 1);
-          } else if (p.sy > H + 20 * dpr) {
-            pickups.splice(i, 1);
-          }
-        }
-
-        const hw = halfW();
-        const cx = centerX(traveled);
-        const sl = Math.abs(slopeAt(traveled));
-        if (apexCool > 0) apexCool--;
-        if (sl > 0.5 && Math.abs(px - cx) < hw * 0.22 && apexCool === 0) {
-          apexCool = 60;
-          const bonus = Math.round(30 * mult);
-          distance += bonus;
-          floaters.push({ x: px, y: py - 34 * dpr, text: 'APEX +' + bonus, life: 50 });
-        }
-
-        for (let i = cones.length - 1; i >= 0; i--) {
-          const q = cones[i];
-          q.sy = py - (q.wy - traveled);
-          if (q.sy > py && q.sy < py + carHf() * 0.9) {
-            const qx = centerX(q.wy) + q.rel * hw;
-            if (Math.abs(qx - px) < carWf() * 0.52) {
-              burst(qx, q.sy, 12, '#e10600');
-              cones.splice(i, 1);
-              crash();
-              break;
-            }
-          } else if (q.sy > H + 20 * dpr) {
-            cones.splice(i, 1);
-          }
-        }
-        if (state !== 'run') {
-          draw();
-          return;
-        }
-
-        if (frames > multUntil && mult > 1) mult = 1;
-
-        const prevPx = px;
-        px = Math.max(carWf() * 0.45, Math.min(W - carWf() * 0.45, px));
-        vel = px - prevPx;
-
-        if (px - carWf() * 0.42 < cx - hw || px + carWf() * 0.42 > cx + hw) {
-          crash();
-        }
-
-        for (let i = particles.length - 1; i >= 0; i--) {
-          const p = particles[i];
-          p.x += p.vx; p.y += p.vy; p.vy += 0.12 * dpr; p.life--;
-          if (p.life <= 0) particles.splice(i, 1);
-        }
-        for (let i = floaters.length - 1; i >= 0; i--) {
-          floaters[i].y -= 1.1 * dpr;
-          floaters[i].life--;
-          if (floaters[i].life <= 0) floaters.splice(i, 1);
-        }
-
-        if (frames % 6 === 0) {
-          if (scoreEl) scoreEl.textContent = Math.floor(distance) + ' m';
-          if (speedEl) speedEl.textContent = Math.floor(speed * 21) + ' km/h';
-          if (powerEl) powerEl.textContent = frames < nitroUntil ? 'NITRO' : mult > 1 ? 'x2' : '\u2014';
-        }
-      }
-      draw();
-      rafId = state === 'run' ? requestAnimationFrame(step) : null;
     }
 
     const io = new IntersectionObserver((entries) => {
@@ -1945,7 +1961,7 @@
         if (!visible && rafId !== null) {
           cancelAnimationFrame(rafId);
           rafId = null;
-        } else if (visible && state === 'run' && rafId === null) {
+        } else if (visible && (state === 'run' || state === 'tree') && rafId === null) {
           rafId = requestAnimationFrame(step);
         }
       });
@@ -1953,42 +1969,36 @@
     io.observe(frame);
 
     window.addEventListener('keydown', (e) => {
-      if (state !== 'run') return;
-      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') { e.preventDefault(); leftHeld = true; }
-      else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') { e.preventDefault(); rightHeld = true; }
+      if (e.key !== ' ' && e.code !== 'Space') return;
+      if (state === 'idle' || state === 'over') return;
+      e.preventDefault();
+      if (e.repeat) { holding = true; return; }
+      hold();
     });
     window.addEventListener('keyup', (e) => {
-      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') leftHeld = false;
-      else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') rightHeld = false;
+      if (e.key !== ' ' && e.code !== 'Space') return;
+      rel();
     });
     canvas.addEventListener('pointerdown', (e) => {
-      if (state !== 'run' || typeof e.clientX !== 'number') return;
-      steering = true;
-      const r = canvas.getBoundingClientRect();
-      if (r.width) px = Math.max(carWf() * 0.55, Math.min(W - carWf() * 0.55, (e.clientX - r.left) / r.width * canvas.width));
+      if (state === 'idle' || state === 'over') return;
+      e.preventDefault();
+      hold();
     });
-    canvas.addEventListener('pointermove', (e) => {
-      if (!steering || typeof e.clientX !== 'number') return;
-      const r = canvas.getBoundingClientRect();
-      if (r.width) px = Math.max(carWf() * 0.55, Math.min(W - carWf() * 0.55, (e.clientX - r.left) / r.width * canvas.width));
-    });
-    window.addEventListener('pointerup', () => { steering = false; });
+    window.addEventListener('pointerup', () => { rel(); });
+    window.addEventListener('blur', () => { rel(); });
 
-    const goBtn = document.querySelector('[data-apex-go]');
-    const againBtn = document.querySelector('[data-apex-again]');
+    const goBtn = document.querySelector('[data-drag-go]');
+    const againBtn = document.querySelector('[data-drag-again]');
     if (goBtn) goBtn.addEventListener('click', start);
     if (againBtn) againBtn.addEventListener('click', start);
 
     gameApi.pauseDash = () => {
-      if (state !== 'run') return;
+      if (state !== 'run' && state !== 'tree') return;
       state = 'idle';
-      leftHeld = false;
-      rightHeld = false;
-      steering = false;
+      holding = false;
       if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
       if (startOverlay) startOverlay.hidden = false;
       if (overOverlay) overOverlay.hidden = true;
-      if (powerEl) powerEl.textContent = '\u2014';
     };
   }
 
@@ -2264,7 +2274,9 @@
       ['BMW M4', '\u201cNighthawk\u201d \u00b7 R6 biturbo \u00b7 510 PK', 'assets/cars/card-nighthawk.jpg'],
       ['FORD MUSTANG GT', '\u201cHeritage\u201d \u00b7 V8 5.0 \u00b7 460 PK', 'assets/cars/card-heritage.jpg'],
       ['BUGATTI CHIRON', '\u201cArctic Ghost\u201d \u00b7 W16 \u00b7 1500 PK', 'assets/cars/card-arctic.jpg'],
-      ['AUDI R8', '\u201cNachtvogel\u201d \u00b7 V10 \u00b7 620 PK', 'assets/cars/card-r8.jpg']
+      ['AUDI R8', '\u201cNachtvogel\u201d \u00b7 V10 \u00b7 620 PK', 'assets/cars/card-r8.jpg'],
+      ['PORSCHE 911 GT3', '\u201cFlat Six\u201d \u00b7 flat-6 \u00b7 510 PK', 'assets/cars/card-gt3.jpg'],
+      ['LAMBORGHINI HURAC\u00c1N', '\u201cOrkaan\u201d \u00b7 V10 \u00b7 640 PK', 'assets/cars/card-huracan.jpg']
     ];
 
     let first = null, second = null, lock = false, moves = 0, found = 0;
@@ -2293,7 +2305,7 @@
 
     function renderHud() {
       if (movesEl) movesEl.textContent = String(moves);
-      if (foundEl) foundEl.textContent = found + ' / 6';
+      if (foundEl) foundEl.textContent = found + ' / 8';
     }
 
     function newGame() {
@@ -2369,7 +2381,7 @@
         renderHud();
         first = null;
         second = null;
-        if (found === 6) setTimeout(win, 500);
+        if (found === 8) setTimeout(win, 500);
       } else {
         lock = true;
         const f = first, s = second;
@@ -2451,7 +2463,7 @@
       ['wireModal', wireModal],
       ['wireSound', wireSound],
       ['wireFinish', wireFinish],
-      ['buildGame', buildGame],
+      ['buildLaunch', buildLaunch],
       ['buildRedline', buildRedline],
       ['buildMatch', buildMatch],
       ['wireGameTabs', wireGameTabs],

@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=11" />
+  <link rel="stylesheet" href="css/style.css?v=12" />
 </head>
 <body>
   <div class="cursor-dot"></div>
@@ -278,31 +278,83 @@
       </div>
     </section>
 
-    <!-- GAME — Garage Dash -->
+    <!-- GAMES — drie varianten -->
     <section class="game section section-dark" id="game">
-      <div class="section-label reveal">The game</div>
-      <h2 class="section-title reveal" data-split>GARAGE DASH</h2>
-      <p class="collection-sub reveal">Rij door de garage. Ontwijk de stal. Hoe ver kom jij?</p>
+      <div class="section-label reveal">The games</div>
+      <h2 class="section-title reveal" data-split>GARAGE ARCADE</h2>
+      <p class="collection-sub reveal">Drie spelletjes, &eacute;&eacute;n garage. Kies je race.</p>
 
-      <div class="game-frame reveal" data-game-frame>
-        <canvas id="dashCanvas" aria-label="Garage Dash speelveld"></canvas>
+      <div class="game-tabs reveal" role="tablist">
+        <button class="game-tab active" data-game-tab="dash" type="button" role="tab">01 &mdash; Garage Dash</button>
+        <button class="game-tab" data-game-tab="redline" type="button" role="tab">02 &mdash; Redline</button>
+        <button class="game-tab" data-game-tab="match" type="button" role="tab">03 &mdash; Spec Match</button>
+      </div>
 
-        <div class="game-hud" aria-hidden="true">
-          <span>Afstand <strong data-dash-score>0 m</strong></span>
-          <span>Snelheid <strong data-dash-speed>0 km/h</strong></span>
-          <span>Record <strong data-dash-best>0 m</strong></span>
+      <div class="game-panel active" data-game-panel="dash">
+        <div class="game-frame reveal" data-game-frame>
+          <canvas id="dashCanvas" aria-label="Garage Dash speelveld"></canvas>
+
+          <div class="game-hud" aria-hidden="true">
+            <span>Afstand <strong data-dash-score>0 m</strong></span>
+            <span>Snelheid <strong data-dash-speed>0 km/h</strong></span>
+            <span>Boost <strong data-dash-power>&mdash;</strong></span>
+            <span>Record <strong data-dash-best>0 m</strong></span>
+          </div>
+
+          <div class="game-overlay" data-dash-start>
+            <h3>Paraat?</h3>
+            <p>Pijltoetsen &larr; &rarr; of tik links / rechts om te wisselen van strook. Pak NITRO, SCHILD en x2 onderweg.</p>
+            <button class="btn btn-primary" data-dash-go type="button">Start &nearr;</button>
+          </div>
+
+          <div class="game-overlay" data-dash-over hidden>
+            <h3>&mdash; Crash &mdash;</h3>
+            <p class="gameover-score" data-dash-final>0 m</p>
+            <button class="btn btn-ghost" data-dash-again type="button">Opnieuw &nearr;</button>
+          </div>
         </div>
+      </div>
 
-        <div class="game-overlay" data-dash-start>
-          <h3>Paraat?</h3>
-          <p>Pijltoetsen &larr; &rarr; of tik links / rechts om te wisselen van strook.</p>
-          <button class="btn btn-primary" data-dash-go type="button">Start &nearr;</button>
+      <div class="game-panel" data-game-panel="redline" hidden>
+        <div class="game-frame reveal" data-rl-frame>
+          <canvas id="rlCanvas" aria-label="Redline speelveld"></canvas>
+
+          <div class="game-hud" aria-hidden="true">
+            <span>Ronde <strong data-rl-round>&mdash;</strong></span>
+            <span>Totaal <strong data-rl-total>0</strong></span>
+            <span>Record <strong data-rl-best>0</strong></span>
+          </div>
+
+          <div class="game-overlay" data-rl-start>
+            <h3>REDLINE</h3>
+            <p>Stop de naald precies in de rode zone van de toerenteller. Vijf ronden &mdash; elke ronde sneller en smaller.</p>
+            <button class="btn btn-primary" data-rl-go type="button">Start &nearr;</button>
+          </div>
+
+          <div class="game-overlay" data-rl-over hidden>
+            <h3>&mdash; Uitslag &mdash;</h3>
+            <p class="gameover-score" data-rl-final>0</p>
+            <p class="gameover-note" data-rl-note></p>
+            <button class="btn btn-ghost" data-rl-again type="button">Nog een run &nearr;</button>
+          </div>
         </div>
+      </div>
 
-        <div class="game-overlay" data-dash-over hidden>
-          <h3>&mdash; Crash &mdash;</h3>
-          <p class="gameover-score" data-dash-final>0 m</p>
-          <button class="btn btn-ghost" data-dash-again type="button">Opnieuw &nearr;</button>
+      <div class="game-panel" data-game-panel="match" hidden>
+        <div class="game-frame game-frame-match reveal" data-match-frame>
+          <div class="match-hud game-hud" aria-hidden="true">
+            <span>Beurten <strong data-match-moves>0</strong></span>
+            <span>Gevonden <strong data-match-found>0 / 6</strong></span>
+            <span>Record <strong data-match-best>&mdash;</strong></span>
+          </div>
+
+          <div class="match-grid" id="matchGrid"></div>
+
+          <div class="game-overlay" data-match-win hidden>
+            <h3>&mdash; Alles gevonden &mdash;</h3>
+            <p class="gameover-score" data-match-final>0 beurten</p>
+            <button class="btn btn-ghost" data-match-reset type="button">Nieuw spel &nearr;</button>
+          </div>
         </div>
       </div>
     </section>
@@ -351,6 +403,6 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
-  <script src="js/main.js?v=11"></script>
+  <script src="js/main.js?v=12"></script>
 </body>
 </html>

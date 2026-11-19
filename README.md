@@ -32,6 +32,10 @@ Geserveerd via GitHub Pages: **https://nexusaivty.github.io/motion-garage/**
 - **Wand in 3D** — signature-wall cellen kantelen nu ook 3D (rotateX) op de energiegolf.
 - **Collectie-flip** — kaarten flippen in 3D (rotateY) zodra ze in beeld schuiven.
 - **Meer 3D-laagjes** — scrub-woorden draaien in een rotateY-perspectief mee, de cinema-quote tilt met de muis, de dolly rolt subtiel mee (rotateZ), de rotonde kantelt extra mee tijdens het slepen, spec-tiles en performance-chips hoppen in 3D bij hover, en de gauge stuurt in met een rotateX-entree.
+- **Enginesound** — gesynthetiseerde WebAudio-rev (geen audiobestanden) bij lights-out, met een Geluid aan/uit-knop in de nav (keuze onthouden via localStorage).
+- **Afwerking-configurator** — kies Rosso / Nero / Argento / Notte en de rotonde herschildert direct.
+- **Slimme nav** — blur + dichtklap bij scrollen, actieve sectielink met rode streep.
+- **Meta & SEO** — Open Graph/Twitter-tags, favicon, theme-color.
 - **Replay intro** — nav-knop die de hero-intro opnieuw afspeelt.
 - **Rustige composities** — mat zwart/donkergrijs, rood als enige accent, witte typografie, weinig maar krachtige beweging (plus `prefers-reduced-motion`-support).
 

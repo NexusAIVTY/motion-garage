@@ -762,6 +762,7 @@
 
         lights.forEach((l) => l.classList.remove('on'));
         document.getElementById('performance')?.classList.add('perf-boost');
+        revEngine();
         setTimeout(() => document.getElementById('performance')?.classList.remove('perf-boost'), 2600);
         sweepGauge(0.99);
         document.querySelectorAll('.counter').forEach((c) => {
@@ -854,6 +855,12 @@
       sec: document.getElementById(btn.dataset.target),
       active: false
     }));
+    const navLinks = Array.from(document.querySelectorAll('.nav-link')).map((a) => ({
+      a,
+      sec: document.querySelector(a.getAttribute('href') || ''),
+      active: false
+    }));
+    const nav = document.querySelector('.nav');
 
     function frame() {
       const vh = window.innerHeight;
@@ -946,6 +953,16 @@
           d.btn.classList.toggle('active', now);
         }
       });
+      navLinks.forEach((l) => {
+        if (!l.sec) return;
+        const r = l.sec.getBoundingClientRect();
+        const now = r.top <= vh * 0.5 && r.bottom > vh * 0.5;
+        if (now !== l.active) {
+          l.active = now;
+          l.a.classList.toggle('active', now);
+        }
+      });
+      if (nav) nav.classList.toggle('nav-scrolled', window.scrollY > 46);
 
       requestAnimationFrame(frame);
     }
@@ -1301,7 +1318,7 @@
       for (let i = 0; i < cards.length; i++) {
         const a = (360 / cards.length) * i + angle;
         const facing = Math.cos((a * Math.PI) / 180);
-        cards[i].style.filter = `brightness(${(0.42 + 0.62 * Math.max(0, facing)).toFixed(3)})`;
+          cards[i].style.filter = `brightness(${(0.42 + 0.62 * Math.max(0, facing)).toFixed(3)})` + (rotundaTint ? ' ' + rotundaTint : '');
       }
     };
 
@@ -1357,6 +1374,111 @@
     });
   }
 
+  /* ---------- Engine sound (WebAudio synth) ---------- */
+  let soundOn = true;
+
+  function revEngine() {
+    if (!soundOn) return;
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      const ctx = new AC();
+      const t0 = ctx.currentTime;
+
+      const osc1 = ctx.createOscillator();
+      osc1.type = 'sawtooth';
+      osc1.frequency.setValueAtTime(52, t0);
+      osc1.frequency.exponentialRampToValueAtTime(310, t0 + 0.55);
+      osc1.frequency.exponentialRampToValueAtTime(92, t0 + 1.5);
+
+      const osc2 = ctx.createOscillator();
+      osc2.type = 'square';
+      osc2.detune.value = 16;
+      osc2.frequency.setValueAtTime(104, t0);
+      osc2.frequency.exponentialRampToValueAtTime(620, t0 + 0.55);
+      osc2.frequency.exponentialRampToValueAtTime(184, t0 + 1.5);
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 880;
+      filter.Q.value = 3;
+
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.0001, t0);
+      gain.gain.exponentialRampToValueAtTime(0.2, t0 + 0.12);
+      gain.gain.setValueAtTime(0.2, t0 + 0.72);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 1.55);
+
+      const noiseLen = Math.floor(ctx.sampleRate * 1.6);
+      const noiseBuf = ctx.createBuffer(1, noiseLen, ctx.sampleRate);
+      const nd = noiseBuf.getChannelData(0);
+      for (let i = 0; i < noiseLen; i++) nd[i] = (Math.random() * 2 - 1) * (1 - i / noiseLen);
+      const noise = ctx.createBufferSource();
+      noise.buffer = noiseBuf;
+      const noiseFilter = ctx.createBiquadFilter();
+      noiseFilter.type = 'bandpass';
+      noiseFilter.frequency.value = 420;
+      const noiseGain = ctx.createGain();
+      noiseGain.gain.value = 0.12;
+      noise.connect(noiseFilter);
+      noiseFilter.connect(noiseGain);
+      noiseGain.connect(ctx.destination);
+
+      osc1.connect(filter);
+      osc2.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc1.start(t0);
+      osc2.start(t0);
+      noise.start(t0);
+      osc1.stop(t0 + 1.6);
+      osc2.stop(t0 + 1.6);
+      setTimeout(() => ctx.close().catch(() => {}), 1900);
+    } catch (e) {}
+  }
+
+  function wireSound() {
+    const btn = document.getElementById('soundToggle');
+    if (!btn) return;
+    try {
+      soundOn = localStorage.getItem('mgSound') !== 'off';
+    } catch (e) {}
+    const paint = () => {
+      btn.textContent = 'Geluid: ' + (soundOn ? 'aan' : 'uit');
+      btn.setAttribute('aria-pressed', String(soundOn));
+    };
+    paint();
+    btn.addEventListener('click', () => {
+      soundOn = !soundOn;
+      try {
+        localStorage.setItem('mgSound', soundOn ? 'on' : 'off');
+      } catch (e) {}
+      paint();
+    });
+  }
+
+  /* ---------- Afwerking configurator ---------- */
+  const FINISHES = [
+    { name: 'Rosso', filter: 'saturate(1.18) hue-rotate(0deg) contrast(1.05)' },
+    { name: 'Nero', filter: 'saturate(0.16) brightness(0.85) contrast(1.12)' },
+    { name: 'Argento', filter: 'saturate(0.55) brightness(1.14) contrast(1.02)' },
+    { name: 'Notte', filter: 'hue-rotate(195deg) saturate(1.05) brightness(0.88)' }
+  ];
+  let rotundaTint = '';
+
+  function wireFinish() {
+    const dots = Array.from(document.querySelectorAll('.finish-dot'));
+    if (!dots.length) return;
+    dots.forEach((d) => {
+      d.addEventListener('click', () => {
+        dots.forEach((x) => x.classList.remove('active'));
+        d.classList.add('active');
+        rotundaTint = FINISHES[parseInt(d.dataset.finish, 10) || 0].filter;
+      });
+    });
+  }
+
   /* ---------- Init (hardened: each step isolated) ---------- */
   window.addEventListener('DOMContentLoaded', () => {
     const steps = [
@@ -1376,6 +1498,8 @@
       ['wireReplay', wireReplay],
       ['wireIgnite', wireIgnite],
       ['wireModal', wireModal],
+      ['wireSound', wireSound],
+      ['wireFinish', wireFinish],
       ['setupObserver', setupObserver],
       ['scrollEngine', scrollEngine],
       ['cursor', cursor],

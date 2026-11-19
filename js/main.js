@@ -712,8 +712,14 @@
       track: sec.querySelector('[data-dolly-track]'),
       img: sec.querySelector('.dolly-img'),
       bar: sec.querySelector('[data-dolly-bar]'),
+      label: sec.querySelector('.dolly-label'),
+      headline: sec.querySelector('[data-dolly-headline]'),
+      veil: sec.querySelector('.dolly-veil'),
       measured: false,
       dispW: 0,
+      p: 0,
+      skew: 0,
+      lastRaw: null,
       callouts: Array.from(sec.querySelectorAll('.dolly-callout')).map((el) => ({
         el,
         at: parseFloat(el.dataset.dollyAt) || 0.5,
@@ -767,20 +773,34 @@
         const vw = window.innerWidth;
         if (!t.measured && t.img.complete && t.img.naturalWidth) {
           const aspect = t.img.naturalWidth / t.img.naturalHeight;
-          const h = Math.max(vh, (vw * 1.35) / aspect);
+          const h = Math.max(vh, (vw * 1.6) / aspect);
           t.img.style.height = h.toFixed(0) + 'px';
           t.dispW = h * aspect;
           t.measured = true;
         }
         const rect = t.sec.getBoundingClientRect();
         if (rect.bottom < -80 || rect.top > vh + 80) return;
-        const p = Math.min(1, Math.max(0, (vh - rect.top) / Math.max(1, rect.height - vh)));
+        const raw = Math.min(1, Math.max(0, (vh - rect.top) / Math.max(1, rect.height - vh)));
+        t.p += (raw - t.p) * 0.18;
+        if (Math.abs(t.p - raw) < 0.0005) t.p = raw;
+        const p = t.p;
+
+        const vel = t.lastRaw === null ? 0 : raw - t.lastRaw;
+        t.lastRaw = raw;
+        const skewTarget = Math.max(-5, Math.min(5, vel * 220));
+        t.skew += (skewTarget - t.skew) * 0.12;
+
         const ease = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
         const pan = Math.max(0, t.dispW - vw);
-        t.track.style.transform = `translateX(${(-pan * ease).toFixed(2)}px)`;
-        t.img.style.transform = `translateY(-50%) scale(${(1.14 - 0.1 * p).toFixed(4)})`;
+        t.track.style.transform = `translateX(${(-pan * ease).toFixed(2)}px) skewX(${t.skew.toFixed(3)}deg)`;
+        t.img.style.transform = `translateY(-50%) scale(${(1.16 - 0.14 * p).toFixed(4)})`;
+
+        if (t.label) t.label.style.opacity = Math.max(0, 1 - (p - 0.1) / 0.1).toFixed(3);
+        if (t.headline) t.headline.style.opacity = Math.min(1, Math.max(0, (p - 0.85) / 0.1)).toFixed(3);
+        if (t.veil) t.veil.style.opacity = (0.5 + 0.5 * Math.abs(p - 0.5) * 2).toFixed(3);
+
         t.callouts.forEach((c) => {
-          const target = Math.min(1, Math.max(0, 1 - Math.abs(p - c.at) / 0.09));
+          const target = Math.min(1, Math.max(0, 1 - Math.abs(p - c.at) / 0.1));
           c.d += (target - c.d) * 0.16;
           c.el.style.opacity = c.d.toFixed(3);
           c.el.style.transform = `translateY(${((1 - c.d) * 30).toFixed(1)}px)`;

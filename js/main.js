@@ -2,6 +2,31 @@
 (function () {
   'use strict';
 
+  /* Veiligheidsnet: als het anime.js CDN faalt, valt de site terug op een
+     minimale stub zodat alles zichtbaar blijft en niets crasht. */
+  if (!window.anime) {
+    const stub = (o) => {
+      const els = o && o.targets;
+      const list = Array.isArray(els) ? els : els ? [els] : [];
+      const last = (v) => (Array.isArray(v) ? v[v.length - 1] : v);
+      list.forEach((t) => {
+        if (!t || !t.style) return;
+        if (o && o.opacity !== undefined) t.style.opacity = String(last(o.opacity));
+        if (o && (o.translateY !== undefined || o.translateX !== undefined)) t.style.transform = 'none';
+      });
+      return { finished: Promise.resolve() };
+    };
+    stub.stagger = () => 0;
+    stub.set = () => {};
+    stub.remove = () => {};
+    stub.timeline = () => {
+      const t = (o) => ({ add: () => t(o), finished: Promise.resolve() });
+      return t({});
+    };
+    stub.random = (a, b) => b;
+    window.anime = stub;
+  }
+
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- Car data ---------- */

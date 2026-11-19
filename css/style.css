@@ -155,6 +155,21 @@ img { display: block; }
 .nav-link:hover { color: var(--text); }
 .nav-link:hover::after { transform: scaleX(1); }
 
+.nav-link-game { color: var(--red); }
+.nav-link-game::before {
+  content: '';
+  display: inline-block;
+  width: 6px; height: 6px;
+  margin-right: 8px;
+  background: var(--red);
+  box-shadow: 0 0 8px var(--red-glow);
+  animation: gamePulse 1.6s ease-in-out infinite;
+}
+@keyframes gamePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
 /* ---------- Buttons ---------- */
 .btn {
   display: inline-block;

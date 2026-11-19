@@ -2,7 +2,7 @@
 
 Een cinematische automotive conceptwebsite, aangedreven door [anime.js v3](https://animejs.com/).
 
-**Make-over (v9)**: Anton display-letters + Space Grotesk, filmkorrel-overlay, editorial gidslijnen, verticale side-text, duotone-kaarten met rode hoek-tick, rotated rode marquee-band en bijgescherpte knoppen/labels. **v10**: Garage Dash game.
+**Make-over (v9)**: Anton display-letters + Space Grotesk, filmkorrel-overlay, editorial gidslijnen, verticale side-text, duotone-kaarten met rode hoek-tick, rotated rode marquee-band en bijgescherpte knoppen/labels. **v10**: Garage Dash game. **v11**: cache-busting (`?v=11` op CSS/JS), anime.js-stub-fallback bij CDN-falen, "Game"-link in de navigatie.
 
 ## Live
 

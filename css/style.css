@@ -221,6 +221,8 @@ img { display: block; }
   perspective: 1000px;
 }
 .match-card {
+  display: block;
+  width: 100%;
   background: transparent;
   border: none;
   padding: 0;
@@ -231,6 +233,7 @@ img { display: block; }
 }
 .match-card:hover { transform: translateY(-3px); }
 .match-inner {
+  display: block;
   position: relative;
   width: 100%;
   height: 100%;
@@ -822,11 +825,12 @@ img { display: block; }
   pointer-events: none;
   background: linear-gradient(180deg, rgba(255,255,255,0.04), transparent 12%, transparent 88%, rgba(0,0,0,0.5));
 }
-#dashCanvas {
+#runCanvas {
   display: block;
   width: 100%;
   height: min(560px, 72vw);
   touch-action: none;
+  cursor: crosshair;
 }
 .game-hud {
   position: absolute;

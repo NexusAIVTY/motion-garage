@@ -1509,7 +1509,7 @@
   const gameApi = { pauseDash: null, resizeDash: null, pauseRed: null, resizeRed: null };
 
   function buildGame() {
-    const canvas = document.getElementById('dashCanvas');
+    const canvas = document.getElementById('runCanvas');
     const frame = document.querySelector('[data-game-frame]');
     const startOverlay = document.querySelector('[data-dash-start]');
     const overOverlay = document.querySelector('[data-dash-over]');
@@ -1524,21 +1524,25 @@
 
     let W = 0, H = 0, dpr = 1;
     let best = 0;
-    try { best = parseInt(localStorage.getItem('mgDashBest') || '0', 10) || 0; } catch (e) {}
+    try { best = parseInt(localStorage.getItem('mgRunBest') || '0', 10) || 0; } catch (e) {}
     if (bestEl) bestEl.textContent = best + ' m';
 
     let state = 'idle';
-    let lane = 1, laneX = 0;
-    let obstacles = [], pickups = [], particles = [], floaters = [];
-    let frames = 0, spawnIn = 46;
-    let speed = 4.2, distance = 0, dashOffset = 0;
-    let rafId = null;
-    let shield = false, mult = 1, multUntil = 0, nitroUntil = 0;
+    let rafId = null, visible = true;
+    let px = 0, targetX = 0, vel = 0;
+    let frames = 0, speed = 4.6, distance = 0, dashOffset = 0;
+    let gates = [], pickups = [], particles = [], floaters = [];
+    let gateIn = 55, lastGateC = 0;
+    let nitroUntil = 0, mult = 1, multUntil = 0;
+    let leftHeld = false, rightHeld = false, steering = false;
 
-    const laneW = () => W / 3;
-    const carW = () => laneW() * 0.5;
-    const carH = () => carW() * 1.65;
-    const playerY = () => H - carH() - 24 * dpr;
+    const carWf = () => Math.max(30 * dpr, W * 0.085);
+    const carHf = () => carWf() * 1.7;
+    const playerY = () => H - carHf() - 18 * dpr;
+    const barH = () => 13 * dpr;
+    const diff = () => Math.min(1, frames / 6500);
+
+    const clampX = (x) => Math.max(carWf() * 0.55, Math.min(W - carWf() * 0.55, x));
 
     function roundRect(x, y, w, h, r) {
       c.beginPath();
@@ -1550,35 +1554,51 @@
       c.closePath();
     }
 
-    function drawCar(x, y, color, enemy) {
-      const w = carW(), h = carH();
-      const lr = 2.5 * dpr;
+    function drawCar(x, y, tilt) {
+      const w = carWf(), h = carHf();
       c.save();
-      c.translate(x, y);
+      c.translate(x, y + h / 2);
+      c.rotate(tilt);
+      c.translate(-x, -y - h / 2);
       c.fillStyle = 'rgba(0,0,0,0.5)';
-      c.fillRect(-w / 2 + 4 * dpr, h * 0.12, w, h * 0.85);
-      c.fillStyle = color;
-      roundRect(-w / 2, 0, w, h, 8 * dpr);
+      c.fillRect(x - w / 2 + 4 * dpr, y + h * 0.12, w, h * 0.85);
+      c.fillStyle = '#e10600';
+      roundRect(x - w / 2, y, w, h, 8 * dpr);
       c.fill();
-      c.fillStyle = enemy ? 'rgba(255,255,255,0.14)' : 'rgba(0,0,0,0.55)';
-      roundRect(-w * 0.3, h * 0.22, w * 0.6, h * 0.3, 4 * dpr);
+      c.fillStyle = 'rgba(0,0,0,0.55)';
+      roundRect(x - w * 0.3, y + h * 0.22, w * 0.6, h * 0.3, 4 * dpr);
       c.fill();
-      if (enemy) {
-        c.fillStyle = '#ffffff';
-        c.fillRect(-w * 0.36, h - 6 * dpr, w * 0.2, lr);
-        c.fillRect(w * 0.16, h - 6 * dpr, w * 0.2, lr);
-        c.fillStyle = '#e10600';
-        c.fillRect(-w * 0.36, 4 * dpr, w * 0.2, lr);
-        c.fillRect(w * 0.16, 4 * dpr, w * 0.2, lr);
-      } else {
-        c.fillStyle = '#ffffff';
-        c.fillRect(-w * 0.36, 2 * dpr, w * 0.2, lr);
-        c.fillRect(w * 0.16, 2 * dpr, w * 0.2, lr);
-        c.fillStyle = 'rgba(225,6,0,0.9)';
-        c.fillRect(-w * 0.36, h - 6 * dpr, w * 0.2, lr);
-        c.fillRect(w * 0.16, h - 6 * dpr, w * 0.2, lr);
-      }
+      c.fillStyle = 'rgba(255,255,255,0.85)';
+      c.fillRect(x - w * 0.36, y + 2 * dpr, w * 0.2, 2.5 * dpr);
+      c.fillRect(x + w * 0.16, y + 2 * dpr, w * 0.2, 2.5 * dpr);
+      c.fillStyle = 'rgba(225,6,0,0.9)';
+      c.fillRect(x - w * 0.36, y + h - 6 * dpr, w * 0.2, 2.5 * dpr);
+      c.fillRect(x + w * 0.16, y + h - 6 * dpr, w * 0.2, 2.5 * dpr);
       c.restore();
+      if (frames < nitroUntil) {
+        c.fillStyle = 'rgba(255,255,255,0.35)';
+        const fy = y + h + 2 * dpr;
+        for (let i = 0; i < 10; i++) {
+          const h2 = (8 + ((i * 37 + frames * 9) % 22)) * dpr;
+          c.fillRect(x - w * 0.3 + (i % 2) * w * 0.45 + ((i * 13) % 5) * dpr, fy + i * 4.2 * dpr, 2.4 * dpr, h2);
+        }
+      }
+    }
+
+    function spawnGate() {
+      const gw = carWf() * (2.15 - 0.55 * diff());
+      const spacingFrames = 88 - 26 * diff();
+      const maxShift = 8 * dpr * (spacingFrames + 20) * 0.55;
+      const m = carWf() * 0.9 + gw / 2;
+      let gc = lastGateC + (Math.random() * 2 - 1) * maxShift;
+      gc = Math.max(m, Math.min(W - m, gc));
+      const y = -barH() - 24 * dpr;
+      gates.push({ y: y, l: gc - gw / 2, r: gc + gw / 2, passed: false });
+      lastGateC = gc;
+      gateIn = Math.round(spacingFrames + Math.random() * 26);
+      if (Math.random() < 0.3) {
+        pickups.push({ x: gc, y: y - 46 * dpr, kind: Math.random() < 0.55 ? 'nitro' : 'x2' });
+      }
     }
 
     function burst(x, y, n, color) {
@@ -1589,70 +1609,58 @@
       }
     }
 
-    function drawPickup(p) {
-      const x = (p.lane + 0.5) * laneW();
-      const s = 11 * dpr;
-      c.save();
-      c.translate(x, p.y);
-      c.rotate(Math.PI / 4);
-      c.fillStyle = '#e10600';
-      c.shadowColor = 'rgba(225,6,0,0.7)';
-      c.shadowBlur = 12 * dpr;
-      c.fillRect(-s / 2, -s / 2, s, s);
-      c.shadowBlur = 0;
-      c.restore();
-      c.fillStyle = '#ffffff';
-      c.font = '700 ' + Math.round(9 * dpr) + 'px "Space Grotesk", sans-serif';
-      c.textAlign = 'center';
-      c.textBaseline = 'middle';
-      c.fillText(p.kind === 'nitro' ? 'N' : p.kind === 'shield' ? 'S' : '2', x, p.y);
-    }
-
     function draw() {
       c.clearRect(0, 0, W, H);
       c.fillStyle = '#0b0b0e';
       c.fillRect(0, 0, W, H);
-      c.strokeStyle = 'rgba(255,255,255,0.16)';
+
+      c.strokeStyle = 'rgba(255,255,255,0.14)';
       c.lineWidth = 2 * dpr;
-      c.setLineDash([26 * dpr, 30 * dpr]);
+      c.setLineDash([26 * dpr, 34 * dpr]);
       c.lineDashOffset = -dashOffset;
-      [1, 2].forEach((i) => {
+      [0.33, 0.66].forEach((f) => {
         c.beginPath();
-        c.moveTo(i * laneW(), 0);
-        c.lineTo(i * laneW(), H);
+        c.moveTo(f * W, 0);
+        c.lineTo(f * W, H);
         c.stroke();
       });
       c.setLineDash([]);
-      c.strokeStyle = 'rgba(225,6,0,0.55)';
+      c.strokeStyle = 'rgba(225,6,0,0.6)';
       c.lineWidth = 3 * dpr;
-      c.beginPath(); c.moveTo(2 * dpr, 0); c.lineTo(2 * dpr, H); c.stroke();
-      c.beginPath(); c.moveTo(W - 2 * dpr, 0); c.lineTo(W - 2 * dpr, H); c.stroke();
+      c.beginPath(); c.moveTo(3 * dpr, 0); c.lineTo(3 * dpr, H); c.stroke();
+      c.beginPath(); c.moveTo(W - 3 * dpr, 0); c.lineTo(W - 3 * dpr, H); c.stroke();
 
-      if (frames < nitroUntil) {
-        c.strokeStyle = 'rgba(255,255,255,0.22)';
-        c.lineWidth = 1.2 * dpr;
-        for (let i = 0; i < 8; i++) {
-          const x = ((i * 97 + frames * 13) % 100) / 100 * W;
-          const y = ((i * 151 + frames * 7) % 100) / 100 * H;
-          c.beginPath(); c.moveTo(x, y); c.lineTo(x, y + 26 * dpr); c.stroke();
-        }
-      }
+      gates.forEach((g) => {
+        c.fillStyle = '#1a1a1f';
+        c.fillRect(0, g.y, g.l, barH());
+        c.fillRect(g.r, g.y, W - g.r, barH());
+        c.fillStyle = '#e10600';
+        c.shadowColor = 'rgba(225,6,0,0.6)';
+        c.shadowBlur = 8 * dpr;
+        c.fillRect(Math.max(0, g.l - 3 * dpr), g.y, 3 * dpr, barH());
+        c.fillRect(g.r, g.y, 3 * dpr, barH());
+        c.shadowBlur = 0;
+      });
 
-      for (let i = 0; i < pickups.length; i++) drawPickup(pickups[i]);
-      for (let i = 0; i < obstacles.length; i++) {
-        drawCar((obstacles[i].lane + 0.5) * laneW(), obstacles[i].y, '#22222a', true);
-      }
-      if (shield) {
-        c.strokeStyle = 'rgba(225,6,0,0.85)';
-        c.lineWidth = 2 * dpr;
-        c.setLineDash([6 * dpr, 6 * dpr]);
-        c.lineDashOffset = -frames * 1.8;
-        c.beginPath();
-        c.arc(laneX, playerY() + carH() / 2, carW() * 0.95, 0, Math.PI * 2);
-        c.stroke();
-        c.setLineDash([]);
-      }
-      drawCar(laneX, playerY(), '#e10600', false);
+      pickups.forEach((p) => {
+        const s = 11 * dpr;
+        c.save();
+        c.translate(p.x, p.y);
+        c.rotate(Math.PI / 4 + frames * 0.05);
+        c.fillStyle = '#e10600';
+        c.shadowColor = 'rgba(225,6,0,0.7)';
+        c.shadowBlur = 12 * dpr;
+        c.fillRect(-s / 2, -s / 2, s, s);
+        c.shadowBlur = 0;
+        c.restore();
+        c.fillStyle = '#ffffff';
+        c.font = '700 ' + Math.round(9 * dpr) + 'px "Space Grotesk", sans-serif';
+        c.textAlign = 'center';
+        c.textBaseline = 'middle';
+        c.fillText(p.kind === 'nitro' ? 'N' : '2', p.x, p.y);
+      });
+
+      drawCar(px, playerY(), Math.max(-0.14, Math.min(0.14, vel * 0.012 / dpr)));
 
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
@@ -1673,24 +1681,17 @@
       c.globalAlpha = 1;
     }
 
-    function powerLabel() {
-      if (shield) return 'SCHILD';
-      if (frames < nitroUntil) return 'NITRO';
-      if (mult > 1) return 'x2';
-      return '\u2014';
-    }
-
     function resize() {
       const r = frame.getBoundingClientRect();
       const cw = r.width || 340;
-      const cssH = Math.min(560, Math.max(280, cw * 0.72));
+      const cssH = Math.min(560, Math.max(300, cw * 0.72));
       dpr = Math.min(2, window.devicePixelRatio || 1);
       W = Math.floor(cw * dpr);
       H = Math.floor(cssH * dpr);
       canvas.width = W;
       canvas.height = H;
       canvas.style.height = cssH.toFixed(0) + 'px';
-      laneX = (lane + 0.5) * laneW();
+      px = targetX = W / 2;
       draw();
     }
     resize();
@@ -1737,11 +1738,11 @@
     function crash() {
       state = 'over';
       dashSound('crash');
-      burst(laneX, playerY() + carH() / 2, 22);
+      burst(px, playerY() + carHf() / 2, 26);
       const score = Math.floor(distance);
       if (score > best) {
         best = score;
-        try { localStorage.setItem('mgDashBest', String(best)); } catch (e) {}
+        try { localStorage.setItem('mgRunBest', String(best)); } catch (e) {}
         if (bestEl) bestEl.textContent = best + ' m';
       }
       if (finalEl) finalEl.textContent = score + ' m';
@@ -1761,20 +1762,21 @@
     }
 
     function start() {
-      obstacles = [];
+      gates = [];
       pickups = [];
       particles = [];
       floaters = [];
       frames = 0;
-      spawnIn = 46;
-      speed = 4.2;
+      gateIn = 55;
+      lastGateC = canvas.width / 2;
+      speed = 4.6;
       distance = 0;
-      lane = 1;
-      laneX = (1 + 0.5) * laneW();
-      shield = false;
+      nitroUntil = 0;
       mult = 1;
       multUntil = 0;
-      nitroUntil = 0;
+      leftHeld = false;
+      rightHeld = false;
+      px = targetX = canvas.width / 2;
       if (scoreEl) scoreEl.textContent = '0 m';
       if (speedEl) speedEl.textContent = '0 km/h';
       if (powerEl) powerEl.textContent = '\u2014';
@@ -1787,49 +1789,47 @@
     function step() {
       if (state === 'run') {
         frames++;
-        const base = Math.min(13, 4.2 + frames * 0.002);
-        speed = base + (frames < nitroUntil ? 3.4 : 0);
+        speed = Math.min(12.5, 4.6 + frames * 0.0018) + (frames < nitroUntil ? 3.6 : 0);
         distance += (speed * 1.7) / dpr * mult;
         dashOffset = (dashOffset + speed) % (70 * dpr);
-        spawnIn--;
-        if (spawnIn <= 0) {
-          let ol = Math.floor(Math.random() * 3);
-          if (obstacles.length && obstacles[obstacles.length - 1].lane === ol && Math.random() < 0.5) {
-            ol = (ol + 1 + Math.floor(Math.random() * 2)) % 3;
-          }
-          obstacles.push({ lane: ol, y: -carH() * 1.8, scored: false });
-          if (Math.random() < 0.24) {
-            let pl = (ol + 1 + Math.floor(Math.random() * 2)) % 3;
-            const kinds = ['nitro', 'shield', 'x2'];
-            pickups.push({ lane: pl, y: -carH() * 3.2, kind: kinds[Math.floor(Math.random() * kinds.length)] });
-          }
-          spawnIn = Math.round(Math.max(26, 80 - base * 3.4) + Math.random() * 22);
-        }
-        const py = playerY() + carH() * 0.05;
-        for (let i = 0; i < obstacles.length; i++) {
-          const o = obstacles[i];
-          const prevY = o.y;
-          o.y += speed * 1.15;
-          if (!o.scored && o.y > py) {
-            o.scored = true;
-            if (Math.abs(o.lane - lane) === 1) {
-              const bonus = Math.round(25 * mult);
+
+        if (leftHeld) targetX = clampX(targetX - 8.5 * dpr);
+        if (rightHeld) targetX = clampX(targetX + 8.5 * dpr);
+        targetX = clampX(targetX);
+
+        gateIn--;
+        if (gateIn <= 0) spawnGate();
+
+        const py = playerY() + carHf() * 0.05;
+        for (let i = gates.length - 1; i >= 0; i--) {
+          const g = gates[i];
+          g.y += speed * 1.15;
+          if (!g.passed && g.y > py + carHf() * 0.5) {
+            g.passed = true;
+            const halfGap = (g.r - g.l) / 2;
+            const edgeDist = Math.abs(px - (g.l + g.r) / 2) - halfGap;
+            if (edgeDist > -carWf() * 0.75) {
+              const bonus = Math.round(30 * mult);
               distance += bonus;
-              floaters.push({ x: (o.lane + 0.5) * laneW(), y: py, text: '+' + bonus + ' near miss', life: 46 });
+              floaters.push({ x: px, y: py, text: '+' + bonus + ' strak', life: 46 });
             }
           }
+          if (g.y > H + 40 * dpr) gates.splice(i, 1);
         }
-        obstacles = obstacles.filter((o) => o.y < H + carH() * 2);
 
         for (let i = pickups.length - 1; i >= 0; i--) {
           pickups[i].y += speed * 1.15;
           const p = pickups[i];
-          const dx = Math.abs((p.lane + 0.5) * laneW() - laneX);
-          if (p.y > py - 6 * dpr && p.y < playerY() + carH() && dx < carW()) {
-            if (p.kind === 'nitro') { nitroUntil = frames + 150; floaters.push({ x: laneX, y: py - 10 * dpr, text: 'NITRO', life: 46 }); }
-            else if (p.kind === 'shield') { shield = true; floaters.push({ x: laneX, y: py - 10 * dpr, text: 'SCHILD', life: 46 }); }
-            else { mult = 2; multUntil = frames + 480; floaters.push({ x: laneX, y: py - 10 * dpr, text: 'SCORE x2', life: 46 }); }
-            burst(laneX, py, 10, '#ffffff');
+          if (p.y > py - 6 * dpr && p.y < playerY() + carHf() && Math.abs(p.x - px) < carWf() * 0.85) {
+            if (p.kind === 'nitro') {
+              nitroUntil = frames + 140;
+              floaters.push({ x: px, y: py - 10 * dpr, text: 'NITRO', life: 46 });
+            } else {
+              mult = 2;
+              multUntil = frames + 480;
+              floaters.push({ x: px, y: py - 10 * dpr, text: 'SCORE x2', life: 46 });
+            }
+            burst(px, py, 10, '#ffffff');
             dashSound('pup');
             pickups.splice(i, 1);
           } else if (p.y > H + 20 * dpr) {
@@ -1839,22 +1839,17 @@
 
         if (frames > multUntil && mult > 1) mult = 1;
 
-        laneX += ((lane + 0.5) * laneW() - laneX) * 0.22;
+        const prevPx = px;
+        px += (targetX - px) * 0.16;
+        vel = px - prevPx;
 
-        const pw = carW() * 0.82, ph = carH() * 0.9;
-        for (let i = 0; i < obstacles.length; i++) {
-          const o = obstacles[i];
-          const ow = carW() * 0.82, oh = carH() * 0.9;
-          const ox = (o.lane + 0.5) * laneW() - ow / 2;
-          if (laneX - pw / 2 < ox + ow * 0.85 && laneX + pw / 2 > ox + ow * 0.15 && py < o.y + oh * 0.9 && py + ph > o.y + oh * 0.1) {
-            if (shield) {
-              shield = false;
-              obstacles.splice(i, 1);
-              burst(laneX, py + ph / 2, 12, '#ffffff');
-              dashSound('pup');
-            } else {
-              crash();
-            }
+        const pw = carWf() * 0.8, ph = carHf() * 0.88;
+        for (let i = 0; i < gates.length; i++) {
+          const g = gates[i];
+          const hitL = px - pw / 2 < g.l && px + pw / 2 > 0 && py < g.y + barH() && py + ph > g.y;
+          const hitR = px + pw / 2 > g.r && px - pw / 2 < W && py < g.y + barH() && py + ph > g.y;
+          if (hitL || hitR) {
+            crash();
             break;
           }
         }
@@ -1873,14 +1868,13 @@
         if (frames % 6 === 0) {
           if (scoreEl) scoreEl.textContent = Math.floor(distance) + ' m';
           if (speedEl) speedEl.textContent = Math.floor(speed * 21) + ' km/h';
-          if (powerEl) powerEl.textContent = powerLabel();
+          if (powerEl) powerEl.textContent = frames < nitroUntil ? 'NITRO' : mult > 1 ? 'x2' : '\u2014';
         }
       }
       draw();
       rafId = state === 'run' ? requestAnimationFrame(step) : null;
     }
 
-    let visible = true;
     const io = new IntersectionObserver((entries) => {
       entries.forEach((en) => {
         visible = en.isIntersecting;
@@ -1894,30 +1888,27 @@
     }, { threshold: 0.12 });
     io.observe(frame);
 
-    function move(dir) {
-      if (state !== 'run') return;
-      const nl = Math.min(2, Math.max(0, lane + dir));
-      if (nl !== lane) {
-        lane = nl;
-        dashSound('move');
-      }
-    }
     window.addEventListener('keydown', (e) => {
       if (state !== 'run') return;
-      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
-        e.preventDefault();
-        move(-1);
-      } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
-        e.preventDefault();
-        move(1);
-      }
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') { e.preventDefault(); leftHeld = true; }
+      else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') { e.preventDefault(); rightHeld = true; }
+    });
+    window.addEventListener('keyup', (e) => {
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') leftHeld = false;
+      else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') rightHeld = false;
     });
     canvas.addEventListener('pointerdown', (e) => {
       if (state !== 'run' || typeof e.clientX !== 'number') return;
+      steering = true;
       const r = canvas.getBoundingClientRect();
-      if (!r.width) return;
-      move((e.clientX - r.left) / r.width > 0.5 ? 1 : -1);
+      if (r.width) targetX = clampX((e.clientX - r.left) / r.width * canvas.width);
     });
+    canvas.addEventListener('pointermove', (e) => {
+      if (!steering || typeof e.clientX !== 'number') return;
+      const r = canvas.getBoundingClientRect();
+      if (r.width) targetX = clampX((e.clientX - r.left) / r.width * canvas.width);
+    });
+    window.addEventListener('pointerup', () => { steering = false; });
 
     const goBtn = document.querySelector('[data-dash-go]');
     const againBtn = document.querySelector('[data-dash-again]');
@@ -1927,6 +1918,9 @@
     gameApi.pauseDash = () => {
       if (state !== 'run') return;
       state = 'idle';
+      leftHeld = false;
+      rightHeld = false;
+      steering = false;
       if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
       if (startOverlay) startOverlay.hidden = false;
       if (overOverlay) overOverlay.hidden = true;

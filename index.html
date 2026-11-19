@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=12" />
+  <link rel="stylesheet" href="css/style.css?v=13" />
 </head>
 <body>
   <div class="cursor-dot"></div>
@@ -285,14 +285,14 @@
       <p class="collection-sub reveal">Drie spelletjes, &eacute;&eacute;n garage. Kies je race.</p>
 
       <div class="game-tabs reveal" role="tablist">
-        <button class="game-tab active" data-game-tab="dash" type="button" role="tab">01 &mdash; Garage Dash</button>
+        <button class="game-tab active" data-game-tab="dash" type="button" role="tab">01 &mdash; Midnight Run</button>
         <button class="game-tab" data-game-tab="redline" type="button" role="tab">02 &mdash; Redline</button>
         <button class="game-tab" data-game-tab="match" type="button" role="tab">03 &mdash; Spec Match</button>
       </div>
 
       <div class="game-panel active" data-game-panel="dash">
         <div class="game-frame reveal" data-game-frame>
-          <canvas id="dashCanvas" aria-label="Garage Dash speelveld"></canvas>
+          <canvas id="runCanvas" aria-label="Midnight Run speelveld"></canvas>
 
           <div class="game-hud" aria-hidden="true">
             <span>Afstand <strong data-dash-score>0 m</strong></span>
@@ -303,7 +303,7 @@
 
           <div class="game-overlay" data-dash-start>
             <h3>Paraat?</h3>
-            <p>Pijltoetsen &larr; &rarr; of tik links / rechts om te wisselen van strook. Pak NITRO, SCHILD en x2 onderweg.</p>
+            <p>Stuur met &larr; &rarr; of A/D, of hou je vinger op de weg en sleep. Rits door de gaten &mdash; pak NITRO en x2 onderweg.</p>
             <button class="btn btn-primary" data-dash-go type="button">Start &nearr;</button>
           </div>
 
@@ -403,6 +403,6 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
-  <script src="js/main.js?v=12"></script>
+  <script src="js/main.js?v=13"></script>
 </body>
 </html>

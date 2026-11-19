@@ -707,12 +707,27 @@
     const rings = Array.from(document.querySelectorAll('[data-parallax]'));
     const scrubWords = Array.from(document.querySelectorAll('[data-scrub-word]'));
 
+    const dollyTargets = reduceMotion ? [] : Array.from(document.querySelectorAll('[data-dolly-section]')).map((sec) => ({
+      sec,
+      track: sec.querySelector('[data-dolly-track]'),
+      img: sec.querySelector('.dolly-img'),
+      bar: sec.querySelector('[data-dolly-bar]'),
+      measured: false,
+      dispW: 0,
+      callouts: Array.from(sec.querySelectorAll('.dolly-callout')).map((el) => ({
+        el,
+        at: parseFloat(el.dataset.dollyAt) || 0.5,
+        d: 0
+      }))
+    }));
+
     const mediaTargets = medias.map((el) => ({
       el,
       img: el.querySelector('[data-media-transform]') || el.querySelector('.media-img'),
       y: 0
     }));
     const ringTargets = rings.map((el) => ({ el, y: 0 }));
+    window.addEventListener('resize', () => dollyTargets.forEach((t) => { t.measured = false; }));
 
     function frame() {
       const vh = window.innerHeight;
@@ -745,6 +760,32 @@
         const p = (vh - rect.top) / (vh + rect.height);
         const speed = parseFloat(el.dataset.scrubSpeed) || 0.2;
         el.style.transform = `translate(calc(-50% + ${((p - 0.5) * speed * 1200).toFixed(1)}px), -50%)`;
+      });
+
+      dollyTargets.forEach((t) => {
+        if (!t.track || !t.img) return;
+        const vw = window.innerWidth;
+        if (!t.measured && t.img.complete && t.img.naturalWidth) {
+          const aspect = t.img.naturalWidth / t.img.naturalHeight;
+          const h = Math.max(vh, (vw * 1.35) / aspect);
+          t.img.style.height = h.toFixed(0) + 'px';
+          t.dispW = h * aspect;
+          t.measured = true;
+        }
+        const rect = t.sec.getBoundingClientRect();
+        if (rect.bottom < -80 || rect.top > vh + 80) return;
+        const p = Math.min(1, Math.max(0, (vh - rect.top) / Math.max(1, rect.height - vh)));
+        const ease = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+        const pan = Math.max(0, t.dispW - vw);
+        t.track.style.transform = `translateX(${(-pan * ease).toFixed(2)}px)`;
+        t.img.style.transform = `translateY(-50%) scale(${(1.14 - 0.1 * p).toFixed(4)})`;
+        t.callouts.forEach((c) => {
+          const target = Math.min(1, Math.max(0, 1 - Math.abs(p - c.at) / 0.09));
+          c.d += (target - c.d) * 0.16;
+          c.el.style.opacity = c.d.toFixed(3);
+          c.el.style.transform = `translateY(${((1 - c.d) * 30).toFixed(1)}px)`;
+        });
+        if (t.bar) t.bar.style.width = (p * 100).toFixed(2) + '%';
       });
 
       requestAnimationFrame(frame);

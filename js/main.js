@@ -33,74 +33,80 @@
   const CARS = [
     {
       img: 'assets/cars/card-rosso.jpg',
-      tag: 'Concept',
-      name: 'ROSSO APEX',
+      tag: 'Hybrid',
+      name: 'FERRARI LAFERRARI',
+      alias: 'Rosso Apex',
       copy: 'Rood op matzwart. In een garage waar het licht alleen voor haar werkt, staat de belichaming van Motion Garage: stil, maar tijdens het nadenken gevaarlijk.',
       specs: [
-        ['Vermogen', '640 HP'],
-        ['Motor', 'V10'],
-        ['0 – 100', '2.9 s'],
-        ['Top', '325 km/h']
+        ['Vermogen', '963 PK'],
+        ['Motor', 'V12 + HY-KERS'],
+        ['0 \u2013 100', '2.6 s'],
+        ['Top', '350 km/h']
       ]
     },
     {
       img: 'assets/cars/card-phantom.jpg',
       tag: 'Nacht',
-      name: 'PHANTOM',
-      copy: 'Zwart op een lege stad. Waar de laatste lantaarn uitgaat, gaat zij aan — iedereen hoort haar, niemand ziet haar wegrijden.',
+      name: 'AUDI RS6',
+      alias: 'Phantom',
+      copy: 'Zwart op een lege landweg. Waar de laatste lantaarn uitgaat, gaat zij aan \u2014 iedereen hoort haar, niemand ziet haar wegrijden.',
       specs: [
-        ['Vermogen', '650 HP'],
-        ['Motor', 'B6 biturbo'],
-        ['0 – 100', '2.7 s'],
-        ['Top', '330 km/h']
+        ['Vermogen', '600 PK'],
+        ['Motor', 'V8 biturbo'],
+        ['0 \u2013 100', '3.6 s'],
+        ['Top', '305 km/h']
       ]
     },
     {
       img: 'assets/cars/card-nighthawk.jpg',
       tag: 'Detail',
-      name: 'NIGHTHAWK',
-      copy: 'Grille als gepantserd front, koplampen als bliksemafleiders. De nacht legt haar ontwerp bloot — symmetrie is voor doe-het-zelvers.',
+      name: 'BMW M4',
+      alias: 'Nighthawk',
+      copy: 'Grille als gepantserd front, koplampen als bliksemafleiders. De nacht legt haar ontwerp bloot \u2014 symmetrie is voor doe-het-zelvers.',
       specs: [
-        ['Vermogen', '510 HP'],
+        ['Vermogen', '510 PK'],
         ['Motor', 'R6 biturbo'],
-        ['0 – 100', '3.5 s'],
+        ['0 \u2013 100', '3.5 s'],
         ['Top', '290 km/h']
       ]
     },
     {
       img: 'assets/cars/card-heritage.jpg',
       tag: 'Heritage',
-      name: 'SILVER LINE',
-      copy: 'Staal uit een rauwer tijdperk, gewassen in nachtelijk licht. Snelheid was hier nog een belofte in plaats van een spreadsheet.',
+      name: 'FORD MUSTANG GT',
+      alias: 'Heritage',
+      copy: 'Amerikaans staal in een rauwer tijdperk, gewassen in nachtelijk licht. De V8 zingt nog precies zoals de veelheid beloofde.',
       specs: [
-        ['Vermogen', '300 HP'],
-        ['Motor', 'F12 flat-12'],
-        ['0 – 100', '4.4 s'],
-        ['Top', '286 km/h']
+        ['Vermogen', '460 PK'],
+        ['Motor', 'V8 5.0'],
+        ['0 \u2013 100', '4.3 s'],
+        ['Top', '250 km/h']
       ]
     },
     {
       img: 'assets/cars/card-arctic.jpg',
       tag: 'Grand Tour',
-      name: 'ARCTIC GHOST',
-      copy: 'Wit op de nachtstad: koplampen als flitsen, stilte als jachtveld, comfort en brutaliteit in één spiegelglans.',
+      name: 'BUGATTI CHIRON',
+      alias: 'Arctic Ghost',
+      copy: 'Wit op de nachtstad: koplampen als flitsen, stilte als jachtveld, comfort en brutaliteit in \u00e9\u00e9n spiegelglans.',
       specs: [
-        ['Vermogen', '830 HP'],
-        ['Motor', 'V12 heritage'],
-        ['0 – 100', '2.5 s'],
-        ['Top', '340 km/h']
+        ['Vermogen', '1500 PK'],
+        ['Motor', 'W16 quad-turbo'],
+        ['0 \u2013 100', '2.4 s'],
+        ['Top', '420 km/h']
       ]
     },
     {
-      img: 'assets/cars/card-horizon.jpg',
+      img: 'assets/cars/card-r8.jpg',
       tag: 'Studio',
-      name: 'ROSSO NOTTE',
-      copy: 'Karmozijn in een donkere zaal, één spot op het front. Vorm kiest hier bewust voor silhouet boven compromis.',
+      name: 'AUDI R8',
+      alias: 'Nachtvogel',
+      copy: 'Middenmotor tussen de stadslichten. Terwijl de zonsondergang onscherp verdwijnt, blijft alleen haar silhouet scherp.',
       specs: [
-        ['Vermogen', '660 HP'],
-        ['Motor', 'V8 biturbo'],
-        ['0 – 100', '2.9 s'],
-        ['Top', '330 km/h']
+        ['Vermogen', '620 PK'],
+        ['Motor', 'V10'],
+        ['0 \u2013 100', '3.1 s'],
+        ['Top', '331 km/h']
       ]
     },
   ];
@@ -517,6 +523,7 @@
         <div class="car-card-info">
           <div class="car-card-tag">${car.tag}</div>
           <div class="car-card-name">${car.name}</div>
+          <div class="car-card-alias">Bijnaam: &ldquo;${car.alias}&rdquo;</div>
         </div>`;
       card.addEventListener('click', () => openModal(i));
       card.addEventListener('keydown', (e) => {
@@ -571,6 +578,7 @@
     lastFocus = document.activeElement;
     document.getElementById('carModalTag').textContent = car.tag;
     document.getElementById('carModalName').textContent = car.name;
+    document.getElementById('carModalAlias').textContent = 'Bijnaam: \u201c' + car.alias + '\u201d';
     document.getElementById('carModalCopy').textContent = car.copy;
     img.src = car.img;
     img.alt = car.tag + ' — ' + car.name;
@@ -1309,7 +1317,7 @@
     CARS.slice(0, 6).forEach((car) => {
       const card = document.createElement('div');
       card.className = 'rotunda-card';
-      card.innerHTML = `<img src="${car.img}" alt="${car.name}" />`;
+      card.innerHTML = `<img src="${car.img}" alt="${car.name}" /><div class="rotunda-alias">&ldquo;${car.alias}&rdquo;</div>`;
       ring.appendChild(card);
     });
 
@@ -1531,9 +1539,10 @@
     let rafId = null, visible = true;
     let px = 0, vel = 0;
     let frames = 0, speed = 4.6, distance = 0, traveled = 0, dashOffset = 0;
-    let pickups = [], particles = [], floaters = [];
+    let pickups = [], particles = [], floaters = [], cones = [];
     let nitroIn = 260;
     let nitroUntil = 0, mult = 1, multUntil = 0, apexCool = 0;
+    let coneIn = 300;
     let leftHeld = false, rightHeld = false, steering = false;
     let phase1 = 0, phase2 = 0;
 
@@ -1541,13 +1550,13 @@
     const carWf = () => Math.max(30 * dpr, W * 0.085);
     const carHf = () => carWf() * 1.7;
     const playerRow = () => H - carHf() - 18 * dpr;
-    const A1 = () => 0.15 * W;
-    const A2 = () => 0.05 * W;
-    const k1 = () => (Math.PI * 2) / (760 * Math.max(1, dpr));
-    const k2 = () => (Math.PI * 2) / (520 * Math.max(1, dpr));
-    const halfW = () => Math.max(carWf() * 1.35, W * (0.3 - 0.07 * diff()));
+    const A1 = () => 0.16 * W;
+    const A2 = () => 0.062 * W;
+    const k1 = () => (Math.PI * 2) / (2.2 * Math.max(1, W));
+    const k2 = () => (Math.PI * 2) / (1.55 * Math.max(1, W));
+    const halfW = () => Math.max(carWf() * 1.35, W * (0.3 - 0.095 * diff()));
 
-    const keySpeed = () => Math.max(14, 8.5 * dpr);
+    const keySpeed = () => Math.max(17.5, 0.028 * W);
 
     const centerX = (wy) => W / 2 + A1() * Math.sin(wy * k1() + phase1) + A2() * Math.sin(wy * k2() + phase2);
     const slopeAt = (wy) => A1() * k1() * Math.cos(wy * k1() + phase1) + A2() * k2() * Math.cos(wy * k2() + phase2);
@@ -1615,6 +1624,25 @@
       });
       c.stroke();
       c.setLineDash([]);
+
+      cones.forEach((q) => {
+        if (q.sy < -20 || q.sy > H + 20) return;
+        const qx = centerX(q.wy) + q.rel * hw;
+        const s2 = 10 * dpr;
+        c.beginPath();
+        c.moveTo(qx, q.sy - s2);
+        c.lineTo(qx + s2 * 0.75, q.sy + s2 * 0.8);
+        c.lineTo(qx - s2 * 0.75, q.sy + s2 * 0.8);
+        c.closePath();
+        c.fillStyle = '#1a1a1e';
+        c.fill();
+        c.strokeStyle = 'rgba(225,6,0,0.9)';
+        c.lineWidth = 2 * dpr;
+        c.shadowColor = 'rgba(225,6,0,0.6)';
+        c.shadowBlur = 8 * dpr;
+        c.stroke();
+        c.shadowBlur = 0;
+      });
 
       pickups.forEach((p) => {
         if (p.sy < -20 || p.sy > H + 20) return;
@@ -1776,6 +1804,8 @@
       mult = 1;
       multUntil = 0;
       apexCool = 0;
+      cones = [];
+      coneIn = 300;
       leftHeld = false;
       rightHeld = false;
       phase1 = Math.random() * Math.PI * 2;
@@ -1793,15 +1823,15 @@
     function step() {
       if (state === 'run') {
         frames++;
-        speed = Math.min(12.5, 4.6 + frames * 0.0016) + (frames < nitroUntil ? 3.8 : 0);
+        speed = Math.min(13.8, 5.4 + frames * 0.0035) + (frames < nitroUntil ? 3.8 : 0);
         distance += (speed * 1.7) / dpr * mult;
         traveled += speed * 1.15;
         dashOffset = (dashOffset + speed) % (70 * dpr);
 
         if (leftHeld) px -= keySpeed();
         if (rightHeld) px += keySpeed();
-        if (frames < 45) {
-          px += (centerX(traveled) - px) * 0.05;
+        if (frames < 25) {
+          px += (centerX(traveled) - px) * 0.03;
         }
         px = Math.max(carWf() * 0.55, Math.min(W - carWf() * 0.55, px));
 
@@ -1811,6 +1841,19 @@
           const reach = Math.min(360 * dpr, halfW() * 0.55);
           pickups.push({ wy: wy, x: centerX(wy) + (Math.random() * 2 - 1) * reach, kind: Math.random() < 0.55 ? 'nitro' : 'x2', sy: 0 });
           nitroIn = Math.round(240 + Math.random() * 160);
+        }
+
+        coneIn--;
+        if (coneIn <= 0 && cones.length < 5) {
+          const wy = traveled + 900 * dpr;
+          const slots = [-0.62, 0, 0.62];
+          for (let i = slots.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            const t = slots[i]; slots[i] = slots[j]; slots[j] = t;
+          }
+          const n = diff() < 0.25 ? 1 : 2;
+          for (let cslot = 0; cslot < n; cslot++) cones.push({ wy: wy, rel: slots[cslot] });
+          coneIn = Math.round(170 + Math.random() * 120 - diff() * 60);
         }
 
         const py = playerRow() + carHf() * 0.05;
@@ -1838,11 +1881,31 @@
         const cx = centerX(traveled);
         const sl = Math.abs(slopeAt(traveled));
         if (apexCool > 0) apexCool--;
-        if (sl > 0.55 && Math.abs(px - cx) < hw * 0.32 && apexCool === 0) {
-          apexCool = 40;
-          const bonus = Math.round(20 * mult);
+        if (sl > 0.5 && Math.abs(px - cx) < hw * 0.22 && apexCool === 0) {
+          apexCool = 60;
+          const bonus = Math.round(30 * mult);
           distance += bonus;
           floaters.push({ x: px, y: py - 34 * dpr, text: 'APEX +' + bonus, life: 50 });
+        }
+
+        for (let i = cones.length - 1; i >= 0; i--) {
+          const q = cones[i];
+          q.sy = py - (q.wy - traveled);
+          if (q.sy > py && q.sy < py + carHf() * 0.9) {
+            const qx = centerX(q.wy) + q.rel * hw;
+            if (Math.abs(qx - px) < carWf() * 0.52) {
+              burst(qx, q.sy, 12, '#e10600');
+              cones.splice(i, 1);
+              crash();
+              break;
+            }
+          } else if (q.sy > H + 20 * dpr) {
+            cones.splice(i, 1);
+          }
+        }
+        if (state !== 'run') {
+          draw();
+          return;
         }
 
         if (frames > multUntil && mult > 1) mult = 1;
@@ -2196,12 +2259,12 @@
     if (bestEl) bestEl.textContent = best ? best + ' beurten' : '\u2014';
 
     const FACES = [
-      ['ROSSO APEX', 'V10 \u00b7 640 HP', 'assets/cars/card-rosso.jpg'],
-      ['PHANTOM', 'V8 BITURBO \u00b7 650', 'assets/cars/card-phantom.jpg'],
-      ['NIGHTHAWK', '0-100 \u00b7 2.9 S', 'assets/cars/card-nighthawk.jpg'],
-      ['SILVER LINE', 'V8 \u00b7 480 HP', 'assets/cars/card-heritage.jpg'],
-      ['ARCTIC GHOST', '0-100 \u00b7 3.4 S', 'assets/cars/card-arctic.jpg'],
-      ['ROSSO NOTTE', 'V8 BITURBO \u00b7 660', 'assets/cars/card-horizon.jpg']
+      ['FERRARI LAFERRARI', '\u201cRosso Apex\u201d \u00b7 V12 \u00b7 963 PK', 'assets/cars/card-rosso.jpg'],
+      ['AUDI RS6', '\u201cPhantom\u201d \u00b7 V8 biturbo \u00b7 600 PK', 'assets/cars/card-phantom.jpg'],
+      ['BMW M4', '\u201cNighthawk\u201d \u00b7 R6 biturbo \u00b7 510 PK', 'assets/cars/card-nighthawk.jpg'],
+      ['FORD MUSTANG GT', '\u201cHeritage\u201d \u00b7 V8 5.0 \u00b7 460 PK', 'assets/cars/card-heritage.jpg'],
+      ['BUGATTI CHIRON', '\u201cArctic Ghost\u201d \u00b7 W16 \u00b7 1500 PK', 'assets/cars/card-arctic.jpg'],
+      ['AUDI R8', '\u201cNachtvogel\u201d \u00b7 V10 \u00b7 620 PK', 'assets/cars/card-r8.jpg']
     ];
 
     let first = null, second = null, lock = false, moves = 0, found = 0;

@@ -1509,40 +1509,48 @@
   const gameApi = { pauseDash: null, resizeDash: null, pauseRed: null, resizeRed: null };
 
   function buildGame() {
-    const canvas = document.getElementById('runCanvas');
+    const canvas = document.getElementById('apexCanvas');
     const frame = document.querySelector('[data-game-frame]');
-    const startOverlay = document.querySelector('[data-dash-start]');
-    const overOverlay = document.querySelector('[data-dash-over]');
-    const scoreEl = document.querySelector('[data-dash-score]');
-    const speedEl = document.querySelector('[data-dash-speed]');
-    const bestEl = document.querySelector('[data-dash-best]');
-    const finalEl = document.querySelector('[data-dash-final]');
-    const powerEl = document.querySelector('[data-dash-power]');
+    const startOverlay = document.querySelector('[data-apex-start]');
+    const overOverlay = document.querySelector('[data-apex-over]');
+    const scoreEl = document.querySelector('[data-apex-score]');
+    const speedEl = document.querySelector('[data-apex-speed]');
+    const bestEl = document.querySelector('[data-apex-best]');
+    const finalEl = document.querySelector('[data-apex-final]');
+    const powerEl = document.querySelector('[data-apex-power]');
     if (!canvas || !frame) return;
     const c = canvas.getContext ? canvas.getContext('2d') : null;
     if (!c) return;
 
     let W = 0, H = 0, dpr = 1;
     let best = 0;
-    try { best = parseInt(localStorage.getItem('mgRunBest') || '0', 10) || 0; } catch (e) {}
+    try { best = parseInt(localStorage.getItem('mgApexBest') || '0', 10) || 0; } catch (e) {}
     if (bestEl) bestEl.textContent = best + ' m';
 
     let state = 'idle';
     let rafId = null, visible = true;
-    let px = 0, targetX = 0, vel = 0;
-    let frames = 0, speed = 4.6, distance = 0, dashOffset = 0;
-    let gates = [], pickups = [], particles = [], floaters = [];
-    let gateIn = 55, lastGateC = 0;
-    let nitroUntil = 0, mult = 1, multUntil = 0;
+    let px = 0, vel = 0;
+    let frames = 0, speed = 4.6, distance = 0, traveled = 0, dashOffset = 0;
+    let pickups = [], particles = [], floaters = [];
+    let nitroIn = 260;
+    let nitroUntil = 0, mult = 1, multUntil = 0, apexCool = 0;
     let leftHeld = false, rightHeld = false, steering = false;
+    let phase1 = 0, phase2 = 0;
 
+    const diff = () => Math.min(1, frames / 7000);
     const carWf = () => Math.max(30 * dpr, W * 0.085);
     const carHf = () => carWf() * 1.7;
-    const playerY = () => H - carHf() - 18 * dpr;
-    const barH = () => 13 * dpr;
-    const diff = () => Math.min(1, frames / 6500);
+    const playerRow = () => H - carHf() - 18 * dpr;
+    const A1 = () => 0.15 * W;
+    const A2 = () => 0.05 * W;
+    const k1 = () => (Math.PI * 2) / (760 * Math.max(1, dpr));
+    const k2 = () => (Math.PI * 2) / (520 * Math.max(1, dpr));
+    const halfW = () => Math.max(carWf() * 1.35, W * (0.3 - 0.07 * diff()));
 
-    const clampX = (x) => Math.max(carWf() * 0.55, Math.min(W - carWf() * 0.55, x));
+    const keySpeed = () => Math.max(14, 8.5 * dpr);
+
+    const centerX = (wy) => W / 2 + A1() * Math.sin(wy * k1() + phase1) + A2() * Math.sin(wy * k2() + phase2);
+    const slopeAt = (wy) => A1() * k1() * Math.cos(wy * k1() + phase1) + A2() * k2() * Math.cos(wy * k2() + phase2);
 
     function roundRect(x, y, w, h, r) {
       c.beginPath();
@@ -1552,53 +1560,6 @@
       c.arcTo(x, y + h, x, y, r);
       c.arcTo(x, y, x + w, y, r);
       c.closePath();
-    }
-
-    function drawCar(x, y, tilt) {
-      const w = carWf(), h = carHf();
-      c.save();
-      c.translate(x, y + h / 2);
-      c.rotate(tilt);
-      c.translate(-x, -y - h / 2);
-      c.fillStyle = 'rgba(0,0,0,0.5)';
-      c.fillRect(x - w / 2 + 4 * dpr, y + h * 0.12, w, h * 0.85);
-      c.fillStyle = '#e10600';
-      roundRect(x - w / 2, y, w, h, 8 * dpr);
-      c.fill();
-      c.fillStyle = 'rgba(0,0,0,0.55)';
-      roundRect(x - w * 0.3, y + h * 0.22, w * 0.6, h * 0.3, 4 * dpr);
-      c.fill();
-      c.fillStyle = 'rgba(255,255,255,0.85)';
-      c.fillRect(x - w * 0.36, y + 2 * dpr, w * 0.2, 2.5 * dpr);
-      c.fillRect(x + w * 0.16, y + 2 * dpr, w * 0.2, 2.5 * dpr);
-      c.fillStyle = 'rgba(225,6,0,0.9)';
-      c.fillRect(x - w * 0.36, y + h - 6 * dpr, w * 0.2, 2.5 * dpr);
-      c.fillRect(x + w * 0.16, y + h - 6 * dpr, w * 0.2, 2.5 * dpr);
-      c.restore();
-      if (frames < nitroUntil) {
-        c.fillStyle = 'rgba(255,255,255,0.35)';
-        const fy = y + h + 2 * dpr;
-        for (let i = 0; i < 10; i++) {
-          const h2 = (8 + ((i * 37 + frames * 9) % 22)) * dpr;
-          c.fillRect(x - w * 0.3 + (i % 2) * w * 0.45 + ((i * 13) % 5) * dpr, fy + i * 4.2 * dpr, 2.4 * dpr, h2);
-        }
-      }
-    }
-
-    function spawnGate() {
-      const gw = carWf() * (2.15 - 0.55 * diff());
-      const spacingFrames = 88 - 26 * diff();
-      const maxShift = 8 * dpr * (spacingFrames + 20) * 0.55;
-      const m = carWf() * 0.9 + gw / 2;
-      let gc = lastGateC + (Math.random() * 2 - 1) * maxShift;
-      gc = Math.max(m, Math.min(W - m, gc));
-      const y = -barH() - 24 * dpr;
-      gates.push({ y: y, l: gc - gw / 2, r: gc + gw / 2, passed: false });
-      lastGateC = gc;
-      gateIn = Math.round(spacingFrames + Math.random() * 26);
-      if (Math.random() < 0.3) {
-        pickups.push({ x: gc, y: y - 46 * dpr, kind: Math.random() < 0.55 ? 'nitro' : 'x2' });
-      }
     }
 
     function burst(x, y, n, color) {
@@ -1614,38 +1575,52 @@
       c.fillStyle = '#0b0b0e';
       c.fillRect(0, 0, W, H);
 
+      const step = 22 * dpr;
+      const pr = playerRow();
+      const hw = halfW();
+      const pts = [];
+      for (let y = -step; y <= H + step; y += step) {
+        const wy = traveled + (pr - y);
+        pts.push({ y: y, cx: centerX(wy) });
+      }
+
+      c.fillStyle = '#141418';
+      pts.forEach((p) => {
+        c.fillRect(p.cx - hw, p.y - step / 2, hw * 2, step + 1);
+      });
+
+      c.strokeStyle = 'rgba(225,6,0,0.72)';
+      c.lineWidth = 3 * dpr;
+      c.shadowColor = 'rgba(225,6,0,0.5)';
+      c.shadowBlur = 8 * dpr;
+      for (const side of [-1, 1]) {
+        c.beginPath();
+        pts.forEach((p, i) => {
+          const ex = p.cx + side * hw;
+          if (i === 0) c.moveTo(ex, p.y);
+          else c.lineTo(ex, p.y);
+        });
+        c.stroke();
+      }
+      c.shadowBlur = 0;
+
       c.strokeStyle = 'rgba(255,255,255,0.14)';
       c.lineWidth = 2 * dpr;
-      c.setLineDash([26 * dpr, 34 * dpr]);
-      c.lineDashOffset = -dashOffset;
-      [0.33, 0.66].forEach((f) => {
-        c.beginPath();
-        c.moveTo(f * W, 0);
-        c.lineTo(f * W, H);
-        c.stroke();
+      c.setLineDash([24 * dpr, 36 * dpr]);
+      c.lineDashOffset = -dashOffset - traveled;
+      c.beginPath();
+      pts.forEach((p, i) => {
+        if (i === 0) c.moveTo(p.cx, p.y);
+        else c.lineTo(p.cx, p.y);
       });
+      c.stroke();
       c.setLineDash([]);
-      c.strokeStyle = 'rgba(225,6,0,0.6)';
-      c.lineWidth = 3 * dpr;
-      c.beginPath(); c.moveTo(3 * dpr, 0); c.lineTo(3 * dpr, H); c.stroke();
-      c.beginPath(); c.moveTo(W - 3 * dpr, 0); c.lineTo(W - 3 * dpr, H); c.stroke();
-
-      gates.forEach((g) => {
-        c.fillStyle = '#1a1a1f';
-        c.fillRect(0, g.y, g.l, barH());
-        c.fillRect(g.r, g.y, W - g.r, barH());
-        c.fillStyle = '#e10600';
-        c.shadowColor = 'rgba(225,6,0,0.6)';
-        c.shadowBlur = 8 * dpr;
-        c.fillRect(Math.max(0, g.l - 3 * dpr), g.y, 3 * dpr, barH());
-        c.fillRect(g.r, g.y, 3 * dpr, barH());
-        c.shadowBlur = 0;
-      });
 
       pickups.forEach((p) => {
+        if (p.sy < -20 || p.sy > H + 20) return;
         const s = 11 * dpr;
         c.save();
-        c.translate(p.x, p.y);
+        c.translate(p.x, p.sy);
         c.rotate(Math.PI / 4 + frames * 0.05);
         c.fillStyle = '#e10600';
         c.shadowColor = 'rgba(225,6,0,0.7)';
@@ -1657,10 +1632,37 @@
         c.font = '700 ' + Math.round(9 * dpr) + 'px "Space Grotesk", sans-serif';
         c.textAlign = 'center';
         c.textBaseline = 'middle';
-        c.fillText(p.kind === 'nitro' ? 'N' : '2', p.x, p.y);
+        c.fillText(p.kind === 'nitro' ? 'N' : '2', p.x, p.sy);
       });
 
-      drawCar(px, playerY(), Math.max(-0.14, Math.min(0.14, vel * 0.012 / dpr)));
+      const py = pr + carHf() * 0.05;
+      c.save();
+      c.translate(px, py + carHf() / 2);
+      c.rotate(Math.max(-0.16, Math.min(0.16, vel * 0.012 / dpr)));
+      c.translate(-px, -py - carHf() / 2);
+      c.fillStyle = 'rgba(0,0,0,0.5)';
+      c.fillRect(px - carWf() / 2 + 4 * dpr, py + carHf() * 0.12, carWf(), carHf() * 0.85);
+      c.fillStyle = '#e10600';
+      roundRect(px - carWf() / 2, py, carWf(), carHf(), 8 * dpr);
+      c.fill();
+      c.fillStyle = 'rgba(0,0,0,0.55)';
+      roundRect(px - carWf() * 0.3, py + carHf() * 0.22, carWf() * 0.6, carHf() * 0.3, 4 * dpr);
+      c.fill();
+      c.fillStyle = 'rgba(255,255,255,0.85)';
+      c.fillRect(px - carWf() * 0.36, py + 2 * dpr, carWf() * 0.2, 2.5 * dpr);
+      c.fillRect(px + carWf() * 0.16, py + 2 * dpr, carWf() * 0.2, 2.5 * dpr);
+      c.fillStyle = 'rgba(225,6,0,0.9)';
+      c.fillRect(px - carWf() * 0.36, py + carHf() - 6 * dpr, carWf() * 0.2, 2.5 * dpr);
+      c.fillRect(px + carWf() * 0.16, py + carHf() - 6 * dpr, carWf() * 0.2, 2.5 * dpr);
+      c.restore();
+
+      if (frames < nitroUntil) {
+        c.fillStyle = 'rgba(255,255,255,0.35)';
+        for (let i = 0; i < 10; i++) {
+          const h2 = (8 + ((i * 37 + frames * 9) % 22)) * dpr;
+          c.fillRect(px - carWf() * 0.3 + (i % 2) * carWf() * 0.45 + ((i * 13) % 5) * dpr, py + carHf() + 2 * dpr + i * 4.2 * dpr, 2.4 * dpr, h2);
+        }
+      }
 
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
@@ -1691,7 +1693,7 @@
       canvas.width = W;
       canvas.height = H;
       canvas.style.height = cssH.toFixed(0) + 'px';
-      px = targetX = W / 2;
+      px = W / 2;
       draw();
     }
     resize();
@@ -1738,11 +1740,11 @@
     function crash() {
       state = 'over';
       dashSound('crash');
-      burst(px, playerY() + carHf() / 2, 26);
+      burst(px, playerRow() + carHf() / 2, 26);
       const score = Math.floor(distance);
       if (score > best) {
         best = score;
-        try { localStorage.setItem('mgRunBest', String(best)); } catch (e) {}
+        try { localStorage.setItem('mgApexBest', String(best)); } catch (e) {}
         if (bestEl) bestEl.textContent = best + ' m';
       }
       if (finalEl) finalEl.textContent = score + ' m';
@@ -1762,21 +1764,23 @@
     }
 
     function start() {
-      gates = [];
       pickups = [];
       particles = [];
       floaters = [];
       frames = 0;
-      gateIn = 55;
-      lastGateC = canvas.width / 2;
       speed = 4.6;
       distance = 0;
+      traveled = 0;
+      nitroIn = 260;
       nitroUntil = 0;
       mult = 1;
       multUntil = 0;
+      apexCool = 0;
       leftHeld = false;
       rightHeld = false;
-      px = targetX = canvas.width / 2;
+      phase1 = Math.random() * Math.PI * 2;
+      phase2 = Math.random() * Math.PI * 2;
+      px = canvas.width / 2;
       if (scoreEl) scoreEl.textContent = '0 m';
       if (speedEl) speedEl.textContent = '0 km/h';
       if (powerEl) powerEl.textContent = '\u2014';
@@ -1789,38 +1793,31 @@
     function step() {
       if (state === 'run') {
         frames++;
-        speed = Math.min(12.5, 4.6 + frames * 0.0018) + (frames < nitroUntil ? 3.6 : 0);
+        speed = Math.min(12.5, 4.6 + frames * 0.0016) + (frames < nitroUntil ? 3.8 : 0);
         distance += (speed * 1.7) / dpr * mult;
+        traveled += speed * 1.15;
         dashOffset = (dashOffset + speed) % (70 * dpr);
 
-        if (leftHeld) targetX = clampX(targetX - 8.5 * dpr);
-        if (rightHeld) targetX = clampX(targetX + 8.5 * dpr);
-        targetX = clampX(targetX);
+        if (leftHeld) px -= keySpeed();
+        if (rightHeld) px += keySpeed();
+        if (frames < 45) {
+          px += (centerX(traveled) - px) * 0.05;
+        }
+        px = Math.max(carWf() * 0.55, Math.min(W - carWf() * 0.55, px));
 
-        gateIn--;
-        if (gateIn <= 0) spawnGate();
-
-        const py = playerY() + carHf() * 0.05;
-        for (let i = gates.length - 1; i >= 0; i--) {
-          const g = gates[i];
-          g.y += speed * 1.15;
-          if (!g.passed && g.y > py + carHf() * 0.5) {
-            g.passed = true;
-            const halfGap = (g.r - g.l) / 2;
-            const edgeDist = Math.abs(px - (g.l + g.r) / 2) - halfGap;
-            if (edgeDist > -carWf() * 0.75) {
-              const bonus = Math.round(30 * mult);
-              distance += bonus;
-              floaters.push({ x: px, y: py, text: '+' + bonus + ' strak', life: 46 });
-            }
-          }
-          if (g.y > H + 40 * dpr) gates.splice(i, 1);
+        nitroIn--;
+        if (nitroIn <= 0) {
+          const wy = traveled + 720 * dpr;
+          const reach = Math.min(360 * dpr, halfW() * 0.55);
+          pickups.push({ wy: wy, x: centerX(wy) + (Math.random() * 2 - 1) * reach, kind: Math.random() < 0.55 ? 'nitro' : 'x2', sy: 0 });
+          nitroIn = Math.round(240 + Math.random() * 160);
         }
 
+        const py = playerRow() + carHf() * 0.05;
         for (let i = pickups.length - 1; i >= 0; i--) {
-          pickups[i].y += speed * 1.15;
           const p = pickups[i];
-          if (p.y > py - 6 * dpr && p.y < playerY() + carHf() && Math.abs(p.x - px) < carWf() * 0.85) {
+          p.sy = py - (p.wy - traveled);
+          if (p.sy > py - 6 * dpr && p.sy < playerRow() + carHf() && Math.abs(p.x - px) < carWf() * 0.85) {
             if (p.kind === 'nitro') {
               nitroUntil = frames + 140;
               floaters.push({ x: px, y: py - 10 * dpr, text: 'NITRO', life: 46 });
@@ -1832,26 +1829,30 @@
             burst(px, py, 10, '#ffffff');
             dashSound('pup');
             pickups.splice(i, 1);
-          } else if (p.y > H + 20 * dpr) {
+          } else if (p.sy > H + 20 * dpr) {
             pickups.splice(i, 1);
           }
+        }
+
+        const hw = halfW();
+        const cx = centerX(traveled);
+        const sl = Math.abs(slopeAt(traveled));
+        if (apexCool > 0) apexCool--;
+        if (sl > 0.55 && Math.abs(px - cx) < hw * 0.32 && apexCool === 0) {
+          apexCool = 40;
+          const bonus = Math.round(20 * mult);
+          distance += bonus;
+          floaters.push({ x: px, y: py - 34 * dpr, text: 'APEX +' + bonus, life: 50 });
         }
 
         if (frames > multUntil && mult > 1) mult = 1;
 
         const prevPx = px;
-        px += (targetX - px) * 0.16;
+        px = Math.max(carWf() * 0.45, Math.min(W - carWf() * 0.45, px));
         vel = px - prevPx;
 
-        const pw = carWf() * 0.8, ph = carHf() * 0.88;
-        for (let i = 0; i < gates.length; i++) {
-          const g = gates[i];
-          const hitL = px - pw / 2 < g.l && px + pw / 2 > 0 && py < g.y + barH() && py + ph > g.y;
-          const hitR = px + pw / 2 > g.r && px - pw / 2 < W && py < g.y + barH() && py + ph > g.y;
-          if (hitL || hitR) {
-            crash();
-            break;
-          }
+        if (px - carWf() * 0.42 < cx - hw || px + carWf() * 0.42 > cx + hw) {
+          crash();
         }
 
         for (let i = particles.length - 1; i >= 0; i--) {
@@ -1901,17 +1902,17 @@
       if (state !== 'run' || typeof e.clientX !== 'number') return;
       steering = true;
       const r = canvas.getBoundingClientRect();
-      if (r.width) targetX = clampX((e.clientX - r.left) / r.width * canvas.width);
+      if (r.width) px = Math.max(carWf() * 0.55, Math.min(W - carWf() * 0.55, (e.clientX - r.left) / r.width * canvas.width));
     });
     canvas.addEventListener('pointermove', (e) => {
       if (!steering || typeof e.clientX !== 'number') return;
       const r = canvas.getBoundingClientRect();
-      if (r.width) targetX = clampX((e.clientX - r.left) / r.width * canvas.width);
+      if (r.width) px = Math.max(carWf() * 0.55, Math.min(W - carWf() * 0.55, (e.clientX - r.left) / r.width * canvas.width));
     });
     window.addEventListener('pointerup', () => { steering = false; });
 
-    const goBtn = document.querySelector('[data-dash-go]');
-    const againBtn = document.querySelector('[data-dash-again]');
+    const goBtn = document.querySelector('[data-apex-go]');
+    const againBtn = document.querySelector('[data-apex-again]');
     if (goBtn) goBtn.addEventListener('click', start);
     if (againBtn) againBtn.addEventListener('click', start);
 
@@ -2195,12 +2196,12 @@
     if (bestEl) bestEl.textContent = best ? best + ' beurten' : '\u2014';
 
     const FACES = [
-      ['ROSSO APEX', 'V10 \u00b7 640 HP'],
-      ['PHANTOM', 'V8 BITURBO \u00b7 650'],
-      ['NIGHTHAWK', '0-100 \u00b7 2.9 S'],
-      ['SILVER LINE', 'V8 \u00b7 480 HP'],
-      ['ARCTIC GHOST', '0-100 \u00b7 3.4 S'],
-      ['ROSSO NOTTE', 'V8 BITURBO \u00b7 660']
+      ['ROSSO APEX', 'V10 \u00b7 640 HP', 'assets/cars/card-rosso.jpg'],
+      ['PHANTOM', 'V8 BITURBO \u00b7 650', 'assets/cars/card-phantom.jpg'],
+      ['NIGHTHAWK', '0-100 \u00b7 2.9 S', 'assets/cars/card-nighthawk.jpg'],
+      ['SILVER LINE', 'V8 \u00b7 480 HP', 'assets/cars/card-heritage.jpg'],
+      ['ARCTIC GHOST', '0-100 \u00b7 3.4 S', 'assets/cars/card-arctic.jpg'],
+      ['ROSSO NOTTE', 'V8 BITURBO \u00b7 660', 'assets/cars/card-horizon.jpg']
     ];
 
     let first = null, second = null, lock = false, moves = 0, found = 0;
@@ -2243,8 +2244,8 @@
       if (winOv) winOv.hidden = true;
       const deck = [];
       FACES.forEach((f, i) => {
-        deck.push({ i: i, name: f[0], sub: f[1] });
-        deck.push({ i: i, name: f[0], sub: f[1] });
+        deck.push({ i: i, name: f[0], sub: f[1], img: f[2] });
+        deck.push({ i: i, name: f[0], sub: f[1], img: f[2] });
       });
       for (let i = deck.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -2264,7 +2265,7 @@
         front.textContent = 'MG';
         const back = document.createElement('span');
         back.className = 'match-face match-back';
-        back.innerHTML = '<strong></strong><i></i>';
+        back.innerHTML = '<img src="' + card.img + '" alt="" loading="lazy"><strong></strong><i></i>';
         back.querySelector('strong').textContent = card.name;
         back.querySelector('i').textContent = card.sub;
         inner.appendChild(front);

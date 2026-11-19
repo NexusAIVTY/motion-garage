@@ -830,6 +830,7 @@
       dispW: 0,
       p: 0,
       skew: 0,
+      roll: 0,
       lastRaw: null,
       callouts: Array.from(sec.querySelectorAll('.dolly-callout')).map((el) => ({
         el,
@@ -891,7 +892,7 @@
         if (rect.bottom < -100 || rect.top > vh + 100) return;
         const p = (vh - rect.top) / (vh + rect.height);
         const speed = parseFloat(el.dataset.scrubSpeed) || 0.2;
-        el.style.transform = `translate(calc(-50% + ${((p - 0.5) * speed * 1200).toFixed(1)}px), -50%)`;
+        el.style.transform = `perspective(1000px) rotateY(${((p - 0.5) * speed * 55).toFixed(2)}deg) translate(calc(-50% + ${((p - 0.5) * speed * 1200).toFixed(1)}px), -50%)`;
       });
 
       dollyTargets.forEach((t) => {
@@ -915,10 +916,11 @@
         t.lastRaw = raw;
         const skewTarget = Math.max(-5, Math.min(5, vel * 220));
         t.skew += (skewTarget - t.skew) * 0.12;
+        t.roll += ((0.5 - raw) * 1.4 - t.roll) * 0.08;
 
         const ease = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
         const pan = Math.max(0, t.dispW - vw);
-        t.track.style.transform = `translateX(${(-pan * ease).toFixed(2)}px) skewX(${t.skew.toFixed(3)}deg)`;
+        t.track.style.transform = `translateX(${(-pan * ease).toFixed(2)}px) skewX(${t.skew.toFixed(3)}deg) rotateZ(${t.roll.toFixed(3)}deg)`;
         t.img.style.transform = `translateY(-50%) rotateY(${((0.5 - p) * 5).toFixed(2)}deg) scale(${(1.16 - 0.14 * p).toFixed(4)})`;
 
         if (t.label) t.label.style.opacity = Math.max(0, 1 - (p - 0.1) / 0.1).toFixed(3);
@@ -987,6 +989,26 @@
 
         if (el.classList.contains('perf-stat')) {
           runPerformance();
+          return;
+        }
+
+        if (el.classList.contains('gauge-row')) {
+          runPerformance();
+          anime({
+            targets: el.querySelector('.gauge'),
+            rotateX: [-55, 0],
+            opacity: [0, 1],
+            duration: 1100,
+            easing: 'easeOutExpo'
+          });
+          anime({
+            targets: el.querySelector('.gauge-center'),
+            opacity: [0, 1],
+            translateY: [18, 0],
+            delay: 250,
+            duration: 700,
+            easing: 'easeOutCubic'
+          });
           return;
         }
 
@@ -1183,6 +1205,57 @@
     });
   }
 
+  /* ---------- Hero lettergolf ---------- */
+  function heroWave() {
+    if (reduceMotion) return;
+    const title = document.querySelector('.hero-title');
+    if (!title) return;
+    let playing = false;
+    title.addEventListener('mouseenter', () => {
+      if (playing) return;
+      const chars = splitChars(title);
+      playing = true;
+      anime({
+        targets: chars,
+        translateY: [
+          { value: -16, duration: 200 },
+          { value: 0, duration: 420 }
+        ],
+        delay: anime.stagger(26),
+        easing: 'easeInOutSine',
+        complete: () => {
+          playing = false;
+        }
+      });
+    });
+  }
+
+  /* ---------- Cinema pointer-tilt ---------- */
+  function cinemaTilt() {
+    if (reduceMotion) return;
+    const cinema = document.querySelector('.cinema');
+    const quote = document.querySelector('.cinema-quote');
+    if (!cinema || !quote) return;
+    if (!window.matchMedia('(pointer: fine)').matches) return;
+    let tx = 0;
+    let cx = 0;
+    cinema.addEventListener('pointermove', (e) => {
+      const r = cinema.getBoundingClientRect();
+      if (!r.width) return;
+      tx = ((e.clientX - r.left) / r.width - 0.5) * 2;
+    });
+    cinema.addEventListener('pointerleave', () => {
+      tx = 0;
+    });
+    (function loop() {
+      cx += (tx - cx) * 0.07;
+      if (Math.abs(cx) > 0.002) {
+        quote.style.transform = `rotateY(${(cx * 4).toFixed(3)}deg)`;
+      }
+      requestAnimationFrame(loop);
+    })();
+  }
+
   /* ---------- 3D rotunda carousel ---------- */
   function buildRotunda() {
     const ring = document.querySelector('[data-rotunda-ring]');
@@ -1221,8 +1294,10 @@
     let lastX = 0;
     const cards = Array.from(ring.children);
 
+    let pitch = 5;
     const apply = () => {
-      ring.style.transform = `rotateX(-5deg) translateZ(-${radius.toFixed(0)}px) rotateY(${angle.toFixed(2)}deg)`;
+      pitch += ((dragging ? -9 : -5) - pitch) * 0.1;
+      ring.style.transform = `rotateX(${pitch.toFixed(2)}deg) translateZ(-${radius.toFixed(0)}px) rotateY(${angle.toFixed(2)}deg)`;
       for (let i = 0; i < cards.length; i++) {
         const a = (360 / cards.length) * i + angle;
         const facing = Math.cos((a * Math.PI) / 180);
@@ -1290,6 +1365,8 @@
       ['runPreloader', runPreloader],
       ['buildHud', buildHud],
       ['titlePop', titlePop],
+      ['heroWave', heroWave],
+      ['cinemaTilt', cinemaTilt],
       ['heroDust', heroDust],
       ['signatureWall', signatureWall],
       ['designRings', designRings],

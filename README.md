@@ -31,6 +31,7 @@ Geserveerd via GitHub Pages: **https://nexusaivty.github.io/motion-garage/**
 - **Dolly speed-streaks** — rode lichtslierten die opduiken naarmate je sneller door de travelling shot scrolt.
 - **Wand in 3D** — signature-wall cellen kantelen nu ook 3D (rotateX) op de energiegolf.
 - **Collectie-flip** — kaarten flippen in 3D (rotateY) zodra ze in beeld schuiven.
+- **Meer 3D-laagjes** — scrub-woorden draaien in een rotateY-perspectief mee, de cinema-quote tilt met de muis, de dolly rolt subtiel mee (rotateZ), de rotonde kantelt extra mee tijdens het slepen, spec-tiles en performance-chips hoppen in 3D bij hover, en de gauge stuurt in met een rotateX-entree.
 - **Replay intro** — nav-knop die de hero-intro opnieuw afspeelt.
 - **Rustige composities** — mat zwart/donkergrijs, rood als enige accent, witte typografie, weinig maar krachtige beweging (plus `prefers-reduced-motion`-support).
 

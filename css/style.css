@@ -394,9 +394,9 @@ img { display: block; }
   border: 1px solid var(--line);
   padding: 6px 12px;
   color: var(--muted);
-  transition: border-color 0.25s ease, color 0.25s ease;
+  transition: border-color 0.25s ease, color 0.25s ease, transform 0.25s ease, background 0.25s ease;
 }
-.perf-chips span:hover { border-color: var(--red); color: #fff; }
+.perf-chips span:hover { border-color: var(--red); color: #fff; transform: translateY(-3px) scale(1.05); background: rgba(225,6,0,0.08); }
 
 /* ---------- Cinema band ---------- */
 .cinema {
@@ -407,7 +407,9 @@ img { display: block; }
   justify-content: center;
   overflow: hidden;
   text-align: center;
+  perspective: 1200px;
 }
+.cinema-quote { will-change: transform; }
 .cinema-media { position: absolute; inset: 0; }
 .cinema-quote {
   position: relative;
@@ -626,7 +628,9 @@ img { display: block; }
   position: relative;
   width: min(300px, 74vw);
   margin: 30px 0 40px;
+  perspective: 700px;
 }
+.gauge { will-change: transform, opacity; }
 .gauge { width: 100%; display: block; overflow: visible; }
 .gauge-track,
 .gauge-fill {
@@ -1308,10 +1312,15 @@ img { display: block; }
 }
 .spec-row {
   display: flex;
+  perspective: 700px;
   gap: 34px;
   flex-wrap: wrap;
   margin-top: 8px;
 }
+.spec {
+  transition: transform 0.3s ease;
+}
+.spec:hover { transform: rotateX(-12deg) translateY(-4px); }
 .spec strong {
   font-family: var(--font-display);
   font-size: 26px;

@@ -1171,6 +1171,7 @@
       ['dolly', 'De reis'],
       ['collection', 'Collectie'],
       ['design', 'Design'],
+      ['game', 'Garage Dash'],
       ['contact', 'Contact']
     ];
     sections.forEach(([id, label]) => {
@@ -1479,6 +1480,280 @@
     });
   }
 
+  /* ---------- Garage Dash game ---------- */
+  function buildGame() {
+    const canvas = document.getElementById('dashCanvas');
+    const frame = document.querySelector('[data-game-frame]');
+    const startOverlay = document.querySelector('[data-dash-start]');
+    const overOverlay = document.querySelector('[data-dash-over]');
+    const scoreEl = document.querySelector('[data-dash-score]');
+    const speedEl = document.querySelector('[data-dash-speed]');
+    const bestEl = document.querySelector('[data-dash-best]');
+    const finalEl = document.querySelector('[data-dash-final]');
+    if (!canvas || !frame) return;
+    const c = canvas.getContext ? canvas.getContext('2d') : null;
+    if (!c) return;
+
+    let W = 0, H = 0, dpr = 1;
+    let best = 0;
+    try { best = parseInt(localStorage.getItem('mgDashBest') || '0', 10) || 0; } catch (e) {}
+    if (bestEl) bestEl.textContent = best + ' m';
+
+    let state = 'idle';
+    let lane = 1, laneX = 0;
+    let obstacles = [];
+    let frames = 0, spawnIn = 46;
+    let speed = 4.2, distance = 0, dashOffset = 0;
+    let rafId = null;
+
+    const laneW = () => W / 3;
+    const carW = () => laneW() * 0.5;
+    const carH = () => carW() * 1.65;
+    const playerY = () => H - carH() - 24 * dpr;
+
+    function roundRect(x, y, w, h, r) {
+      c.beginPath();
+      c.moveTo(x + r, y);
+      c.arcTo(x + w, y, x + w, y + h, r);
+      c.arcTo(x + w, y + h, x, y + h, r);
+      c.arcTo(x, y + h, x, y, r);
+      c.arcTo(x, y, x + w, y, r);
+      c.closePath();
+    }
+
+    function drawCar(x, y, color, enemy) {
+      const w = carW(), h = carH();
+      const lr = 2.5 * dpr;
+      c.save();
+      c.translate(x, y);
+      c.fillStyle = 'rgba(0,0,0,0.5)';
+      c.fillRect(-w / 2 + 4 * dpr, h * 0.12, w, h * 0.85);
+      c.fillStyle = color;
+      roundRect(-w / 2, 0, w, h, 8 * dpr);
+      c.fill();
+      c.fillStyle = enemy ? 'rgba(255,255,255,0.14)' : 'rgba(0,0,0,0.55)';
+      roundRect(-w * 0.3, h * 0.22, w * 0.6, h * 0.3, 4 * dpr);
+      c.fill();
+      if (enemy) {
+        c.fillStyle = '#ffffff';
+        c.fillRect(-w * 0.36, h - 6 * dpr, w * 0.2, lr);
+        c.fillRect(w * 0.16, h - 6 * dpr, w * 0.2, lr);
+        c.fillStyle = '#e10600';
+        c.fillRect(-w * 0.36, 4 * dpr, w * 0.2, lr);
+        c.fillRect(w * 0.16, 4 * dpr, w * 0.2, lr);
+      } else {
+        c.fillStyle = '#ffffff';
+        c.fillRect(-w * 0.36, 2 * dpr, w * 0.2, lr);
+        c.fillRect(w * 0.16, 2 * dpr, w * 0.2, lr);
+        c.fillStyle = 'rgba(225,6,0,0.9)';
+        c.fillRect(-w * 0.36, h - 6 * dpr, w * 0.2, lr);
+        c.fillRect(w * 0.16, h - 6 * dpr, w * 0.2, lr);
+      }
+      c.restore();
+    }
+
+    function draw() {
+      c.clearRect(0, 0, W, H);
+      c.fillStyle = '#0b0b0e';
+      c.fillRect(0, 0, W, H);
+      c.strokeStyle = 'rgba(255,255,255,0.16)';
+      c.lineWidth = 2 * dpr;
+      c.setLineDash([26 * dpr, 30 * dpr]);
+      c.lineDashOffset = -dashOffset;
+      [1, 2].forEach((i) => {
+        c.beginPath();
+        c.moveTo(i * laneW(), 0);
+        c.lineTo(i * laneW(), H);
+        c.stroke();
+      });
+      c.setLineDash([]);
+      c.strokeStyle = 'rgba(225,6,0,0.55)';
+      c.lineWidth = 3 * dpr;
+      c.beginPath(); c.moveTo(2 * dpr, 0); c.lineTo(2 * dpr, H); c.stroke();
+      c.beginPath(); c.moveTo(W - 2 * dpr, 0); c.lineTo(W - 2 * dpr, H); c.stroke();
+      for (let i = 0; i < obstacles.length; i++) {
+        drawCar((obstacles[i].lane + 0.5) * laneW(), obstacles[i].y, '#22222a', true);
+      }
+      drawCar(laneX, playerY(), '#e10600', false);
+    }
+
+    function resize() {
+      const r = frame.getBoundingClientRect();
+      const cw = r.width || 340;
+      const cssH = Math.min(560, Math.max(280, cw * 0.72));
+      dpr = Math.min(2, window.devicePixelRatio || 1);
+      W = Math.floor(cw * dpr);
+      H = Math.floor(cssH * dpr);
+      canvas.width = W;
+      canvas.height = H;
+      canvas.style.height = cssH.toFixed(0) + 'px';
+      laneX = (lane + 0.5) * laneW();
+      draw();
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    function dashSound(kind) {
+      if (!soundOn) return;
+      try {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return;
+        const ctx = new AC();
+        const t0 = ctx.currentTime;
+        if (kind === 'move') {
+          const o = ctx.createOscillator();
+          o.type = 'triangle';
+          o.frequency.setValueAtTime(340, t0);
+          o.frequency.exponentialRampToValueAtTime(180, t0 + 0.09);
+          const g = ctx.createGain();
+          g.gain.setValueAtTime(0.07, t0);
+          g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.1);
+          o.connect(g);
+          g.connect(ctx.destination);
+          o.start(t0);
+          o.stop(t0 + 0.11);
+          setTimeout(() => ctx.close().catch(() => {}), 220);
+        } else {
+          const len = Math.floor(ctx.sampleRate * 0.35);
+          const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+          const d = buf.getChannelData(0);
+          for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 1.6);
+          const src = ctx.createBufferSource();
+          src.buffer = buf;
+          const g = ctx.createGain();
+          g.gain.value = 0.3;
+          src.connect(g);
+          g.connect(ctx.destination);
+          src.start(t0);
+          setTimeout(() => ctx.close().catch(() => {}), 500);
+        }
+      } catch (e) {}
+    }
+
+    function crash() {
+      state = 'over';
+      dashSound('crash');
+      const score = Math.floor(distance);
+      if (score > best) {
+        best = score;
+        try { localStorage.setItem('mgDashBest', String(best)); } catch (e) {}
+        if (bestEl) bestEl.textContent = best + ' m';
+      }
+      if (finalEl) finalEl.textContent = score + ' m';
+      if (overOverlay) {
+        overOverlay.hidden = false;
+        if (!reduceMotion) {
+          anime({
+            targets: frame,
+            translateX: [0, -12, 10, -7, 4, 0],
+            duration: 420,
+            easing: 'easeInOutQuad'
+          });
+          anime({ targets: overOverlay, opacity: [0, 1], duration: 350, easing: 'easeOutQuad' });
+        }
+      }
+    }
+
+    function start() {
+      obstacles = [];
+      frames = 0;
+      spawnIn = 46;
+      speed = 4.2;
+      distance = 0;
+      lane = 1;
+      laneX = (1 + 0.5) * laneW();
+      if (scoreEl) scoreEl.textContent = '0 m';
+      if (speedEl) speedEl.textContent = '0 km/h';
+      if (startOverlay) startOverlay.hidden = true;
+      if (overOverlay) overOverlay.hidden = true;
+      state = 'run';
+      if (rafId === null && visible) rafId = requestAnimationFrame(step);
+    }
+
+    function step() {
+      if (state === 'run') {
+        frames++;
+        speed = Math.min(13, 4.2 + frames * 0.002);
+        distance += (speed * 1.7) / dpr;
+        dashOffset = (dashOffset + speed) % (70 * dpr);
+        spawnIn--;
+        if (spawnIn <= 0) {
+          let ol = Math.floor(Math.random() * 3);
+          if (obstacles.length && obstacles[obstacles.length - 1].lane === ol && Math.random() < 0.5) {
+            ol = (ol + 1 + Math.floor(Math.random() * 2)) % 3;
+          }
+          obstacles.push({ lane: ol, y: -carH() * 1.8 });
+          spawnIn = Math.round(Math.max(26, 80 - speed * 3.4) + Math.random() * 22);
+        }
+        for (let i = 0; i < obstacles.length; i++) obstacles[i].y += speed * 1.15;
+        obstacles = obstacles.filter((o) => o.y < H + carH() * 2);
+
+        laneX += ((lane + 0.5) * laneW() - laneX) * 0.22;
+
+        const pw = carW() * 0.82, ph = carH() * 0.9;
+        const py = playerY() + carH() * 0.05;
+        for (let i = 0; i < obstacles.length; i++) {
+          const o = obstacles[i];
+          const ow = carW() * 0.82, oh = carH() * 0.9;
+          const ox = (o.lane + 0.5) * laneW() - ow / 2;
+          if (laneX - pw / 2 < ox + ow * 0.85 && laneX + pw / 2 > ox + ow * 0.15 && py < o.y + oh * 0.9 && py + ph > o.y + oh * 0.1) {
+            crash();
+            break;
+          }
+        }
+
+        if (scoreEl && frames % 6 === 0) scoreEl.textContent = Math.floor(distance) + ' m';
+        if (speedEl && frames % 6 === 0) speedEl.textContent = Math.floor(speed * 21) + ' km/h';
+      }
+      draw();
+      rafId = state === 'run' ? requestAnimationFrame(step) : null;
+    }
+
+    let visible = true;
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((en) => {
+        visible = en.isIntersecting;
+        if (!visible && rafId !== null) {
+          cancelAnimationFrame(rafId);
+          rafId = null;
+        } else if (visible && state === 'run' && rafId === null) {
+          rafId = requestAnimationFrame(step);
+        }
+      });
+    }, { threshold: 0.12 });
+    io.observe(frame);
+
+    function move(dir) {
+      if (state !== 'run') return;
+      const nl = Math.min(2, Math.max(0, lane + dir));
+      if (nl !== lane) {
+        lane = nl;
+        dashSound('move');
+      }
+    }
+    window.addEventListener('keydown', (e) => {
+      if (state !== 'run') return;
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+        e.preventDefault();
+        move(-1);
+      } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+        e.preventDefault();
+        move(1);
+      }
+    });
+    canvas.addEventListener('pointerdown', (e) => {
+      if (state !== 'run' || typeof e.clientX !== 'number') return;
+      const r = canvas.getBoundingClientRect();
+      if (!r.width) return;
+      move((e.clientX - r.left) / r.width > 0.5 ? 1 : -1);
+    });
+
+    const goBtn = document.querySelector('[data-dash-go]');
+    const againBtn = document.querySelector('[data-dash-again]');
+    if (goBtn) goBtn.addEventListener('click', start);
+    if (againBtn) againBtn.addEventListener('click', start);
+  }
+
   /* ---------- Init (hardened: each step isolated) ---------- */
   window.addEventListener('DOMContentLoaded', () => {
     const steps = [
@@ -1500,6 +1775,7 @@
       ['wireModal', wireModal],
       ['wireSound', wireSound],
       ['wireFinish', wireFinish],
+      ['buildGame', buildGame],
       ['setupObserver', setupObserver],
       ['scrollEngine', scrollEngine],
       ['cursor', cursor],

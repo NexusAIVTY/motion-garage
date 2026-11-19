@@ -2,7 +2,7 @@
 
 Een cinematische automotive conceptwebsite, aangedreven door [anime.js v3](https://animejs.com/).
 
-**Make-over (v9)**: Anton display-letters + Space Grotesk, filmkorrel-overlay, editorial gidslijnen, verticale side-text, duotone-kaarten met rode hoek-tick, rotated rode marquee-band en bijgescherpte knoppen/labels.
+**Make-over (v9)**: Anton display-letters + Space Grotesk, filmkorrel-overlay, editorial gidslijnen, verticale side-text, duotone-kaarten met rode hoek-tick, rotated rode marquee-band en bijgescherpte knoppen/labels. **v10**: Garage Dash game.
 
 ## Live
 
@@ -37,6 +37,7 @@ Geserveerd via GitHub Pages: **https://nexusaivty.github.io/motion-garage/**
 - **Enginesound** — gesynthetiseerde WebAudio-rev (geen audiobestanden) bij lights-out, met een Geluid aan/uit-knop in de nav (keuze onthouden via localStorage).
 - **Afwerking-configurator** — kies Rosso / Nero / Argento / Notte en de rotonde herschildert direct.
 - **Slimme nav** — blur + dichtklap bij scrollen, actieve sectielink met rode streep.
+- **Garage Dash game** — echte arcade-runner in canvas: 3 stroken, rode speler-auto, ontwijk obstakels, oplopende snelheid, afstand/snelheid/record-HUD (localStorage), pause buiten beeld, crash-shake + synth-geluid, pijltjes/A-D of tikken.
 - **Meta & SEO** — Open Graph/Twitter-tags, favicon, theme-color.
 - **Replay intro** — nav-knop die de hero-intro opnieuw afspeelt.
 - **Rustige composities** — mat zwart/donkergrijs, rood als enige accent, witte typografie, weinig maar krachtige beweging (plus `prefers-reduced-motion`-support).

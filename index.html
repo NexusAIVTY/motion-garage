@@ -277,6 +277,35 @@
       </div>
     </section>
 
+    <!-- GAME — Garage Dash -->
+    <section class="game section section-dark" id="game">
+      <div class="section-label reveal">The game</div>
+      <h2 class="section-title reveal" data-split>GARAGE DASH</h2>
+      <p class="collection-sub reveal">Rij door de garage. Ontwijk de stal. Hoe ver kom jij?</p>
+
+      <div class="game-frame reveal" data-game-frame>
+        <canvas id="dashCanvas" aria-label="Garage Dash speelveld"></canvas>
+
+        <div class="game-hud" aria-hidden="true">
+          <span>Afstand <strong data-dash-score>0 m</strong></span>
+          <span>Snelheid <strong data-dash-speed>0 km/h</strong></span>
+          <span>Record <strong data-dash-best>0 m</strong></span>
+        </div>
+
+        <div class="game-overlay" data-dash-start>
+          <h3>Paraat?</h3>
+          <p>Pijltoetsen &larr; &rarr; of tik links / rechts om te wisselen van strook.</p>
+          <button class="btn btn-primary" data-dash-go type="button">Start &nearr;</button>
+        </div>
+
+        <div class="game-overlay" data-dash-over hidden>
+          <h3>&mdash; Crash &mdash;</h3>
+          <p class="gameover-score" data-dash-final>0 m</p>
+          <button class="btn btn-ghost" data-dash-again type="button">Opnieuw &nearr;</button>
+        </div>
+      </div>
+    </section>
+
     <!-- CONTACT -->
     <section class="cta section" id="contact">
       <div class="cta-media" data-scroll-media data-parallax-strength="0.22" aria-hidden="true">

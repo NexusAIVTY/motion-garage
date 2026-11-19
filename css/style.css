@@ -660,6 +660,97 @@ img { display: block; }
 /* ---------- Modal 3D ---------- */
 .car-modal { perspective: 1400px; }
 
+/* ---------- Garage Dash game ---------- */
+.game {
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+.game-frame {
+  position: relative;
+  max-width: 760px;
+  margin: 40px auto 0;
+  border: 1px solid var(--line);
+  background: #060608;
+  overflow: hidden;
+  box-shadow: 0 40px 90px rgba(0,0,0,0.5);
+}
+.game-frame::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), transparent 12%, transparent 88%, rgba(0,0,0,0.5));
+}
+#dashCanvas {
+  display: block;
+  width: 100%;
+  height: min(560px, 72vw);
+  touch-action: none;
+}
+.game-hud {
+  position: absolute;
+  top: 12px;
+  left: 14px;
+  right: 14px;
+  z-index: 3;
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  pointer-events: none;
+}
+.game-hud strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 20px;
+  letter-spacing: 2px;
+  color: #fff;
+  margin-top: 3px;
+}
+.game-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: rgba(6,6,8,0.86);
+  backdrop-filter: blur(4px);
+}
+.game-overlay[hidden] { display: none; }
+.game-overlay h3 {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 6vw, 48px);
+  letter-spacing: 3px;
+  color: #fff;
+}
+.game-overlay h3 span { color: var(--red); }
+.game-overlay p {
+  max-width: 300px;
+  color: var(--muted);
+  font-weight: 300;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.gameover-score {
+  font-family: var(--font-display);
+  font-size: 42px;
+  color: var(--red);
+  letter-spacing: 2px;
+  max-width: none !important;
+}
+@media (max-width: 760px) {
+  .game-hud { font-size: 8px; }
+  .game-hud strong { font-size: 15px; }
+}
+
 /* ---------- Preloader ---------- */
 .preloader {
   position: fixed;

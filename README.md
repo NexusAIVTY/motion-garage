@@ -26,7 +26,7 @@ Geserveerd via GitHub Pages: **https://nexusaivty.github.io/motion-garage/**
 index.html          — markup
 css/style.css       — donker thema, rode accenten, reveals
 js/main.js          — anime.js choreografie + scroll-engine + modal + signature grid
-assets/cars/        — compacte JPEG's van de auto's
+assets/cars/        — compressed automotive photography (Unsplash, free license)
 ```
 
 ## Runnen

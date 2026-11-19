@@ -7,10 +7,10 @@
   /* ---------- Car data ---------- */
   const CARS = [
     {
-      img: 'assets/cars/car-hero.jpg',
-      tag: 'Studio',
-      name: 'STAGE ONE',
-      copy: 'Rook, rood licht en remklauwen die branden. De belichaming van Motion Garage: een zwarte sportauto die de camera alle nadruk geeft.',
+      img: 'assets/cars/card-rosso.jpg',
+      tag: 'Concept',
+      name: 'ROSSO APEX',
+      copy: 'Rood op matzwart. In een garage waar het licht alleen voor haar werkt, staat de belichaming van Motion Garage: stil, maar tijdens het nadenken gevaarlijk.',
       specs: [
         ['Vermogen', '640 HP'],
         ['Motor', 'V10'],
@@ -19,77 +19,65 @@
       ]
     },
     {
-      img: 'assets/cars/hero-huracan.jpg',
-      tag: 'Huracán',
-      name: 'RAGING BULL',
-      copy: 'Frontaal, in het rode licht: de Huracán staart je aan alsof de nacht een gezicht heeft. V10, aspiratie zonder turbo, karakter zonder volume.',
+      img: 'assets/cars/card-phantom.jpg',
+      tag: 'Muscle',
+      name: 'IRON SHADE',
+      copy: 'Agressie met bepaalde majesteit: grijs-staal, één blik vooruit en een dreiging die je in de lucht van de garage hoort hangen.',
       specs: [
-        ['Vermogen', '640 HP'],
-        ['Motor', 'V10 5.2 L'],
-        ['0 – 100', '2.9 s'],
-        ['Top', '325 km/h']
+        ['Vermogen', '720 HP'],
+        ['Motor', 'V8 supercharged'],
+        ['0 – 100', '3.1 s'],
+        ['Top', '310 km/h']
       ]
     },
     {
-      img: 'assets/cars/midnight-v10.jpg',
-      tag: 'Huracán',
-      name: 'MIDNIGHT V10',
-      copy: "Zes cilinders, geen turbo's, geen excuses. De Huracán ademt onder blauw neonlicht en het natte asfalt reflecteert elke scherpe lijn — de nacht hoort bij haar.",
+      img: 'assets/cars/card-nighthawk.jpg',
+      tag: 'Detail',
+      name: 'NIGHTHAWK',
+      copy: 'Grille als gepantserd front, koplampen als bliksemafleiders. De nacht legt haar ontwerp bloot — symmetrie is voor doe-het-zelvers.',
       specs: [
-        ['Vermogen', '640 HP'],
-        ['Motor', 'V10 5.2 L'],
-        ['0 – 100', '2.9 s'],
-        ['Top', '325 km/h']
+        ['Vermogen', '510 HP'],
+        ['Motor', 'R6 biturbo'],
+        ['0 – 100', '3.5 s'],
+        ['Top', '290 km/h']
       ]
     },
     {
-      img: 'assets/cars/hyperleggera.jpg',
-      tag: 'Vision GT',
-      name: 'HYPERLEGGERA',
-      copy: 'Vliegtuigprofiel, gekarteld door de wind. Gebouwd in het lab, gehard op de ring. Alles wat eraf kon, is eraf: koolstof, koeling en 1500 paardenkracht.',
+      img: 'assets/cars/card-heritage.jpg',
+      tag: 'Heritage',
+      name: 'SILVER LINE',
+      copy: 'Zilver uit een tijdperk waarin vorm functie was. Deze klassieker herinnert de toekomst aan haar eigen smaak.',
       specs: [
-        ['Vermogen', '1500 HP'],
-        ['Motor', 'W16 quad-turbo'],
-        ['0 – 100', '2.2 s'],
-        ['Top', '420 km/h']
+        ['Vermogen', '300 HP'],
+        ['Motor', 'F12 flat-12'],
+        ['0 – 100', '4.4 s'],
+        ['Top', '286 km/h']
       ]
     },
     {
-      img: 'assets/cars/ronin-gt.jpg',
-      tag: 'Concept',
-      name: 'RONIN GT',
-      copy: 'Eén mes, één mist. De Ronin GT verschijnt pas als het te laat is: zwarte romp, rode schim, een richting die alleen vooruit kent.',
+      img: 'assets/cars/card-arctic.jpg',
+      tag: 'Grand Tour',
+      name: 'ARCTIC GHOST',
+      copy: 'Wit op de nachtstad: koplampen als flitsen, stilte als jachtveld, comfort en brutaliteit in één spiegelglans.',
       specs: [
-        ['Vermogen', '840 HP'],
-        ['Motor', 'V8 biturbo'],
-        ['0 – 100', '2.8 s'],
-        ['Top', '330 km/h']
+        ['Vermogen', '830 HP'],
+        ['Motor', 'V12 heritage'],
+        ['0 – 100', '2.5 s'],
+        ['Top', '340 km/h']
       ]
     },
     {
-      img: 'assets/cars/model-x.jpg',
-      tag: 'EV',
-      name: 'MODEL X',
-      copy: 'Drie elektromotoren, stilte als wapen. De toekomst is niet zacht — ze is direct: zwaartekracht in de rug bij elke tik op het pedaal.',
+      img: 'assets/cars/card-horizon.jpg',
+      tag: 'Grand Tour',
+      name: 'HORIZON',
+      copy: 'Zonsondergang als finishlijn. De Horizon telt geen kilometers — ze meet alleen hoeveel avondlandschappen je langs haar zijkant bent gepasseerd.',
       specs: [
-        ['Vermogen', '1050 HP'],
-        ['Motor', 'Tri-motor EV'],
-        ['0 – 100', '2.1 s'],
-        ['Top', '350 km/h']
+        ['Vermogen', '560 HP'],
+        ['Motor', 'R6 M-Sport'],
+        ['0 – 100', '3.5 s'],
+        ['Top', '305 km/h']
       ]
     },
-    {
-      img: 'assets/cars/rosso-icona.jpg',
-      tag: 'Ferrari Enzo',
-      name: 'ROSSO ICONA',
-      copy: 'F1-technologie met kenteken. Carbon bak, asymmetrische pedalen, een V12 die schreeuwt als er geen morgen is. Icoon per definitie.',
-      specs: [
-        ['Vermogen', '660 HP'],
-        ['Motor', 'V12 6.0 L'],
-        ['0 – 100', '3.65 s'],
-        ['Top', '350 km/h']
-      ]
-    }
   ];
 
   /* ---------- Text helpers ---------- */
@@ -133,7 +121,7 @@
   function buildHeroSlices() {
     const wrap = document.querySelector('.hero-slices');
     if (!wrap || wrap.children.length) return;
-    const img = 'assets/cars/car-hero.jpg';
+    const img = 'assets/cars/hero-nocturne.jpg';
     for (let i = 0; i < SLICES; i++) {
       const s = document.createElement('div');
       s.className = 'slice';

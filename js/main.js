@@ -1575,6 +1575,7 @@
     const gearEl = document.querySelector('[data-drag-gear]');
     const bestEl = document.querySelector('[data-drag-best]');
     const finalEl = document.querySelector('[data-drag-final]');
+    const noteEl = document.querySelector('[data-drag-note]');
     if (!canvas || !frame) return;
     const c = canvas.getContext ? canvas.getContext('2d') : null;
     if (!c) return;
@@ -1595,6 +1596,7 @@
     let launchMod = 1, launchModUntil = 0, weakUntil = 0, limiterUntil = 0, limiterWarned = false;
     let shiftFlash = 0, floaters = [], particles = [], launchQ = '';
     let ambers = [false, false, false], green = false;
+    let ghostDist = 0, ghostT = 12.8, t100 = 0, t201 = 0, trap = 0;
 
     const REDLINE = 9000, IDLE = 1200;
     const GEARS = [0, 92, 152, 208, 258, 302, 344];
@@ -1604,6 +1606,47 @@
     const py = () => H - H * 0.17;
     const carW = () => Math.max(46 * dpr, W * 0.13);
     const carH = () => carW() * 0.42;
+
+    /* doorlopend motorgeluid: toonhoogte volgt de toeren */
+    let engine = null;
+    function engineStart() {
+      if (!soundOn || engine) return;
+      try {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return;
+        const ctx = new AC();
+        const o = ctx.createOscillator();
+        o.type = 'sawtooth';
+        const o2 = ctx.createOscillator();
+        o2.type = 'square';
+        const f = ctx.createBiquadFilter();
+        f.type = 'lowpass';
+        f.frequency.value = 700;
+        const g = ctx.createGain();
+        g.gain.value = 0.032;
+        o.connect(f); o2.connect(f); f.connect(g); g.connect(ctx.destination);
+        o.start(); o2.start();
+        engine = { ctx: ctx, o: o, o2: o2, f: f, g: g };
+      } catch (e) { engine = null; }
+    }
+    function engineRpm(r) {
+      if (!engine) return;
+      try {
+        const w = 55 + (r / REDLINE) * 330;
+        engine.o.frequency.value = w;
+        engine.o2.frequency.value = w * 0.5;
+        engine.f.frequency.value = 350 + (r / REDLINE) * 1600;
+      } catch (e) {}
+    }
+    function engineStop() {
+      if (!engine) return;
+      try {
+        engine.o.stop(engine.ctx.currentTime + 0.12);
+        engine.o2.stop(engine.ctx.currentTime + 0.12);
+        setTimeout(() => { try { engine.ctx.close().catch(() => {}); } catch (e) {} }, 260);
+      } catch (e) {}
+      engine = null;
+    }
 
     function roundRect(x, y, w, h, r) {
       c.beginPath();
@@ -1620,6 +1663,11 @@
         const a = Math.random() * Math.PI * 2;
         const sp = (1 + Math.random() * 4) * dpr;
         particles.push({ x: x, y: y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 26 + Math.random() * 18, size: (1.2 + Math.random() * 2.2) * dpr, color: color || '#e10600' });
+      }
+    }
+    function smoke(x, y, n) {
+      for (let i = 0; i < n; i++) {
+        particles.push({ x: x + (Math.random() - 0.5) * carW() * 0.7, y: y, vx: (Math.random() - 0.5) * 1.4 * dpr, vy: -Math.random() * 1.1 * dpr, life: 30 + Math.random() * 26, size: (2.5 + Math.random() * 3.5) * dpr, color: 'rgba(200,200,205,0.5)' });
       }
     }
 
@@ -1672,6 +1720,10 @@
       holding = false;
     }
 
+    const roadT = (m) => Math.min(1, m / 440);
+    const roadY = (m) => H + (H * 0.34 - H) * roadT(m);
+    const roadHalf = (m) => W * 0.455 * (1 - roadT(m) * 0.86);
+
     function step() {
       if (state === 'tree') {
         frames++;
@@ -1682,30 +1734,31 @@
         if (ambers[0] && treeT === 30) launchSound('amber');
         if (ambers[1] && treeT === 90) launchSound('amber');
         if (ambers[2] && treeT === 150) launchSound('amber');
+        if (holding) rpm = Math.min(REDLINE, rpm + 95);
+        else rpm = Math.max(IDLE, rpm - 130);
+        engineRpm(rpm);
+        if (holding && rpm > 8200 && frames % 4 === 0) smoke(W * 0.63, py() + 4 * dpr, 2);
         if (treeT >= greenAt) {
           green = true;
           launchSound('green');
-          if (rpm > 7400) { launchQ = 'wheels'; launchMod = 0.55; launchModUntil = frames + 60; floaters.push({ x: W / 2, y: py() - 60 * dpr, text: 'WHEELSPIN', life: 44 }); }
-          else if (rpm >= 5200) { launchQ = 'perfect'; launchMod = 1.18; launchModUntil = frames + 180; floaters.push({ x: W / 2, y: py() - 60 * dpr, text: 'PERFECT LAUNCH', life: 50 }); }
-          else { launchQ = 'bog'; launchMod = 0.35; launchModUntil = frames + 45; floaters.push({ x: W / 2, y: py() - 60 * dpr, text: 'TE TRAAG', life: 40 }); }
+          if (rpm > 7400) { launchQ = 'WHEELSPIN'; launchMod = 0.55; launchModUntil = frames + 60; floaters.push({ x: W / 2, y: py() - 60 * dpr, text: 'WHEELSPIN', life: 44 }); }
+          else if (rpm >= 5200) { launchQ = 'PERFECT'; launchMod = 1.18; launchModUntil = frames + 180; floaters.push({ x: W / 2, y: py() - 60 * dpr, text: 'PERFECT LAUNCH', life: 50 }); }
+          else { launchQ = 'TE TRAAG'; launchMod = 0.35; launchModUntil = frames + 45; floaters.push({ x: W / 2, y: py() - 60 * dpr, text: 'TE TRAAG', life: 40 }); }
           state = 'run';
-        } else {
-          if (holding) rpm = Math.min(REDLINE, rpm + 95);
-          else rpm = Math.max(IDLE, rpm - 130);
         }
       } else if (state === 'run') {
         frames++;
-        treeT++;
         raceT++;
         const mod = launchMod && frames < launchModUntil ? launchMod : 1;
         const weak = frames < weakUntil ? 0.6 : 1;
         const limited = frames < limiterUntil ? 0.15 : 1;
-        if (speed < GEARS[gear] - 0.1) {
+        const atLimit = speed >= GEARS[gear] - 0.1;
+        if (!atLimit) {
           if (holding) speed += BASE[gear] * mod * weak * limited * dt;
           else speed = Math.max(0, speed - (7 + speed * 0.03) * dt);
         } else {
           speed = GEARS[gear] - 0.1;
-          if (holding && limiterUntil <= frames && !limiterWarned) {
+          if (holding && !limiterWarned) {
             limiterUntil = frames + 16;
             limiterWarned = true;
             floaters.push({ x: W / 2, y: py() - carH() - 24 * dpr, text: 'LIMITER', life: 30 });
@@ -1714,9 +1767,15 @@
         if (gear < GEARS.length - 1 || speed < GEARS[gear] - 0.2) limiterWarned = holding && speed >= GEARS[gear] - 0.2;
         const gmin = GEARS[gear - 1], gmax = GEARS[gear];
         rpm = Math.max(IDLE, Math.min(REDLINE, IDLE + ((speed - gmin) / (gmax - gmin)) * (REDLINE - 1300)));
+        engineRpm(rpm);
         distance += (speed / 3.6) * dt;
-        if (holding && speed > 30 && frames % 3 === 0) burst(W / 2 - carW() * 0.5, py() + 6 * dpr, 2, speed > 220 ? 'rgba(255,255,255,0.75)' : '#e10600');
+        if (!t100 && speed >= 100) t100 = raceT / 60;
+        if (!t201 && distance >= 201) t201 = raceT / 60;
 
+        if (launchQ === 'WHEELSPIN' && speed < 70) smoke(W * 0.63, py() + 4 * dpr, 2);
+        if (holding && speed > 30 && frames % 3 === 0) burst(W * 0.63 - carW() * 0.5, py() + 6 * dpr, 2, speed > 220 ? 'rgba(255,255,255,0.75)' : '#e10600');
+
+        ghostDist = 402 * Math.pow(Math.min(1, (raceT / 60) / ghostT), 0.92);
         if (shiftFlash > 0) shiftFlash--;
 
         for (let i = particles.length - 1; i >= 0; i--) {
@@ -1737,9 +1796,13 @@
         }
 
         if (distance >= 402) {
+          trap = speed;
+          ghostDist = 402;
           const t = raceT / 60;
           state = 'over';
           holding = false;
+          engineStop();
+          const ghostDelta = t - ghostT;
           let txt = t.toFixed(2) + ' s';
           if (!best || t < best) {
             best = t;
@@ -1748,6 +1811,13 @@
             if (bestEl) bestEl.textContent = best.toFixed(2) + ' s';
           }
           if (finalEl) finalEl.textContent = txt;
+          if (noteEl) {
+            noteEl.textContent = 'Start: ' + launchQ + ' \u00b7 0\u2013100: ' + (t100 ? t100.toFixed(2) + ' s' : '\u2014') +
+              ' \u00b7 201 m: ' + (t201 ? t201.toFixed(2) + ' s' : '\u2014') +
+              ' \u00b7 trap: ' + Math.floor(trap) + ' km/h \u00b7 spookauto: ' +
+              (ghostDelta <= 0 ? '-' : '+') + Math.abs(ghostDelta).toFixed(2) + ' s';
+          }
+          floaters.push({ x: W / 2, y: py() - 80 * dpr, text: ghostDelta <= 0 ? 'JE WINT!' : 'SPOOKAUTO WINT', life: 90 });
           if (overOverlay) {
             overOverlay.hidden = false;
             if (!reduceMotion) {
@@ -1759,6 +1829,36 @@
       draw();
       rafId = state === 'run' || state === 'tree' ? requestAnimationFrame(step) : null;
     }
+
+    function drawCar(x, gw, color, wheelSpin) {
+      const gh = gw * 0.42;
+      const y = py();
+      const bob = shiftFlash > 0 ? Math.sin(shiftFlash) * 2 * dpr : (limitedActive() ? Math.sin(frames * 1.8) * 1.6 * dpr : 0);
+      c.save();
+      c.translate(x, y + bob);
+      c.fillStyle = 'rgba(0,0,0,0.55)';
+      roundRect(-gw / 2 + 3 * dpr, -gh * 0.35, gw, gh, gh * 0.34);
+      c.fill();
+      c.fillStyle = color;
+      roundRect(-gw / 2, -gh, gw, gh, gh * 0.34);
+      c.fill();
+      c.fillStyle = 'rgba(0,0,0,0.55)';
+      roundRect(-gw * 0.3, -gh * 0.82, gw * 0.6, gh * 0.34, 3 * dpr);
+      c.fill();
+      c.fillStyle = 'rgba(255,255,255,0.9)';
+      c.fillRect(-gw * 0.38, -gh * 0.16, gw * 0.18, 2.4 * dpr);
+      c.fillRect(gw * 0.2, -gh * 0.16, gw * 0.18, 2.4 * dpr);
+      c.fillStyle = '#141418';
+      c.beginPath(); c.arc(-gw * 0.3, 0, gh * 0.26, 0, Math.PI * 2); c.fill();
+      c.beginPath(); c.arc(gw * 0.3, 0, gh * 0.26, 0, Math.PI * 2); c.fill();
+      if (wheelSpin) {
+        c.strokeStyle = 'rgba(255,255,255,0.8)';
+        c.lineWidth = 2 * dpr;
+        c.strokeRect(-gw / 2 - 4 * dpr, -gh - 4 * dpr, gw + 8 * dpr, gh + 8 * dpr);
+      }
+      c.restore();
+    }
+    function limitedActive() { return state === 'run' && frames < limiterUntil; }
 
     function draw() {
       c.clearRect(0, 0, W, H);
@@ -1788,22 +1888,17 @@
       c.setLineDash([18 * dpr, 30 * dpr]);
       c.beginPath();
       c.moveTo(vx, H);
-      c.setLineDashOffset = 0;
-      for (let i = 0; i <= 10; i++) {
+      for (let i = 1; i <= 10; i++) {
         const t = i / 10;
-        const ly = H + (vTop - H) * t;
-        const lw = W * 0.5 * (1 - t * 0.86);
-        if (i === 0) c.moveTo(vx, ly);
-        else c.lineTo(vx, ly);
+        c.lineTo(vx, H + (vTop - H) * t);
       }
       c.stroke();
       c.setLineDash([]);
 
       const markRows = [402, 301, 201, 100];
       markRows.forEach((m) => {
-        const t = m / 440;
-        const y = H + (vTop - H) * t;
-        const half = W * 0.455 * (1 - t * 0.86);
+        const y = roadY(m);
+        const half = roadHalf(m);
         c.strokeStyle = 'rgba(255,255,255,0.14)';
         c.lineWidth = 1.4 * dpr;
         c.beginPath(); c.moveTo(vx - half, y); c.lineTo(vx + half, y); c.stroke();
@@ -1812,10 +1907,30 @@
         c.textAlign = 'left';
         c.fillText(m + ' m', vx + half + 4 * dpr, y + 3 * dpr);
       });
+
+      for (let m = Math.max(0, Math.floor(distance / 50) * 50 - 50); m < distance + 420; m += 50) {
+        const t = roadT(m);
+        if (t <= 0.001 || t >= 1) continue;
+        const y = roadY(m);
+        const half = roadHalf(m);
+        c.fillStyle = 'rgba(225,6,0,0.8)';
+        c.beginPath(); c.arc(vx - half - 5 * dpr, y, 2.2 * dpr, 0, Math.PI * 2); c.fill();
+        c.beginPath(); c.arc(vx + half + 5 * dpr, y, 2.2 * dpr, 0, Math.PI * 2); c.fill();
+      }
+
+      {
+        const y = roadY(402);
+        const half = roadHalf(402);
+        const sq = Math.max(5, half / 6);
+        for (let i = 0; i < 8; i++) {
+          c.fillStyle = i % 2 === 0 ? 'rgba(255,255,255,0.75)' : 'rgba(20,20,22,0.9)';
+          c.fillRect(vx - half + i * sq, y - sq / 2, sq, sq);
+        }
+      }
+
       if (distance > 30) {
-        const t = Math.min(1, distance / 440) * 0.999;
-        const y = H + (vTop - H) * t;
-        const half = W * 0.455 * (1 - t * 0.86);
+        const y = roadY(Math.min(439, distance));
+        const half = roadHalf(Math.min(439, distance));
         c.strokeStyle = 'rgba(225,6,0,0.85)';
         c.lineWidth = 2 * dpr;
         c.beginPath(); c.moveTo(vx - half, y); c.lineTo(vx + half, y); c.stroke();
@@ -1840,40 +1955,42 @@
         c.shadowBlur = 0;
       }
 
-      const cx = W / 2, wy = py();
-      if (speed > 150) {
+      if (ghostDist > 2 && ghostDist < 440) {
+        const y = H + (vTop - H) * Math.min(1, ghostDist / 440);
+        const gw = carW() * (1 - Math.min(1, ghostDist / 440) * 0.55);
+        c.save();
+        c.translate(W * 0.33, y);
+        const gh = gw * 0.42;
+        c.fillStyle = 'rgba(0,0,0,0.4)';
+        roundRect(-gw / 2 + 2 * dpr, -gh * 0.35, gw, gh, gh * 0.34);
+        c.fill();
+        c.fillStyle = '#2c2c33';
+        roundRect(-gw / 2, -gh, gw, gh, gh * 0.34);
+        c.fill();
+        c.fillStyle = 'rgba(148,148,156,0.75)';
+        c.fillRect(-gw * 0.38, -gh * 0.16, gw * 0.18, 2.2 * dpr);
+        c.fillRect(gw * 0.2, -gh * 0.16, gw * 0.18, 2.2 * dpr);
+        c.restore();
+      }
+
+      if (speed > 150 && (state === 'run')) {
         c.fillStyle = 'rgba(255,255,255,0.3)';
         for (let i = 0; i < 9; i++) {
           const h2 = (6 + ((i * 53 + frames * 11) % 26)) * dpr;
-          c.fillRect(W * 0.08 + (i * 37 % Math.max(1, (W * 0.1))), H * 0.4 + i * H * 0.06, 2 * dpr, h2);
-          c.fillRect(W * 0.9 - (i * 29 % Math.max(1, (W * 0.1))), H * 0.42 + i * H * 0.055, 2 * dpr, h2);
+          c.fillRect(W * 0.06 + ((i * 37) % Math.max(1, W * 0.1)), H * 0.4 + i * H * 0.06, 2 * dpr, h2);
+          c.fillRect(W * 0.93 - ((i * 29) % Math.max(1, W * 0.1)), H * 0.42 + i * H * 0.055, 2 * dpr, h2);
         }
       }
 
-      const bob = shiftFlash > 0 ? Math.sin(shiftFlash) * 2 * dpr : 0;
-      c.save();
-      c.translate(cx, wy + bob);
-      c.fillStyle = 'rgba(0,0,0,0.55)';
-      roundRect(-carW() / 2 + 3 * dpr, -carH() * 0.35, carW(), carH(), carH() * 0.34);
-      c.fill();
-      c.fillStyle = '#e10600';
-      roundRect(-carW() / 2, -carH(), carW(), carH(), carH() * 0.34);
-      c.fill();
-      c.fillStyle = 'rgba(0,0,0,0.55)';
-      roundRect(-carW() * 0.3, -carH() * 0.82, carW() * 0.6, carH() * 0.34, 3 * dpr);
-      c.fill();
-      c.fillStyle = 'rgba(255,255,255,0.9)';
-      c.fillRect(-carW() * 0.38, -carH() * 0.16, carW() * 0.18, 2.4 * dpr);
-      c.fillRect(carW() * 0.2, -carH() * 0.16, carW() * 0.18, 2.4 * dpr);
-      c.fillStyle = '#141418';
-      c.beginPath(); c.arc(-carW() * 0.3, 0, carH() * 0.26, 0, Math.PI * 2); c.fill();
-      c.beginPath(); c.arc(carW() * 0.3, 0, carH() * 0.26, 0, Math.PI * 2); c.fill();
-      if (shiftFlash > 10) {
-        c.strokeStyle = 'rgba(255,255,255,0.85)';
-        c.lineWidth = 2 * dpr;
-        c.strokeRect(-carW() / 2 - 4 * dpr, -carH() - 4 * dpr, carW() + 8 * dpr, carH() + 8 * dpr);
+      drawCar(W * 0.63, carW(), '#e10600', shiftFlash > 10);
+
+      if (state === 'run' || state === 'over') {
+        const ahead = distance - ghostDist;
+        c.font = '700 ' + Math.round(11 * dpr) + 'px "Space Grotesk", sans-serif';
+        c.textAlign = 'center';
+        c.fillStyle = ahead >= 0 ? 'rgba(20,220,90,0.85)' : 'rgba(255,255,255,0.55)';
+        c.fillText((ahead >= 0 ? '+' : '\u2212') + Math.abs(ahead).toFixed(0) + ' m vs spookauto', W * 0.33, H * 0.36);
       }
-      c.restore();
 
       const bw = W * 0.74, bx = (W - bw) / 2, by = H - 22 * dpr, bh = 9 * dpr;
       c.fillStyle = 'rgba(255,255,255,0.08)';
@@ -1891,18 +2008,15 @@
       c.font = '600 ' + Math.round(9.5 * dpr) + 'px "Space Grotesk", sans-serif';
       c.textAlign = 'left';
       c.fillText('TOEREN', bx, by - 6 * dpr);
-      c.fillText(Math.round(rpm) + ' rpm', bx, H - 34 * dpr + 12 * dpr);
+      c.fillText(Math.round(rpm) + ' rpm', bx, H - 22 * dpr);
       c.textAlign = 'right';
       c.fillText('SHIFT', bx + bw, by - 6 * dpr);
-      if (gearEl) { /* gear big */
-        c.fillStyle = '#ffffff';
-        c.font = '700 ' + Math.round(30 * dpr) + 'px "Anton", sans-serif';
-        c.textAlign = 'right';
-        c.fillText(String(gear), W - 14 * dpr, vTop - 52 * dpr);
-        c.fillStyle = 'rgba(255,255,255,0.4)';
-        c.font = '600 ' + Math.round(9 * dpr) + 'px "Space Grotesk", sans-serif';
-        c.fillText('VERSNELLING', W - 14 * dpr, vTop - 38 * dpr);
-      }
+      c.fillStyle = '#ffffff';
+      c.font = '700 ' + Math.round(30 * dpr) + 'px "Anton", sans-serif';
+      c.fillText(String(gear), W - 14 * dpr, vTop - 52 * dpr);
+      c.fillStyle = 'rgba(255,255,255,0.4)';
+      c.font = '600 ' + Math.round(9 * dpr) + 'px "Space Grotesk", sans-serif';
+      c.fillText('VERSNELLING', W - 14 * dpr, vTop - 38 * dpr);
 
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
@@ -1916,7 +2030,7 @@
       for (let i = 0; i < floaters.length; i++) {
         const f = floaters[i];
         c.globalAlpha = Math.max(0, Math.min(1, f.life / 30));
-        c.fillStyle = f.text === 'PERFECT' || f.text === 'PERFECT LAUNCH' ? 'rgba(20,220,90,0.95)' : '#ffffff';
+        c.fillStyle = f.text === 'PERFECT' || f.text === 'PERFECT LAUNCH' || f.text === 'JE WINT!' ? 'rgba(20,220,90,0.95)' : '#ffffff';
         c.font = '700 ' + Math.round(13 * dpr) + 'px "Space Grotesk", sans-serif';
         c.fillText(f.text, f.x, f.y);
       }
@@ -1945,6 +2059,8 @@
       launchMod = 1; launchModUntil = 0; weakUntil = 0; limiterUntil = 0; limiterWarned = false;
       shiftFlash = 0; floaters = []; particles = [];
       ambers = [false, false, false]; green = false; launchQ = '';
+      ghostDist = 0; t100 = 0; t201 = 0; trap = 0;
+      ghostT = best ? best * 1.02 : 12.8;
       greenAt = Math.floor(195 + Math.random() * 60);
       if (timeEl) timeEl.textContent = '0.00 s';
       if (speedEl) speedEl.textContent = '0 km/h';
@@ -1952,6 +2068,8 @@
       if (startOverlay) startOverlay.hidden = true;
       if (overOverlay) overOverlay.hidden = true;
       state = 'tree';
+      engineStart();
+      engineRpm(rpm);
       if (rafId === null && visible) rafId = requestAnimationFrame(step);
     }
 
@@ -1996,6 +2114,7 @@
       if (state !== 'run' && state !== 'tree') return;
       state = 'idle';
       holding = false;
+      engineStop();
       if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
       if (startOverlay) startOverlay.hidden = false;
       if (overOverlay) overOverlay.hidden = true;

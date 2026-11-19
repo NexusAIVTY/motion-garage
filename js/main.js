@@ -1576,6 +1576,8 @@
     const bestEl = document.querySelector('[data-drag-best]');
     const finalEl = document.querySelector('[data-drag-final]');
     const noteEl = document.querySelector('[data-drag-note]');
+    const garageEl = document.querySelector('[data-drag-garage]');
+    const pickedEl = document.querySelector('[data-drag-picked]');
     if (!canvas || !frame) return;
     const c = canvas.getContext ? canvas.getContext('2d') : null;
     if (!c) return;
@@ -1588,26 +1590,48 @@
     } catch (e) {}
     if (bestEl) bestEl.textContent = best ? best.toFixed(2) + ' s' : '\u2014';
 
+    /* echte modellen: eigen toerenlimiet, topsnelheid, vermogen en 0-100 */
+    const REDLINES = [9000, 7000, 7600, 7500, 6900, 8700, 9000, 8500, 5800];
+    const PAINT = ['#e10600', '#101013', '#16335e', '#131315', '#e6e6ec', '#14141a', '#1e1e22', '#e8620a', '#18181c'];
+    const RATIO = [0, 0.267, 0.442, 0.605, 0.75, 0.878, 1.0];
+    const DEF_BASE = [0, 56, 43, 34, 27, 21, 16];
+    const IDLE = 1200;
+    const dt = 1 / 60;
+
+    let carIdx = 0, R = REDLINES[0], topV = 350, accK = 1, carPk = 963, carT100 = 2.6, carLabel = 'FERRARI LAFERRARI';
+    function loadConfig(i) {
+      carIdx = Math.max(0, Math.min(CARS.length - 1, i | 0));
+      const car = CARS[carIdx];
+      R = REDLINES[carIdx] || 8000;
+      carPk = parseInt(car.specs[0][1], 10) || 500;
+      carT100 = parseFloat(car.specs[2][1]) || 3.4;
+      topV = parseFloat(car.specs[3][1]) || 300;
+      accK = Math.min(1.35, Math.max(0.45, 3.4 / carT100));
+      carLabel = car.name;
+      try { localStorage.setItem('mgDragCar', String(carIdx)); } catch (e) {}
+      if (pickedEl) {
+        pickedEl.textContent = car.name + ' \u201c' + car.alias + '\u201d \u00b7 ' + carPk +
+          ' PK \u00b7 0\u2013100 in ' + carT100.toFixed(1) + ' s \u00b7 top ' + Math.round(topV) + ' km/h';
+      }
+    }
+    const gearMax = (g) => Math.max(40, topV * RATIO[g]);
+    const baseAcc = (g) => DEF_BASE[g] * accK;
+
     let state = 'idle'; /* idle | tree | run | over */
     let rafId = null, visible = true;
     let holding = false;
     let frames = 0, treeT = 0, greenAt = 0, raceT = 0;
-    let rpm = 1200, gear = 1, speed = 0, distance = 0;
+    let rpm = IDLE, gear = 1, speed = 0, distance = 0;
     let launchMod = 1, launchModUntil = 0, weakUntil = 0, limiterUntil = 0, limiterWarned = false;
-    let shiftFlash = 0, floaters = [], particles = [], launchQ = '';
+    let shiftFlash = 0, shiftArmed = false, floaters = [], particles = [], launchQ = '';
     let ambers = [false, false, false], green = false;
     let ghostDist = 0, ghostT = 12.8, t100 = 0, t201 = 0, trap = 0, overAt = 0;
-
-    const REDLINE = 9000, IDLE = 1200;
-    const GEARS = [0, 92, 152, 208, 258, 302, 344];
-    const BASE = [0, 56, 43, 34, 27, 21, 16];
-    const dt = 1 / 60;
 
     const py = () => H - H * 0.17;
     const carW = () => Math.max(46 * dpr, W * 0.13);
     const carH = () => carW() * 0.42;
 
-    /* doorlopend motorgeluid: toonhoogte volgt de toeren */
+    /* doorlopend motorgeluid: toonhoogte volgt de toeren (per-auto redline) */
     let engine = null;
     function engineStart() {
       if (!soundOn || engine) return;
@@ -1633,10 +1657,10 @@
       if (!engine) return;
       if (!soundOn) { engineStop(); return; }
       try {
-        const w = 55 + (r / REDLINE) * 330;
+        const w = 55 + (r / R) * 330;
         engine.o.frequency.value = w;
         engine.o2.frequency.value = w * 0.5;
-        engine.f.frequency.value = 350 + (r / REDLINE) * 1600;
+        engine.f.frequency.value = 350 + (r / R) * 1600;
       } catch (e) {}
     }
     function engineStop() {
@@ -1702,18 +1726,18 @@
     }
 
     function shiftAttempt() {
-      if (gear >= GEARS.length - 1) return;
-      if (rpm >= 7400) {
+      if (gear >= 6) return;
+      if (rpm >= R * 0.82) {
         gear++;
-        if (rpm >= 8100 && rpm <= 8850) {
+        if (rpm >= R * 0.9 && rpm <= R * 0.985) {
           shiftFlash = 26;
-          speed = Math.min(GEARS[gear], speed + 3);
-          floaters.push({ x: W / 2, y: py() - carH() - 26 * dpr, text: 'PERFECT', life: 40 });
+          speed = Math.min(gearMax(gear), speed + 3);
+          floaters.push({ x: W * 0.63, y: py() - carH() - 26 * dpr, text: 'PERFECT', life: 40 });
         }
         launchSound('shift');
       } else {
         weakUntil = frames + 26;
-        floaters.push({ x: W / 2, y: py() - carH() - 26 * dpr, text: 'TE VROEG', life: 36 });
+        floaters.push({ x: W * 0.63, y: py() - carH() - 26 * dpr, text: 'TE VROEG', life: 36 });
       }
     }
 
@@ -1735,16 +1759,16 @@
         if (ambers[0] && treeT === 30) launchSound('amber');
         if (ambers[1] && treeT === 90) launchSound('amber');
         if (ambers[2] && treeT === 150) launchSound('amber');
-        if (holding) rpm = Math.min(REDLINE, rpm + 95);
+        if (holding) rpm = Math.min(R, rpm + 95 * (9000 / R));
         else rpm = Math.max(IDLE, rpm - 130);
         engineRpm(rpm);
-        if (holding && rpm > 8200 && frames % 4 === 0) smoke(W * 0.63, py() + 4 * dpr, 2);
+        if (holding && rpm > R * 0.9 && frames % 4 === 0) smoke(W * 0.63, py() + 4 * dpr, 2);
         if (treeT >= greenAt) {
           green = true;
           launchSound('green');
-          if (rpm > 7400) { launchQ = 'WHEELSPIN'; launchMod = 0.55; launchModUntil = frames + 60; floaters.push({ x: W / 2, y: py() - 60 * dpr, text: 'WHEELSPIN', life: 44 }); }
-          else if (rpm >= 5200) { launchQ = 'PERFECT'; launchMod = 1.18; launchModUntil = frames + 180; floaters.push({ x: W / 2, y: py() - 60 * dpr, text: 'PERFECT LAUNCH', life: 50 }); }
-          else { launchQ = 'TE TRAAG'; launchMod = 0.35; launchModUntil = frames + 45; floaters.push({ x: W / 2, y: py() - 60 * dpr, text: 'TE TRAAG', life: 40 }); }
+          if (rpm > R * 0.82) { launchQ = 'WHEELSPIN'; launchMod = 0.55; launchModUntil = frames + 60; floaters.push({ x: W * 0.63, y: py() - 60 * dpr, text: 'WHEELSPIN', life: 44 }); }
+          else if (rpm >= R * 0.58) { launchQ = 'PERFECT'; launchMod = 1.18; launchModUntil = frames + 180; floaters.push({ x: W * 0.63, y: py() - 60 * dpr, text: 'PERFECT LAUNCH', life: 50 }); }
+          else { launchQ = 'TE TRAAG'; launchMod = 0.35; launchModUntil = frames + 45; floaters.push({ x: W * 0.63, y: py() - 60 * dpr, text: 'TE TRAAG', life: 40 }); }
           state = 'run';
         }
       } else if (state === 'run') {
@@ -1753,25 +1777,32 @@
         const mod = launchMod && frames < launchModUntil ? launchMod : 1;
         const weak = frames < weakUntil ? 0.6 : 1;
         const limited = frames < limiterUntil ? 0.15 : 1;
-        const atLimit = speed >= GEARS[gear] - 0.1;
+        const cap = gearMax(gear);
+        const atLimit = speed >= cap - 0.1;
         if (!atLimit) {
-          if (holding) speed += BASE[gear] * mod * weak * limited * dt;
+          if (holding) speed += baseAcc(gear) * mod * weak * limited * dt;
           else speed = Math.max(0, speed - (7 + speed * 0.03) * dt);
         } else {
-          speed = GEARS[gear] - 0.1;
+          speed = cap - 0.1;
           if (holding && !limiterWarned) {
             limiterUntil = frames + 16;
             limiterWarned = true;
-            floaters.push({ x: W / 2, y: py() - carH() - 24 * dpr, text: 'LIMITER', life: 30 });
+            floaters.push({ x: W * 0.63, y: py() - carH() - 24 * dpr, text: 'LIMITER', life: 30 });
           }
         }
-        if (gear < GEARS.length - 1 || speed < GEARS[gear] - 0.2) limiterWarned = holding && speed >= GEARS[gear] - 0.2;
-        const gmin = GEARS[gear - 1], gmax = GEARS[gear];
-        rpm = Math.max(IDLE, Math.min(REDLINE, IDLE + ((speed - gmin) / (gmax - gmin)) * (REDLINE - 1300)));
+        if (gear < 6 || speed < cap - 0.2) limiterWarned = holding && speed >= cap - 0.2;
+        const gmin = gearMax(gear - 1), gmax = gearMax(gear);
+        rpm = Math.max(IDLE, Math.min(R, IDLE + ((speed - gmin) / Math.max(1, gmax - gmin)) * (R - 1300)));
         engineRpm(rpm);
         distance += (speed / 3.6) * dt;
         if (!t100 && speed >= 100) t100 = raceT / 60;
         if (!t201 && distance >= 201) t201 = raceT / 60;
+
+        if (gear < 6 && rpm >= R * 0.9 && !shiftArmed) {
+          shiftArmed = true;
+          launchSound('amber');
+        }
+        if (rpm < R * 0.86) shiftArmed = false;
 
         if (launchQ === 'WHEELSPIN' && speed < 70) smoke(W * 0.63, py() + 4 * dpr, 2);
         if (holding && speed > 30 && frames % 3 === 0) burst(W * 0.63 - carW() * 0.5, py() + 6 * dpr, 2, speed > 220 ? 'rgba(255,255,255,0.75)' : '#e10600');
@@ -1814,12 +1845,12 @@
           }
           if (finalEl) finalEl.textContent = txt;
           if (noteEl) {
-            noteEl.textContent = 'Start: ' + launchQ + ' \u00b7 0\u2013100: ' + (t100 ? t100.toFixed(2) + ' s' : '\u2014') +
+            noteEl.textContent = carLabel + ' \u00b7 Start: ' + launchQ + ' \u00b7 0\u2013100: ' + (t100 ? t100.toFixed(2) + ' s' : '\u2014') +
               ' \u00b7 201 m: ' + (t201 ? t201.toFixed(2) + ' s' : '\u2014') +
               ' \u00b7 trap: ' + Math.floor(trap) + ' km/h \u00b7 spookauto: ' +
               (ghostDelta <= 0 ? '-' : '+') + Math.abs(ghostDelta).toFixed(2) + ' s';
           }
-          floaters.push({ x: W / 2, y: py() - 80 * dpr, text: ghostDelta <= 0 ? 'JE WINT!' : 'SPOOKAUTO WINT', life: 90 });
+          floaters.push({ x: W * 0.63, y: py() - 80 * dpr, text: ghostDelta <= 0 ? 'JE WINT!' : 'SPOOKAUTO WINT', life: 90 });
           if (overOverlay) {
             overOverlay.hidden = false;
             if (!reduceMotion) {
@@ -1835,7 +1866,8 @@
     function drawCar(x, gw, color, wheelSpin) {
       const gh = gw * 0.42;
       const y = py();
-      const bob = shiftFlash > 0 ? Math.sin(shiftFlash) * 2 * dpr : (limitedActive() ? Math.sin(frames * 1.8) * 1.6 * dpr : 0);
+      let bob = shiftFlash > 0 ? Math.sin(shiftFlash) * 2 * dpr : (limitedActive() ? Math.sin(frames * 1.8) * 1.6 * dpr : 0);
+      if (launchQ === 'WHEELSPIN' && state === 'run' && frames < launchModUntil) bob += Math.sin(frames * 2.3) * 2.5 * dpr;
       c.save();
       c.translate(x, y + bob);
       c.fillStyle = 'rgba(0,0,0,0.55)';
@@ -1844,15 +1876,41 @@
       c.fillStyle = color;
       roundRect(-gw / 2, -gh, gw, gh, gh * 0.34);
       c.fill();
+      c.strokeStyle = 'rgba(255,255,255,0.25)';
+      c.lineWidth = 1.2 * dpr;
+      c.stroke();
       c.fillStyle = 'rgba(0,0,0,0.55)';
       roundRect(-gw * 0.3, -gh * 0.82, gw * 0.6, gh * 0.34, 3 * dpr);
       c.fill();
       c.fillStyle = 'rgba(255,255,255,0.9)';
       c.fillRect(-gw * 0.38, -gh * 0.16, gw * 0.18, 2.4 * dpr);
       c.fillRect(gw * 0.2, -gh * 0.16, gw * 0.18, 2.4 * dpr);
-      c.fillStyle = '#141418';
-      c.beginPath(); c.arc(-gw * 0.3, 0, gh * 0.26, 0, Math.PI * 2); c.fill();
-      c.beginPath(); c.arc(gw * 0.3, 0, gh * 0.26, 0, Math.PI * 2); c.fill();
+      const wa = (distance * 0.35) % (Math.PI * 2);
+      [-gw * 0.3, gw * 0.3].forEach((cxp) => {
+        c.fillStyle = '#141418';
+        c.beginPath(); c.arc(cxp, 0, gh * 0.28, 0, Math.PI * 2); c.fill();
+        c.strokeStyle = 'rgba(255,255,255,0.5)';
+        c.lineWidth = 1.4 * dpr;
+        const rr = gh * 0.17;
+        c.beginPath();
+        c.moveTo(cxp - Math.cos(wa) * rr, Math.sin(wa) * rr);
+        c.lineTo(cxp + Math.cos(wa) * rr, -Math.sin(wa) * rr);
+        c.stroke();
+        c.beginPath();
+        c.moveTo(cxp - Math.cos(wa + Math.PI / 2) * rr, Math.sin(wa + Math.PI / 2) * rr);
+        c.lineTo(cxp + Math.cos(wa + Math.PI / 2) * rr, -Math.sin(wa + Math.PI / 2) * rr);
+        c.stroke();
+      });
+      if (shiftFlash > 16) {
+        c.fillStyle = 'rgba(255,150,40,0.95)';
+        const fx = -gw / 2 - 6 * dpr, fy = -gh * 0.45;
+        c.beginPath();
+        c.moveTo(fx, fy - 4 * dpr);
+        c.lineTo(fx - 16 * dpr, fy);
+        c.lineTo(fx, fy + 4 * dpr);
+        c.closePath();
+        c.fill();
+      }
       if (wheelSpin) {
         c.strokeStyle = 'rgba(255,255,255,0.8)';
         c.lineWidth = 2 * dpr;
@@ -1984,7 +2042,16 @@
         }
       }
 
-      drawCar(W * 0.63, carW(), '#e10600', shiftFlash > 10);
+      drawCar(W * 0.63, carW(), PAINT[carIdx] || '#e10600', shiftFlash > 10);
+
+      if (state === 'run' && gear < 6 && rpm >= R * 0.9) {
+        c.globalAlpha = 0.6 + 0.4 * Math.sin(frames * 0.5);
+        c.fillStyle = '#e10600';
+        c.font = '700 ' + Math.round(22 * dpr) + 'px "Anton", sans-serif';
+        c.textAlign = 'center';
+        c.fillText('SCHAKEL!', W * 0.63, py() - carH() - 34 * dpr);
+        c.globalAlpha = 1;
+      }
 
       if (state === 'tree' && !holding) {
         c.globalAlpha = 0.45 + 0.3 * Math.sin(treeT * 0.25);
@@ -2006,22 +2073,31 @@
       const bw = W * 0.74, bx = (W - bw) / 2, by = H - 22 * dpr, bh = 9 * dpr;
       c.fillStyle = 'rgba(255,255,255,0.08)';
       c.fillRect(bx, by, bw, bh);
-      const winStart = bx + (5200 / REDLINE) * bw, winEnd = bx + (7400 / REDLINE) * bw;
+      const winStart = bx + 0.58 * bw, winEnd = bx + 0.82 * bw;
       c.fillStyle = 'rgba(20,220,90,0.5)';
       c.fillRect(winStart, by, winEnd - winStart, bh);
-      const shiftStart = bx + (8100 / REDLINE) * bw;
-      c.fillStyle = 'rgba(225,6,0,0.55)';
-      c.fillRect(shiftStart, by, bx + bw - shiftStart, bh);
-      const fx = bx + (rpm / REDLINE) * bw;
-      c.fillStyle = rpm >= 8100 ? '#ffffff' : '#e10600';
+      const shiftActive = state === 'run' && gear < 6 && rpm >= R * 0.9;
+      const pulseA = shiftActive ? 0.55 + 0.4 * (0.5 + 0.5 * Math.sin(frames * 0.5)) : 0.55;
+      c.fillStyle = 'rgba(225,6,0,' + pulseA.toFixed(3) + ')';
+      c.fillRect(bx + 0.9 * bw, by, bx + bw - (bx + 0.9 * bw), bh);
+      const mx = bx + 0.94 * bw;
+      c.fillStyle = 'rgba(255,255,255,0.9)';
+      c.beginPath();
+      c.moveTo(mx, by - 2 * dpr);
+      c.lineTo(mx - 4 * dpr, by - 8 * dpr);
+      c.lineTo(mx + 4 * dpr, by - 8 * dpr);
+      c.closePath();
+      c.fill();
+      const fx = bx + (rpm / R) * bw;
+      c.fillStyle = rpm >= R * 0.9 ? '#ffffff' : '#e10600';
       c.fillRect(fx - 1.6 * dpr, by - 3 * dpr, 3.2 * dpr, bh + 6 * dpr);
       c.fillStyle = 'rgba(255,255,255,0.55)';
       c.font = '600 ' + Math.round(9.5 * dpr) + 'px "Space Grotesk", sans-serif';
       c.textAlign = 'left';
-      c.fillText('TOEREN', bx, by - 6 * dpr);
+      c.fillText('TOEREN', bx, by - 11 * dpr);
       c.fillText(Math.round(rpm) + ' rpm', bx, H - 22 * dpr);
       c.textAlign = 'right';
-      c.fillText('SHIFT', bx + bw, by - 6 * dpr);
+      c.fillText('SHIFT', bx + bw, by - 11 * dpr);
       c.fillStyle = '#ffffff';
       c.font = '700 ' + Math.round(30 * dpr) + 'px "Anton", sans-serif';
       c.fillText(String(gear), W - 14 * dpr, vTop - 52 * dpr);
@@ -2064,11 +2140,52 @@
     window.addEventListener('resize', resize);
     gameApi.resizeDash = resize;
 
+    /* car picker: chips per echt model, selectie bewaard in localStorage */
+    function shortLabel(n) {
+      const p = n.indexOf(' ');
+      return p >= 0 ? n.slice(p + 1) : n;
+    }
+    const chips = [];
+    if (garageEl) {
+      CARS.forEach((car, i) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'drag-chip';
+        btn.setAttribute('role', 'option');
+        btn.setAttribute('aria-label', car.name + ' \u00b7 ' + car.alias);
+        const im = document.createElement('img');
+        im.src = car.img;
+        im.alt = '';
+        im.loading = 'lazy';
+        btn.appendChild(im);
+        const sp = document.createElement('span');
+        sp.textContent = shortLabel(car.name);
+        btn.appendChild(sp);
+        btn.addEventListener('click', () => select(i));
+        garageEl.appendChild(btn);
+        chips.push(btn);
+      });
+    }
+    function markChips() {
+      chips.forEach((ch, i) => {
+        ch.classList.toggle('active', i === carIdx);
+        ch.setAttribute('aria-selected', i === carIdx ? 'true' : 'false');
+      });
+    }
+    function select(i) {
+      loadConfig(i);
+      markChips();
+    }
+    let savedIdx = 0;
+    try { savedIdx = parseInt(localStorage.getItem('mgDragCar') || '0', 10) || 0; } catch (e) {}
+    loadConfig(savedIdx);
+    markChips();
+
     function start() {
       frames = 0; treeT = 0; raceT = 0;
       rpm = IDLE; gear = 1; speed = 0; distance = 0;
       launchMod = 1; launchModUntil = 0; weakUntil = 0; limiterUntil = 0; limiterWarned = false;
-      shiftFlash = 0; floaters = []; particles = [];
+      shiftFlash = 0; shiftArmed = false; floaters = []; particles = [];
       ambers = [false, false, false]; green = false; launchQ = '';
       ghostDist = 0; t100 = 0; t201 = 0; trap = 0;
       ghostT = best ? best * 1.02 : 12.8;

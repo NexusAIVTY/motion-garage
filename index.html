@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=18" />
+  <link rel="stylesheet" href="css/style.css?v=19" />
 </head>
 <body>
   <div class="cursor-dot"></div>
@@ -303,9 +303,11 @@
 
           <div class="game-overlay" data-drag-start>
             <h3>LAUNCH</h3>
-            <p>Kwart mijl tegen de klok — en tegen je spookauto. Houd SPATIE (of de baan) ingedrukt om gas te geven en houd de toeren in het groen wanneer de lichten op groen springen. Laat daarna los en druk snel opnieuw in om omhoog te schakelen &mdash; precies rond het toergebied oogst de perfecte shift. 402 m: vol gas, geen rem. Bij de finish krijg je je volledige tijdopname.</p>
+            <p class="drag-intro">Kies je machine &mdash; elk model rijdt met eigen vermogen, versnellingen en toerenlimiet. Houd SPATIE (of de baan) ingedrukt en houd de toeren in het groen wanneer de lichten op groen springen. Laat daarna los en druk snel opnieuw in om te schakelen &mdash; houd de meter in het rode shift-venster en wacht op de SCHAKEL!-prompt voor de perfecte shift. 402 m: vol gas, geen rem. Bij de finish krijg je je volledige tijdopname.</p>
+            <div class="drag-garage" data-drag-garage role="listbox" aria-label="Kies je race-auto"></div>
+            <p class="drag-picked" data-drag-picked></p>
             <button class="btn btn-primary" data-drag-go type="button">Start &nearr;</button>
-          </div>
+            </div>
 
           <div class="game-overlay" data-drag-over hidden>
             <h3>&mdash; Finish &mdash;</h3>
@@ -407,6 +409,6 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
-  <script src="js/main.js?v=18"></script>
+  <script src="js/main.js?v=19"></script>
 </body>
 </html>

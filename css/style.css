@@ -887,6 +887,57 @@ img { display: block; }
   color: #fff;
 }
 .game-overlay h3 span { color: var(--red); }
+.drag-intro {
+  max-width: 470px;
+  font-size: 12.5px;
+}
+.drag-garage {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  max-width: min(540px, 94%);
+  padding: 4px 2px;
+  scrollbar-width: thin;
+}
+.drag-chip {
+  flex: 0 0 auto;
+  width: 64px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0 0 4px;
+  cursor: pointer;
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+.drag-chip img {
+  width: 100%;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 6px 6px 0 0;
+  display: block;
+}
+.drag-chip:hover { border-color: var(--red); transform: translateY(-2px); }
+.drag-chip.active {
+  border-color: var(--red);
+  box-shadow: 0 0 14px rgba(225,6,0,0.45);
+  color: var(--text);
+}
+.drag-picked {
+  color: var(--red);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
 .game-overlay p {
   max-width: 300px;
   color: var(--muted);

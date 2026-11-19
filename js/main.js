@@ -158,6 +158,7 @@
   /* ---------- Hero intro timeline (replayable) ---------- */
   function heroIntro() {
     const chars = splitChars(document.querySelector('.hero-title'));
+    if (chars.length >= 10) chars.slice(6).forEach((c) => c.classList.add('char-outline'));
 
     anime.remove(chars);
     anime.remove('.hero-eyebrow, .hero-sub, .hero-cta, .hero-tiny, .scroll-hint, .scroll-hint-line, .hero-slices');
@@ -512,7 +513,13 @@
 
     if (!reduceMotion) {
       Array.from(info.children).forEach((c) => (c.style.opacity = 0));
-      anime.set('.car-modal-panel', { opacity: 1, translateY: 0, scale: 1 });
+      anime.set('.car-modal-panel', { opacity: 1, translateY: 0, scale: 1, rotateY: -12 });
+      anime({
+        targets: '.car-modal-panel',
+        rotateY: 0,
+        duration: 750,
+        easing: 'easeOutCubic'
+      });
       anime({
         targets: '.car-modal-backdrop',
         opacity: [0, 1],
@@ -562,6 +569,7 @@
         opacity: [1, 0],
         translateY: [0, 30],
         scale: [1, 0.985],
+        rotateY: [0, 8],
         duration: 320,
         easing: 'easeInQuad'
       });
@@ -939,6 +947,116 @@
     });
   }
 
+  /* ---------- Hero 3D depth camera ---------- */
+  function heroDepth() {
+    if (reduceMotion) return;
+    const hero = document.getElementById('hero');
+    const content = document.querySelector('.hero-content');
+    if (!hero || !content) return;
+    if (!window.matchMedia('(pointer: fine)').matches) return;
+    let tx = 0, ty = 0, cx = 0, cy = 0, running = true;
+    hero.addEventListener('pointermove', (e) => {
+      const r = hero.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      tx = ((e.clientX - r.left) / r.width - 0.5) * 2;
+      ty = ((e.clientY - r.top) / r.height - 0.5) * 2;
+    });
+    hero.addEventListener('pointerleave', () => {
+      tx = 0;
+      ty = 0;
+    });
+    (function loop() {
+      if (!running) return;
+      cx += (tx - cx) * 0.06;
+      cy += (ty - cy) * 0.06;
+      if (Math.abs(cx) > 0.002 || Math.abs(cy) > 0.002) {
+        content.style.transform = `rotateY(${(cx * 3).toFixed(3)}deg) rotateX(${(-cy * 2.2).toFixed(3)}deg)`;
+      }
+      requestAnimationFrame(loop);
+    })();
+  }
+
+  /* ---------- 3D rotunda carousel ---------- */
+  function buildRotunda() {
+    const ring = document.querySelector('[data-rotunda-ring]');
+    const host = document.querySelector('[data-rotunda]');
+    if (!ring || !host) return;
+    if (ring.children.length) return;
+
+    CARS.slice(0, 6).forEach((car) => {
+      const card = document.createElement('div');
+      card.className = 'rotunda-card';
+      card.innerHTML = `<img src="${car.img}" alt="${car.name}" />`;
+      ring.appendChild(card);
+    });
+
+    let radius = 320;
+    const place = () => {
+      const card = ring.querySelector('.rotunda-card');
+      const cw = card ? card.offsetWidth || 0 : 0;
+      radius = Math.max(240, cw * 1.08);
+      Array.from(ring.children).forEach((card, i) => {
+        const a = (360 / ring.children.length) * i;
+        card.style.transform = `rotateY(${a}deg) translateZ(${radius.toFixed(0)}px)`;
+      });
+    };
+    place();
+    window.addEventListener('resize', place);
+
+    if (reduceMotion) {
+      ring.style.transform = `translateZ(-${radius}px) rotateY(-22deg)`;
+      return;
+    }
+
+    let angle = -18;
+    let vel = 0.05;
+    let dragging = false;
+    let lastX = 0;
+    const cards = Array.from(ring.children);
+
+    const apply = () => {
+      ring.style.transform = `translateZ(-${radius.toFixed(0)}px) rotateY(${angle.toFixed(2)}deg)`;
+      for (let i = 0; i < cards.length; i++) {
+        const a = (360 / cards.length) * i + angle;
+        const facing = Math.cos((a * Math.PI) / 180);
+        cards[i].style.filter = `brightness(${(0.42 + 0.62 * Math.max(0, facing)).toFixed(3)})`;
+      }
+    };
+
+    host.addEventListener('pointerdown', (e) => {
+      if (typeof e.clientX !== 'number') return;
+      dragging = true;
+      lastX = e.clientX;
+      host.classList.add('grabbing');
+    });
+    window.addEventListener('pointermove', (e) => {
+      if (!dragging || typeof e.clientX !== 'number') return;
+      const d = e.clientX - lastX;
+      lastX = e.clientX;
+      angle += d * 0.25;
+      vel = Math.max(-8, Math.min(8, d * 0.16));
+      apply();
+    });
+    window.addEventListener('pointerup', () => {
+      dragging = false;
+      host.classList.remove('grabbing');
+    });
+
+    (function loop() {
+      const vh = window.innerHeight;
+      const rect = host.getBoundingClientRect();
+      const vis = rect.top < vh * 1.15 && rect.bottom > -vh * 0.15;
+      if (vis) {
+        if (!dragging) {
+          angle += vel;
+          vel += (0.05 - vel) * 0.02;
+        }
+        apply();
+      }
+      requestAnimationFrame(loop);
+    })();
+  }
+
   /* ---------- Init (hardened: each step isolated) ---------- */
   window.addEventListener('DOMContentLoaded', () => {
     const steps = [
@@ -948,6 +1066,8 @@
       ['heroDust', heroDust],
       ['signatureWall', signatureWall],
       ['designRings', designRings],
+      ['buildRotunda', buildRotunda],
+      ['heroDepth', heroDepth],
       ['wireReplay', wireReplay],
       ['wireIgnite', wireIgnite],
       ['wireModal', wireModal],

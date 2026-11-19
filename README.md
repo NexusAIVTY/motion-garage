@@ -24,6 +24,13 @@ Geserveerd via GitHub Pages: **https://nexusaivty.github.io/motion-garage/**
 - **Sleepbare 3D-rotonde** — cilinder-carrousel met zes auto's, autorotatie, drag met inertia en facing-based belichting (achterste kaarten dimmen).
 - **3D modal-flip** — kaartmodal opent met een lichte rotateY-flip in perspective.
 - **Concept & Design-secties** — "Gebouwd rond beleving" met feature-kaarten, en "Elk detail een reden" met langzaam draaiende rode design-ringen.
+- **Preloader-intro** — "MOTION GARAGE" bouwt letter voor letter met rode laadbalk, en schakelt dan vloeiend door naar de hero-intro (met failsafe als het CDN niet reageert).
+- **Sectie-HUD** — vaste rechterrail met indicatoren per sectie; actieve sectie gloeit rood, klik scrolt er naartoe; labels verschijnen bij hover.
+- **Interactieve titelletters** — elke letter van sectie- en showcase-titels stuitert rood omhoog onder de cursor (animejs-stijl).
+- **Cockpit-gauge** — halfronde rode krachtindex-buis met count-up, opnieuw opgeladen bij Ignition (grid-vloer versnelt dan tijdelijk mee).
+- **Dolly speed-streaks** — rode lichtslierten die opduiken naarmate je sneller door de travelling shot scrolt.
+- **Wand in 3D** — signature-wall cellen kantelen nu ook 3D (rotateX) op de energiegolf.
+- **Collectie-flip** — kaarten flippen in 3D (rotateY) zodra ze in beeld schuiven.
 - **Replay intro** — nav-knop die de hero-intro opnieuw afspeelt.
 - **Rustige composities** — mat zwart/donkergrijs, rood als enige accent, witte typografie, weinig maar krachtige beweging (plus `prefers-reduced-motion`-support).
 

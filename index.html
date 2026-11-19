@@ -15,6 +15,16 @@
   <div class="cursor-ring"></div>
   <div class="scroll-progress"></div>
 
+  <!-- PRELOADER -->
+  <div class="preloader" id="preloader" aria-hidden="true">
+    <div class="preloader-mark"><h1 data-pre-split>MOTION GARAGE</h1></div>
+    <div class="preloader-bar"><span class="preloader-fill"></span></div>
+    <p class="preloader-note">Garage wordt geopend</p>
+  </div>
+
+  <!-- SECTION HUD -->
+  <nav class="hud" id="hud" aria-label="Sectienavigatie"></nav>
+
   <header class="nav">
     <a class="logo" href="#hero">MOTION<span>GARAGE</span></a>
     <nav class="nav-links">
@@ -97,6 +107,18 @@
       <div class="grid-floor" aria-hidden="true"></div>
       <div class="section-label reveal">Performance</div>
       <h2 class="section-title reveal" data-split>NUMBERS THAT BURN</h2>
+
+      <div class="gauge-row reveal">
+        <svg class="gauge" viewBox="0 0 220 130" aria-hidden="true">
+          <path class="gauge-track" d="M 30 110 A 80 80 0 1 1 190 110" pathLength="1" />
+          <path class="gauge-fill" data-gauge-fill d="M 30 110 A 80 80 0 1 1 190 110" pathLength="1" />
+        </svg>
+        <div class="gauge-center">
+          <strong data-gauge-num>0%</strong>
+          <span>Krachtindex</span>
+        </div>
+      </div>
+
       <div class="perf-grid">
         <div class="perf-stats">
           <div class="perf-stat reveal">
@@ -191,6 +213,8 @@
           <span class="dolly-k">03 &sol; Finish</span>
           <h3>De reis eindigt. De honger niet.</h3>
         </div>
+
+        <div class="dolly-streaks" aria-hidden="true"></div>
 
         <div class="dolly-progress"><span class="dolly-bar" data-dolly-bar></span></div>
         <div class="dolly-veil" aria-hidden="true"></div>

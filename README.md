@@ -8,7 +8,9 @@ Geserveerd via GitHub Pages: **https://nexusaivty.github.io/motion-garage/**
 
 ## Wat er in zit
 
-- **Grote beeldvullende autosecties** — fullscreen fotografie met scroll-parallax en vloeiend in-/uit-zoomen (scale gekoppeld aan scrollpositie).
+- **Grote beeldvullende autosecties** — fullscreen fotografie met scroll-parallax, vloeiend in-/uit-zoomen én scroll-gedreven 3D-kanteling (rotateX-perspectief).
+- **3D-detailkaarten** — feature-kaarten tilten in perspectief met de muis; performance-waarden openen met een rotateX-pop.
+- **3D-dolly yaw** — tijdens de travelling shot kantelt de camera subtiel mee met de reis.
 - **Gesynchroniseerde tekst** — titels openen per letter, quotes per woord met blur, synchroon met de beelden via IntersectionObserver.
 - **Interactieve prestaties** — geanimeerde tellers (vermogen, topsnelheid, acceleratie, koppel) en performance-balken.
 - **Interactieve collectie** — 6 projectkaarten met hover-zoom, rode accentlijnen en click-to-open detailmodal met vloeiende overgangen.

@@ -20,14 +20,14 @@
     },
     {
       img: 'assets/cars/card-phantom.jpg',
-      tag: 'Muscle',
-      name: 'IRON SHADE',
-      copy: 'Agressie met bepaalde majesteit: grijs-staal, één blik vooruit en een dreiging die je in de lucht van de garage hoort hangen.',
+      tag: 'Nacht',
+      name: 'PHANTOM',
+      copy: 'Zwart op een lege stad. Waar de laatste lantaarn uitgaat, gaat zij aan — iedereen hoort haar, niemand ziet haar wegrijden.',
       specs: [
-        ['Vermogen', '720 HP'],
-        ['Motor', 'V8 supercharged'],
-        ['0 – 100', '3.1 s'],
-        ['Top', '310 km/h']
+        ['Vermogen', '650 HP'],
+        ['Motor', 'B6 biturbo'],
+        ['0 – 100', '2.7 s'],
+        ['Top', '330 km/h']
       ]
     },
     {
@@ -46,7 +46,7 @@
       img: 'assets/cars/card-heritage.jpg',
       tag: 'Heritage',
       name: 'SILVER LINE',
-      copy: 'Zilver uit een tijdperk waarin vorm functie was. Deze klassieker herinnert de toekomst aan haar eigen smaak.',
+      copy: 'Staal uit een rauwer tijdperk, gewassen in nachtelijk licht. Snelheid was hier nog een belofte in plaats van een spreadsheet.',
       specs: [
         ['Vermogen', '300 HP'],
         ['Motor', 'F12 flat-12'],
@@ -68,14 +68,14 @@
     },
     {
       img: 'assets/cars/card-horizon.jpg',
-      tag: 'Grand Tour',
-      name: 'HORIZON',
-      copy: 'Zonsondergang als finishlijn. De Horizon telt geen kilometers — ze meet alleen hoeveel avondlandschappen je langs haar zijkant bent gepasseerd.',
+      tag: 'Studio',
+      name: 'ROSSO NOTTE',
+      copy: 'Karmozijn in een donkere zaal, één spot op het front. Vorm kiest hier bewust voor silhouet boven compromis.',
       specs: [
-        ['Vermogen', '560 HP'],
-        ['Motor', 'R6 M-Sport'],
-        ['0 – 100', '3.5 s'],
-        ['Top', '305 km/h']
+        ['Vermogen', '660 HP'],
+        ['Motor', 'V8 biturbo'],
+        ['0 – 100', '2.9 s'],
+        ['Top', '330 km/h']
       ]
     },
   ];
@@ -592,6 +592,17 @@
   function runPerformance() {
     if (perfPlayed) return;
     perfPlayed = true;
+    if (!reduceMotion) {
+      anime.set('.perf-value', { rotateX: -70, opacity: 0 });
+      anime({
+        targets: '.perf-value',
+        rotateX: [-70, 0],
+        opacity: [0, 1],
+        duration: 900,
+        delay: anime.stagger(110, { start: 150 }),
+        easing: 'easeOutExpo'
+      });
+    }
     document.querySelectorAll('.perf-stat').forEach((el) => {
       const counter = el.querySelector('.counter');
       const target = parseFloat(counter.dataset.target);
@@ -735,6 +746,8 @@
       }))
     }));
 
+    const tiltEls = reduceMotion ? [] : Array.from(document.querySelectorAll('.showcase-media')).map((el) => ({ el }));
+
     const mediaTargets = medias.map((el) => ({
       el,
       img: el.querySelector('[data-media-transform]') || el.querySelector('.media-img'),
@@ -758,6 +771,13 @@
         const zoom = 1.06 + 0.14 * Math.abs(p - 0.5) * 2;
         t.y += (offset - t.y) * 0.12;
         t.img.style.transform = reduceMotion ? '' : `translateY(${t.y.toFixed(2)}px) scale(${zoom.toFixed(4)})`;
+      });
+
+      tiltEls.forEach((t) => {
+        const rect = t.el.getBoundingClientRect();
+        if (rect.bottom < -150 || rect.top > vh + 150) return;
+        const p = Math.min(1, Math.max(0, (vh - rect.top) / (vh + rect.height)));
+        t.el.style.transform = `perspective(1200px) rotateX(${((0.5 - p) * 7).toFixed(2)}deg)`;
       });
 
       ringTargets.forEach((t) => {
@@ -801,7 +821,7 @@
         const ease = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
         const pan = Math.max(0, t.dispW - vw);
         t.track.style.transform = `translateX(${(-pan * ease).toFixed(2)}px) skewX(${t.skew.toFixed(3)}deg)`;
-        t.img.style.transform = `translateY(-50%) scale(${(1.16 - 0.14 * p).toFixed(4)})`;
+        t.img.style.transform = `translateY(-50%) rotateY(${((0.5 - p) * 5).toFixed(2)}deg) scale(${(1.16 - 0.14 * p).toFixed(4)})`;
 
         if (t.label) t.label.style.opacity = Math.max(0, 1 - (p - 0.1) / 0.1).toFixed(3);
         if (t.headline) t.headline.style.opacity = Math.min(1, Math.max(0, (p - 0.85) / 0.1)).toFixed(3);
@@ -952,6 +972,7 @@
     if (reduceMotion) return;
     const hero = document.getElementById('hero');
     const content = document.querySelector('.hero-content');
+    const media = document.querySelector('.hero-media');
     if (!hero || !content) return;
     if (!window.matchMedia('(pointer: fine)').matches) return;
     let tx = 0, ty = 0, cx = 0, cy = 0, running = true;
@@ -971,6 +992,7 @@
       cy += (ty - cy) * 0.06;
       if (Math.abs(cx) > 0.002 || Math.abs(cy) > 0.002) {
         content.style.transform = `rotateY(${(cx * 3).toFixed(3)}deg) rotateX(${(-cy * 2.2).toFixed(3)}deg)`;
+        if (media) media.style.transform = `translate(${(cx * -16).toFixed(1)}px, ${(cy * -10).toFixed(1)}px)`;
       }
       requestAnimationFrame(loop);
     })();
@@ -1015,7 +1037,7 @@
     const cards = Array.from(ring.children);
 
     const apply = () => {
-      ring.style.transform = `translateZ(-${radius.toFixed(0)}px) rotateY(${angle.toFixed(2)}deg)`;
+      ring.style.transform = `rotateX(-5deg) translateZ(-${radius.toFixed(0)}px) rotateY(${angle.toFixed(2)}deg)`;
       for (let i = 0; i < cards.length; i++) {
         const a = (360 / cards.length) * i + angle;
         const facing = Math.cos((a * Math.PI) / 180);
@@ -1057,6 +1079,24 @@
     })();
   }
 
+  /* ---------- Feature card tilt ---------- */
+  function featureTilt() {
+    if (reduceMotion) return;
+    document.querySelectorAll('.feature').forEach((card) => {
+      card.addEventListener('pointermove', (e) => {
+        if (typeof e.clientX !== 'number') return;
+        const r = card.getBoundingClientRect();
+        if (!r.width || !r.height) return;
+        const x = (e.clientX - r.left) / r.width - 0.5;
+        const y = (e.clientY - r.top) / r.height - 0.5;
+        card.style.transform = `perspective(900px) rotateY(${(x * 7).toFixed(2)}deg) rotateX(${(-y * 7).toFixed(2)}deg) translateY(-4px)`;
+      });
+      card.addEventListener('pointerleave', () => {
+        card.style.transform = '';
+      });
+    });
+  }
+
   /* ---------- Init (hardened: each step isolated) ---------- */
   window.addEventListener('DOMContentLoaded', () => {
     const steps = [
@@ -1068,6 +1108,7 @@
       ['designRings', designRings],
       ['buildRotunda', buildRotunda],
       ['heroDepth', heroDepth],
+      ['featureTilt', featureTilt],
       ['wireReplay', wireReplay],
       ['wireIgnite', wireIgnite],
       ['wireModal', wireModal],

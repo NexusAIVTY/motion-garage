@@ -242,8 +242,9 @@ img { display: block; }
 }
 .showcase-media {
   position: absolute;
-  inset: 0;
+  inset: -1% 0;
   z-index: 0;
+  will-change: transform;
 }
 .showcase-media .media-img {
   transform: scale(1.14);
@@ -427,6 +428,8 @@ img { display: block; }
 
 /* ---------- 3D grid floor (performance) ---------- */
 .performance { position: relative; overflow: hidden; }
+.perf-stat { perspective: 900px; }
+.perf-value { will-change: transform, opacity; }
 .performance > *:not(.grid-floor) { position: relative; z-index: 2; }
 .grid-floor {
   position: absolute;
@@ -1080,8 +1083,10 @@ img { display: block; }
   padding: 30px;
   position: relative;
   overflow: hidden;
-  transition: border-color 0.3s ease;
+  transition: border-color 0.3s ease, transform 0.25s ease;
+  transform-style: preserve-3d;
 }
+.feature:hover { border-color: rgba(225, 6, 0, 0.55); }
 .feature::after {
   content: '';
   position: absolute;

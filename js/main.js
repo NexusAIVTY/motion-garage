@@ -1596,7 +1596,7 @@
     let launchMod = 1, launchModUntil = 0, weakUntil = 0, limiterUntil = 0, limiterWarned = false;
     let shiftFlash = 0, floaters = [], particles = [], launchQ = '';
     let ambers = [false, false, false], green = false;
-    let ghostDist = 0, ghostT = 12.8, t100 = 0, t201 = 0, trap = 0;
+    let ghostDist = 0, ghostT = 12.8, t100 = 0, t201 = 0, trap = 0, overAt = 0;
 
     const REDLINE = 9000, IDLE = 1200;
     const GEARS = [0, 92, 152, 208, 258, 302, 344];
@@ -1631,6 +1631,7 @@
     }
     function engineRpm(r) {
       if (!engine) return;
+      if (!soundOn) { engineStop(); return; }
       try {
         const w = 55 + (r / REDLINE) * 330;
         engine.o.frequency.value = w;
@@ -1797,6 +1798,7 @@
 
         if (distance >= 402) {
           trap = speed;
+          overAt = Date.now();
           ghostDist = 402;
           const t = raceT / 60;
           state = 'over';
@@ -1984,6 +1986,15 @@
 
       drawCar(W * 0.63, carW(), '#e10600', shiftFlash > 10);
 
+      if (state === 'tree' && !holding) {
+        c.globalAlpha = 0.45 + 0.3 * Math.sin(treeT * 0.25);
+        c.fillStyle = '#ffffff';
+        c.font = '700 ' + Math.round(12 * dpr) + 'px "Space Grotesk", sans-serif';
+        c.textAlign = 'center';
+        c.fillText('HOUD GAS IN \u2014 SPATIE OF DRUK DE BAAN IN', W / 2, py() + 34 * dpr);
+        c.globalAlpha = 1;
+      }
+
       if (state === 'run' || state === 'over') {
         const ahead = distance - ghostDist;
         c.font = '700 ' + Math.round(11 * dpr) + 'px "Space Grotesk", sans-serif';
@@ -2088,8 +2099,12 @@
 
     window.addEventListener('keydown', (e) => {
       if (e.key !== ' ' && e.code !== 'Space') return;
-      if (state === 'idle' || state === 'over') return;
+      if (state === 'idle') return;
       e.preventDefault();
+      if (state === 'over') {
+        if (Date.now() - overAt > 700) start();
+        return;
+      }
       if (e.repeat) { holding = true; return; }
       hold();
     });

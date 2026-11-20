@@ -608,7 +608,7 @@
       card.tabIndex = 0;
       card.dataset.index = i;
       card.innerHTML = `
-        <div class="car-card-img"><img src="${car.img}" alt="${car.tag} — ${car.name}" loading="lazy" /></div>
+        <div class="car-card-img"><img src="${car.img}" alt="${car.tag} — ${car.name}" loading="lazy" decoding="async" /></div>
         <div class="car-card-shade"></div>
         <div class="car-card-hint">Open &rarr;</div>
         <div class="car-card-line"></div>
@@ -1444,7 +1444,7 @@
     CARS.forEach((car) => {
       const card = document.createElement('div');
       card.className = 'rotunda-card';
-      card.innerHTML = `<img src="${car.img}" alt="${car.name}" /><div class="rotunda-alias">&ldquo;${car.alias}&rdquo;</div>`;
+      card.innerHTML = `<img src="${car.img}" alt="${car.name}" decoding="async" /><div class="rotunda-alias">&ldquo;${car.alias}&rdquo;</div>`;
       ring.appendChild(card);
     });
 
@@ -2389,6 +2389,8 @@
     let W = 0, H = 0, dpr = 1, cx = 0, cy = 0, R = 0;
     let state = 'idle', rafId = null, visible = true;
     let round = 1, total = 0, needle = A0, dir = 1, needleSpeed = 0, zoneC = 0, zoneW = 0, lastMsg = '';
+    let rings = [], sparks = [], flash = 0, punch = 0, shake = 0, shakeTick = 0, perfects = 0;
+    const fxAlive = () => rings.length > 0 || sparks.length > 0 || flash > 0.02 || punch > 0.02 || shake > 0.5;
 
     let best = 0;
     try { best = parseInt(localStorage.getItem('mgRedBest') || '0', 10) || 0; } catch (e) {}
@@ -2437,6 +2439,42 @@
       } catch (e) {}
     }
 
+    function rlPerfectSound(flawless) {
+      if (!soundOn) return;
+      try {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return;
+        const ctx = new AC();
+        const t0 = ctx.currentTime;
+        const notes = flawless ? [440, 660, 880, 1320] : [660, 990];
+        notes.forEach((f, i) => {
+          const o = ctx.createOscillator();
+          const g = ctx.createGain();
+          o.type = 'triangle';
+          o.frequency.value = f;
+          g.gain.setValueAtTime(0.0001, t0 + i * 0.06);
+          g.gain.exponentialRampToValueAtTime(0.09, t0 + i * 0.06 + 0.02);
+          g.gain.exponentialRampToValueAtTime(0.0001, t0 + i * 0.06 + 0.3);
+          o.connect(g);
+          g.connect(ctx.destination);
+          o.start(t0 + i * 0.06);
+          o.stop(t0 + i * 0.06 + 0.32);
+        });
+        const o2 = ctx.createOscillator();
+        const g2 = ctx.createGain();
+        o2.type = 'sawtooth';
+        o2.frequency.setValueAtTime(120, t0);
+        o2.frequency.exponentialRampToValueAtTime(45, t0 + 0.25);
+        g2.gain.setValueAtTime(0.12, t0);
+        g2.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.3);
+        o2.connect(g2);
+        g2.connect(ctx.destination);
+        o2.start(t0);
+        o2.stop(t0 + 0.32);
+        setTimeout(() => ctx.close().catch(() => {}), 700);
+      } catch (e) {}
+    }
+
     function newRound() {
       needle = A0;
       dir = 1;
@@ -2452,7 +2490,13 @@
     function draw() {
       c.clearRect(0, 0, W, H);
       c.fillStyle = '#0b0b0e';
-      c.fillRect(0, 0, W, H);
+      c.save();
+      if (shake > 0.5) {
+        shakeTick++;
+        const jx = [0.55, -0.45, 0.6, -0.5, 0.4, -0.55][shakeTick % 6];
+        c.translate(jx * shake * dpr, -jx * shake * dpr);
+      }
+      c.fillRect(-20, -20, W + 40, H + 40);
 
       c.strokeStyle = 'rgba(255,255,255,0.14)';
       c.lineWidth = 3 * dpr;
@@ -2507,11 +2551,17 @@
 
       if (lastMsg) {
         const perfect = lastMsg.indexOf('PERFECT') === 0;
+        const msgScale = perfect ? 1 + punch * 0.55 : 1 + punch * 0.25;
         c.fillStyle = perfect ? '#e10600' : '#f5f5f5';
-        c.font = '700 ' + Math.round((perfect ? 30 : 22) * dpr) + 'px "Anton", sans-serif';
+        if (perfect) {
+          c.shadowColor = 'rgba(225,6,0,0.9)';
+          c.shadowBlur = 22 * dpr;
+        }
+        c.font = '700 ' + Math.round(((perfect ? 30 : 22) * msgScale) * dpr) + 'px "Anton", sans-serif';
         c.textAlign = 'center';
         c.textBaseline = 'middle';
         c.fillText(lastMsg, cx, cy - R * 0.52);
+        c.shadowBlur = 0;
       } else if (state === 'aim') {
         c.globalAlpha = 0.55 + 0.35 * (0.5 + 0.5 * Math.sin(Date.now() * 0.006));
         c.fillStyle = '#e10600';
@@ -2526,6 +2576,28 @@
         c.globalAlpha = 1;
         c.textBaseline = 'alphabetic';
       }
+
+      for (let i = 0; i < rings.length; i++) {
+        const g = rings[i];
+        c.globalAlpha = Math.max(0, Math.min(1, g.a));
+        c.strokeStyle = '#e10600';
+        c.lineWidth = 3 * dpr;
+        c.beginPath();
+        c.arc(g.x, g.y, g.r, 0, Math.PI * 2);
+        c.stroke();
+      }
+      for (let i = 0; i < sparks.length; i++) {
+        const sp = sparks[i];
+        c.globalAlpha = Math.max(0, sp.a);
+        c.fillStyle = sp.col;
+        c.fillRect(sp.x - 2 * dpr, sp.y - 2 * dpr, 4 * dpr, 4 * dpr);
+      }
+      c.globalAlpha = 1;
+      c.restore();
+      if (flash > 0.02) {
+        c.fillStyle = 'rgba(255,255,255,' + (flash * 0.32).toFixed(3) + ')';
+        c.fillRect(0, 0, W, H);
+      }
     }
 
     function step() {
@@ -2534,8 +2606,25 @@
         if (needle >= A1) { needle = A1; dir = -1; }
         else if (needle <= A0) { needle = A0; dir = 1; }
       }
+      for (let i = rings.length - 1; i >= 0; i--) {
+        const g = rings[i];
+        g.r += g.v;
+        g.a -= 0.032;
+        if (g.a <= 0) rings.splice(i, 1);
+      }
+      for (let i = sparks.length - 1; i >= 0; i--) {
+        const sp = sparks[i];
+        sp.x += sp.vx;
+        sp.y += sp.vy;
+        sp.vy += 0.12 * dpr;
+        sp.a -= 0.024;
+        if (sp.a <= 0) sparks.splice(i, 1);
+      }
+      if (flash > 0) flash *= 0.86;
+      if (punch > 0) punch *= 0.9;
+      if (shake > 0) shake *= 0.85;
       draw();
-      rafId = state === 'aim' ? requestAnimationFrame(step) : null;
+      rafId = (state === 'aim' || fxAlive()) ? requestAnimationFrame(step) : null;
     }
 
     function stopNeedle() {
@@ -2549,13 +2638,31 @@
       if (off <= half) {
         const acc = 1 - off / half;
         pts = Math.round((60 + 40 * acc) * mult);
-        lastMsg = off < deg(2.2) ? 'PERFECT \u00d7' + mult : '\u00d7' + mult + '  +' + pts;
-        rlSound('hit');
+        const isPerfect = off < deg(2.2);
+        lastMsg = isPerfect ? 'PERFECT \u00d7' + mult : '\u00d7' + mult + '  +' + pts;
+        if (isPerfect) {
+          perfects++;
+          flash = 1;
+          punch = 1;
+          if (!reduceMotion) shake = 14;
+          const z = { x: cx + Math.cos(zoneC) * R, y: cy + Math.sin(zoneC) * R };
+          for (let i = 0; i < 3; i++) rings.push({ x: z.x, y: z.y, r: 6 * dpr, v: (3.2 + i * 1.7) * dpr, a: 0.95 - i * 0.18 });
+          const palette = ['#e10600', '#ff4b3e', '#f5f5f5'];
+          for (let i = 0; i < 30; i++) {
+            const a = Math.random() * Math.PI * 2;
+            const v = (1.4 + Math.random() * 4.2) * dpr;
+            sparks.push({ x: z.x, y: z.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, a: 1, col: palette[i % 3] });
+          }
+          rlPerfectSound(perfects === 5);
+        } else {
+          punch = 0.45;
+          rlSound('hit');
+        }
       } else {
         lastMsg = 'MIS';
         rlSound('mis');
       }
-      if (off < deg(2.2)) rlSound('perfect');
+      if (visible && rafId === null && fxAlive()) rafId = requestAnimationFrame(step);
       total += pts;
       if (totalEl) totalEl.textContent = String(total);
       setTimeout(() => {
@@ -2586,17 +2693,43 @@
           total >= 350 ? 'De naald won het gros van de discussies.' :
           'De motor loopt warm. Nog een keer?';
       }
+      const flawless = perfects === 5;
+      if (flawless && noteEl) noteEl.textContent = 'FLAWLESS \u2014 vijf op vijf perfect. Legendastatus in de garage.';
+      const overTitle = overOv ? overOv.querySelector('h3') : null;
+      if (overTitle) {
+        overTitle.textContent = flawless ? 'FLAWLESS' : '\u2014 Uitslag \u2014';
+        overTitle.style.color = flawless ? '#e10600' : '';
+        overTitle.style.textShadow = flawless ? '0 0 26px rgba(225,6,0,0.55)' : '';
+      }
       if (overOv) {
         overOv.hidden = false;
         if (!reduceMotion && window.anime) {
           anime({ targets: overOv, opacity: [0, 1], duration: 350, easing: 'easeOutQuad' });
         }
       }
+      if (flawless && !reduceMotion) {
+        flash = 1;
+        punch = 1;
+        for (let i = 0; i < 4; i++) rings.push({ x: cx, y: cy - R * 0.1, r: 8 * dpr, v: (3 + i * 1.8) * dpr, a: 0.9 - i * 0.15 });
+        const palette = ['#e10600', '#ff4b3e', '#f5f5f5'];
+        for (let i = 0; i < 44; i++) {
+          const a = Math.random() * Math.PI * 2;
+          const v = (1.6 + Math.random() * 4.6) * dpr;
+          sparks.push({ x: cx, y: cy - R * 0.1, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 1.4 * dpr, a: 1, col: palette[i % 3] });
+        }
+        if (visible && rafId === null) rafId = requestAnimationFrame(step);
+      }
     }
 
     function start() {
       round = 1;
       total = 0;
+      perfects = 0;
+      rings = [];
+      sparks = [];
+      flash = 0;
+      punch = 0;
+      shake = 0;
       if (totalEl) totalEl.textContent = '0';
       if (startOv) startOv.hidden = true;
       if (overOv) overOv.hidden = true;
@@ -2723,7 +2856,7 @@
         front.textContent = 'MG';
         const back = document.createElement('span');
         back.className = 'match-face match-back';
-        back.innerHTML = '<img src="' + card.img + '" alt="" loading="lazy"><strong></strong><i></i>';
+        back.innerHTML = '<img src="' + card.img + '" alt="" loading="lazy" decoding="async"><strong></strong><i></i>';
         back.querySelector('strong').textContent = card.name;
         back.querySelector('i').textContent = card.sub;
         inner.appendChild(front);

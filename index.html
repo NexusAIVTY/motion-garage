@@ -16,6 +16,9 @@
   <meta property="og:site_name" content="Motion Garage" />
   <meta property="og:locale" content="nl_NL" />
   <meta property="og:image:alt" content="Motion Garage: tijgeroog van een supercar in nachtelijk licht" />
+  <meta property="og:image:width" content="1920" />
+  <meta property="og:image:height" content="1280" />
+  <meta property="og:image:type" content="image/jpeg" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Motion Garage — Automotive in Motion" />
   <meta name="twitter:description" content="Cinematische automotive experience: travel-shots, 3D-rotonde en drie racespellen — powered by anime.js." />
@@ -54,11 +57,24 @@
   ]
   }
   </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "Wat is Motion Garage?", "acceptedAnswer": { "@type": "Answer", "text": "Motion Garage is een cinematische automotive conceptwebsite met twaalf supercars, een 3D-rotonde, travel-shots en drie racespellen, geanimeerd met anime.js." } },
+      { "@type": "Question", "name": "Welke games zitten in de Garage Arcade?", "acceptedAnswer": { "@type": "Answer", "text": "Drie spellen: LAUNCH (een kwart-mijl dragrace met echte modellen en eigen fysica), Redline (een reactiespel op de toerenteller met ronde-bonus tot x5) en Spec Match (een geheugenspel met 12 kaarten en 6 paren)." } },
+      { "@type": "Question", "name": "Hoe werkt de ronde-bonus in Redline?", "acceptedAnswer": { "@type": "Answer", "text": "Raak je de rode zone, dan wordt je score vermenigvuldigd met het ronde-aantal: ronde 1 x1, ronde 2 x2, tot ronde 5 x5. Een perfecte hit in het midden geeft het maximum en een speciale knaller." } },
+      { "@type": "Question", "name": "Welke auto's staan er in de collectie?", "acceptedAnswer": { "@type": "Answer", "text": "Twaalf machines: Ferrari LaFerrari, Audi RS6 Avant, BMW M4, Ford Mustang GT, Bugatti Chiron, Audi R8, Porsche 911 GT3, Lamborghini Huracan, Dodge Challenger, Mercedes-AMG GT R, McLaren 720S en Lamborghini Aventador." } },
+      { "@type": "Question", "name": "Is Motion Garage gratis te spelen?", "acceptedAnswer": { "@type": "Answer", "text": "Ja, de volledige ervaring — collectie, 3D-rotonde en alle drie de spellen — is gratis en vereist geen account." } }
+    ]
+  }
+  </script>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23e10600'/%3E%3Ctext x='32' y='46' font-family='Arial' font-size='36' font-weight='900' text-anchor='middle' fill='%23ffffff'%3EM%3C/text%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=22" />
+  <link rel="stylesheet" href="css/style.css?v=23" />
 </head>
 <body>
   <div class="cursor-dot"></div>
@@ -141,7 +157,7 @@
     <!-- EXPERIENCE 01 -->
     <section class="showcase" id="experience" data-showcase>
       <div class="showcase-media" data-scroll-media data-parallax-strength="0.3">
-        <img class="media-img" src="assets/cars/showcase-noir.jpg" alt="Matzwarte supercar onder dramatisch studio-licht" />
+        <img class="media-img" src="assets/cars/showcase-noir.jpg" alt="Matzwarte supercar onder dramatisch studio-licht" loading="lazy" decoding="async" />
         <div class="media-veil"></div>
       </div>
       <div class="showcase-text">
@@ -213,7 +229,7 @@
     <!-- EXPERIENCE 02 -->
     <section class="showcase showcase-right" data-showcase>
       <div class="showcase-media" data-scroll-media data-parallax-strength="0.3">
-        <img class="media-img" src="assets/cars/showcase-garage.jpg" alt="Supercar in een donkere garage" />
+        <img class="media-img" src="assets/cars/showcase-garage.jpg" alt="Supercar in een donkere garage" loading="lazy" decoding="async" />
         <div class="media-veil"></div>
       </div>
       <div class="showcase-text">
@@ -231,7 +247,7 @@
     <!-- EXPERIENCE 03 — cinematic wide band -->
     <section class="cinema" data-showcase>
       <div class="cinema-media" data-scroll-media data-parallax-strength="0.4">
-        <img class="media-img" src="assets/cars/cinema-storm.jpg" alt="Sportauto tegen een dramatische stormlucht" />
+        <img class="media-img" src="assets/cars/cinema-storm.jpg" alt="Sportauto tegen een dramatische stormlucht" loading="lazy" decoding="async" />
         <div class="media-veil"></div>
       </div>
       <blockquote class="cinema-quote" data-split-words>
@@ -243,7 +259,7 @@
     <section class="dolly" id="dolly" data-dolly-section>
       <div class="dolly-stage">
         <div class="dolly-track" data-dolly-track>
-          <img class="dolly-img" src="assets/cars/dolly-night.jpg" alt="Zwarte sportauto in zijaanzicht bij zonsondergang" />
+          <img class="dolly-img" src="assets/cars/dolly-night.jpg" alt="Zwarte sportauto in zijaanzicht bij zonsondergang" loading="lazy" decoding="async" />
         </div>
 
         <div class="dolly-label reveal"><span>03 / De reis</span>Camera langs de auto</div>
@@ -377,7 +393,7 @@
 
           <div class="game-overlay" data-rl-start>
             <h3>REDLINE</h3>
-            <p>Stop de naald precies in de rode zone van de toerenteller. Vijf ronden &mdash; elke ronde sneller en smaller, en de bonus groeit: ronde 1 is &times;1, ronde 5 &times;5.</p>
+            <p>Stop de naald precies in de rode zone van de toerenteller. Vijf ronden &mdash; elke ronde sneller en smaller, en de bonus groeit: ronde 1 is &times;1, ronde 5 &times;5. Raak je het midden, dan is het een perfecte hit &mdash; met een knalletje als beloning. Alle vijf perfect? <strong>FLAWLESS.</strong></p>
             <button class="btn btn-primary" data-rl-go type="button">Start &nearr;</button>
           </div>
 
@@ -412,7 +428,7 @@
     <!-- CONTACT -->
     <section class="cta section" id="contact">
       <div class="cta-media" data-scroll-media data-parallax-strength="0.22" aria-hidden="true">
-        <img class="media-img" src="assets/cars/cta-finale.jpg" alt="" />
+        <img class="media-img" src="assets/cars/cta-finale.jpg" alt="" loading="lazy" decoding="async" />
         <div class="media-veil"></div>
       </div>
       <div class="scrub-word" data-scrub-word data-scrub-speed="0.2" aria-hidden="true">MOTION</div>
@@ -455,6 +471,6 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
-  <script src="js/main.js?v=22"></script>
+  <script src="js/main.js?v=23"></script>
 </body>
 </html>

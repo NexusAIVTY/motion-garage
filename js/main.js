@@ -1353,7 +1353,7 @@
   /* ---------- Interactieve titelletters ---------- */
   function titlePop() {
     if (reduceMotion) return;
-    document.querySelectorAll('.section-title, .showcase-title').forEach((title) => {
+    document.querySelectorAll('.section-title, .showcase-title, .dyno-title').forEach((title) => {
       title.addEventListener('mouseover', (e) => {
         const c = e.target.closest('.char');
         if (!c) return;
@@ -2958,6 +2958,366 @@
     tabs.forEach((t) => t.addEventListener('click', () => activate(t.getAttribute('data-game-tab'))));
   }
 
+  /* ---------- The Dyno \u2014 live power-run ---------- */
+  function buildDyno() {
+    const cv = document.getElementById('dynoCanvas');
+    const stage = document.querySelector('[data-dyno-stage]');
+    const btn = document.getElementById('dynoBtn');
+    if (!cv || !stage || !btn) return;
+    const c = cv.getContext ? cv.getContext('2d') : null;
+    if (!c) return;
+    const stampEl = document.querySelector('[data-dyno-stamp]');
+    const stampPk = document.querySelector('[data-dyno-stamp-pk]');
+    const stampRpm = document.querySelector('[data-dyno-stamp-rpm]');
+    const sectionEl = document.getElementById('performance');
+
+    const RPM0 = 1000, RPM1 = 9000, DUR = 235;
+    const pkAt = (k) => 1347 * Math.pow(k, 0.75) * (1 - 0.25 * Math.pow(Math.max(0, k - 0.906) / 0.094, 2));
+    const nmAt = (k) => 1180 * Math.exp(-Math.pow((k - 0.575) * (k < 0.575 ? 1.9 : 2.6), 2));
+    const shifts = [2800, 5000, 6900, 8300];
+
+    let W = 0, H = 0, dpr = 1, padL = 0, padR = 0, padT = 0, padB = 0;
+    let state = 'idle', frames = 0, stick = 0, rafId = null;
+    let lastRaw = RPM0, lastEff = RPM0, lastPk = 0, lastNm = 0;
+    let peakPk = 0, peakRpm = 0, lastGear = 1;
+    let rings = [], sparks = [], flash = 0, shake = 0;
+    let soundCtx = null, soundOsc = null, soundGain = null;
+
+    function resize() {
+      const r = stage.getBoundingClientRect();
+      const cw = r.width || 680;
+      const rect = cv.getBoundingClientRect();
+      const cssH = rect.height || Math.min(440, Math.max(280, cw * 0.6));
+      dpr = Math.min(2, window.devicePixelRatio || 1);
+      W = Math.floor(cw * dpr);
+      H = Math.floor(cssH * dpr);
+      cv.width = W;
+      cv.height = H;
+      padL = 46 * dpr;
+      padR = 18 * dpr;
+      padT = 44 * dpr;
+      padB = 30 * dpr;
+      draw();
+    }
+
+    const X = (rpm) => padL + ((rpm - RPM0) / (RPM1 - RPM0)) * (W - padL - padR);
+    const Y = (v) => H - padB - (Math.max(0, Math.min(1400, v)) / 1400) * (H - padT - padB);
+
+    function dynoSoundStart() {
+      if (!soundOn) return;
+      try {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return;
+        soundCtx = new AC();
+        soundOsc = soundCtx.createOscillator();
+        soundGain = soundCtx.createGain();
+        const lp = soundCtx.createBiquadFilter();
+        lp.type = 'lowpass';
+        lp.frequency.value = 900;
+        soundOsc.type = 'sawtooth';
+        soundOsc.frequency.setValueAtTime(60, soundCtx.currentTime);
+        soundGain.gain.setValueAtTime(0.05, soundCtx.currentTime);
+        soundOsc.connect(lp);
+        lp.connect(soundGain);
+        soundGain.connect(soundCtx.destination);
+        soundOsc.start();
+      } catch (e) { soundCtx = null; soundOsc = null; soundGain = null; }
+    }
+
+    function dynoSoundTune(rpm) {
+      if (!soundCtx || !soundOsc) return;
+      try {
+        soundOsc.frequency.setValueAtTime(55 + (rpm / RPM1) * 380, soundCtx.currentTime);
+      } catch (e) {}
+    }
+
+    function dynoSoundStop(fanfare) {
+      try {
+        if (soundGain && soundCtx) soundGain.gain.setTargetAtTime(0.0001, soundCtx.currentTime, 0.06);
+        const osc = soundOsc, sc = soundCtx;
+        if (osc) setTimeout(() => { try { osc.stop(); } catch (e2) {} }, 220);
+        soundCtx = null; soundOsc = null; soundGain = null;
+        if (fanfare && sc) {
+          const t0 = sc.currentTime;
+          [523, 784, 1046].forEach((f, i) => {
+            const o = sc.createOscillator();
+            const g = sc.createGain();
+            o.type = 'triangle';
+            o.frequency.value = f;
+            g.gain.setValueAtTime(0.0001, t0 + i * 0.07);
+            g.gain.exponentialRampToValueAtTime(0.08, t0 + i * 0.07 + 0.03);
+            g.gain.exponentialRampToValueAtTime(0.0001, t0 + i * 0.07 + 0.42);
+            o.connect(g);
+            g.connect(sc.destination);
+            o.start(t0 + i * 0.07);
+            o.stop(t0 + i * 0.07 + 0.45);
+          });
+        }
+        if (sc) setTimeout(() => sc.close().catch(() => {}), 1000);
+      } catch (e) {}
+    }
+
+    function dynoTick() {
+      if (!soundOn || !window.AudioContext || !soundCtx) return;
+      try {
+        const o = soundCtx.createOscillator();
+        const g = soundCtx.createGain();
+        o.type = 'square';
+        o.frequency.setValueAtTime(520, soundCtx.currentTime);
+        o.frequency.exponentialRampToValueAtTime(240, soundCtx.currentTime + 0.08);
+        g.gain.setValueAtTime(0.06, soundCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.0001, soundCtx.currentTime + 0.1);
+        o.connect(g);
+        g.connect(soundCtx.destination);
+        o.start();
+        o.stop(soundCtx.currentTime + 0.11);
+      } catch (e) {}
+    }
+
+    function drawCurve(fn, upTo, col, wid, glow, alpha) {
+      if (upTo <= RPM0) return;
+      c.globalAlpha = alpha;
+      c.beginPath();
+      let first = true;
+      for (let rpm = RPM0; rpm <= upTo; rpm += 40) {
+        const x = X(rpm), y = Y(fn((rpm - RPM0) / 8000));
+        if (first) { c.moveTo(x, y); first = false; } else c.lineTo(x, y);
+      }
+      c.lineTo(X(upTo), Y(fn((upTo - RPM0) / 8000)));
+      if (glow) { c.shadowColor = col; c.shadowBlur = 16 * dpr; }
+      c.strokeStyle = col;
+      c.lineWidth = wid * dpr;
+      c.stroke();
+      c.shadowBlur = 0;
+      c.globalAlpha = 1;
+    }
+
+    function frameText(text, x, y, size, col, align, alpha) {
+      c.globalAlpha = alpha === undefined ? 1 : alpha;
+      c.fillStyle = col;
+      c.font = '700 ' + Math.round(size * dpr) + 'px "Anton", sans-serif';
+      c.textAlign = align;
+      c.textBaseline = 'alphabetic';
+      c.fillText(text, x, y);
+      c.globalAlpha = 1;
+    }
+
+    function draw() {
+      c.clearRect(0, 0, W, H);
+      c.fillStyle = '#0b0b0e';
+      c.save();
+      if (shake > 0.5) {
+        stick++;
+        const jx = [0.55, -0.45, 0.6, -0.5, 0.4, -0.55][stick % 6];
+        c.translate(jx * shake * dpr, -jx * shake * dpr);
+      }
+      c.fillRect(-30, -30, W + 60, H + 60);
+
+      c.strokeStyle = 'rgba(255,255,255,0.07)';
+      c.lineWidth = 1 * dpr;
+      c.font = '500 ' + Math.round(9 * dpr) + 'px "Space Grotesk", sans-serif';
+      c.fillStyle = 'rgba(245,245,245,0.4)';
+      c.textAlign = 'right';
+      c.textBaseline = 'middle';
+      for (let v = 0; v <= 1400; v += 350) {
+        c.beginPath();
+        c.moveTo(padL, Y(v));
+        c.lineTo(W - padR, Y(v));
+        c.stroke();
+        c.fillText(String(v), padL - 8 * dpr, Y(v));
+      }
+      c.textAlign = 'center';
+      c.textBaseline = 'top';
+      for (let rpm = RPM0; rpm <= RPM1; rpm += 1000) c.fillText((rpm / 1000) + 'K', X(rpm), H - padB + 7 * dpr);
+      c.fillStyle = 'rgba(225,6,0,0.75)';
+      c.textAlign = 'left';
+      c.fillText('PK', padL - 6 * dpr, padT - 16 * dpr);
+      c.fillStyle = 'rgba(245,245,245,0.45)';
+      c.fillText('NM', padL + 34 * dpr, padT - 16 * dpr);
+
+      if (state === 'idle') {
+        drawCurve(pkAt, RPM1, '#e10600', 2, false, 0.14);
+        drawCurve(nmAt, RPM1, '#9b9ba4', 2, false, 0.14);
+        c.textAlign = 'center';
+        c.textBaseline = 'middle';
+        c.fillStyle = 'rgba(245,245,245,0.85)';
+        c.font = '600 ' + Math.round(12 * dpr) + 'px "Space Grotesk", sans-serif';
+        c.fillText('DYNO-STRAAT \u2014 KLARGEMAAKT VOOR \u00c9\u00c9N PULL', W / 2, H * 0.42);
+        c.fillStyle = 'rgba(245,245,245,0.45)';
+        c.font = '500 ' + Math.round(10 * dpr) + 'px "Space Grotesk", sans-serif';
+        c.fillText('Druk op START DYNO-RUN en kijk hoe het licht wordt', W / 2, H * 0.42 + 20 * dpr);
+        c.restore();
+        return;
+      }
+
+      const upto = state === 'run' ? lastEff : RPM1;
+      drawCurve(nmAt, upto, '#9b9ba4', 2, state === 'done', 0.85);
+      drawCurve(pkAt, upto, '#e10600', 3, true, 1);
+
+      if (state === 'run') {
+        c.strokeStyle = 'rgba(255,255,255,0.16)';
+        c.lineWidth = 1 * dpr;
+        c.beginPath();
+        c.moveTo(X(lastRaw), padT - 6 * dpr);
+        c.lineTo(X(lastRaw), H - padB);
+        c.stroke();
+        c.fillStyle = '#ff4b3e';
+        c.shadowColor = 'rgba(225,6,0,0.9)';
+        c.shadowBlur = 14 * dpr;
+        c.beginPath();
+        c.arc(X(lastRaw), Y(lastPk), 4 * dpr, 0, Math.PI * 2);
+        c.fill();
+        c.shadowBlur = 0;
+        c.fillStyle = '#9b9ba4';
+        c.beginPath();
+        c.arc(X(lastRaw), Y(lastNm), 3 * dpr, 0, Math.PI * 2);
+        c.fill();
+
+        frameText(String(Math.round(lastEff)), padL + 4 * dpr, padT + 2 * dpr, 30, '#f5f5f5', 'left', 1);
+        c.fillStyle = 'rgba(245,245,245,0.5)';
+        c.font = '600 ' + Math.round(9 * dpr) + 'px "Space Grotesk", sans-serif';
+        c.fillText('RPM', padL + 4 * dpr, padT + 8 * dpr);
+        frameText(Math.round(lastPk) + ' PK  \u00b7  ' + Math.round(lastNm) + ' NM', W - padR, padT + 2 * dpr, 20, '#f5f5f5', 'right', 1);
+        c.fillStyle = 'rgba(225,6,0,0.9)';
+        c.font = '600 ' + Math.round(9 * dpr) + 'px "Space Grotesk", sans-serif';
+        c.fillText('GEAR ' + lastGear + ' / 5', W - padR, padT + 18 * dpr);
+        c.textAlign = 'right';
+        c.fillText(lastRaw > 8480 ? 'LIMITER' : 'MEET', W - padR, padT + 32 * dpr);
+      }
+
+      for (let i = 0; i < rings.length; i++) {
+        const g = rings[i];
+        c.globalAlpha = Math.max(0, Math.min(1, g.a));
+        c.strokeStyle = '#e10600';
+        c.lineWidth = 3 * dpr;
+        c.beginPath();
+        c.arc(g.x, g.y, g.r, 0, Math.PI * 2);
+        c.stroke();
+      }
+      for (let i = 0; i < sparks.length; i++) {
+        const sp = sparks[i];
+        c.globalAlpha = Math.max(0, sp.a);
+        c.fillStyle = sp.col;
+        c.fillRect(sp.x - 2 * dpr, sp.y - 2 * dpr, 4 * dpr, 4 * dpr);
+      }
+      c.globalAlpha = 1;
+      c.restore();
+      if (flash > 0.02) {
+        c.fillStyle = 'rgba(255,255,255,' + (flash * 0.3).toFixed(3) + ')';
+        c.fillRect(0, 0, W, H);
+      }
+    }
+
+    function step() {
+      if (state === 'run') {
+        frames++;
+        const t = Math.min(1, frames / DUR);
+        const e = Math.pow(t, 1.16);
+        lastRaw = RPM0 + e * (RPM1 - RPM0);
+        lastEff = lastRaw;
+        let gear = 1;
+        for (let i = 0; i < shifts.length; i++) {
+          if (lastRaw > shifts[i]) {
+            gear = i + 2;
+            lastEff -= 300 * Math.exp(-Math.pow((lastRaw - shifts[i]) / 210, 2));
+          }
+        }
+        lastEff = Math.max(RPM0, lastEff);
+        const k = Math.max(0, Math.min(1, (lastEff - RPM0) / 8000));
+        lastPk = pkAt(k);
+        lastNm = nmAt(k);
+        if (lastPk > peakPk) { peakPk = lastPk; peakRpm = lastEff; }
+        if (gear !== lastGear) {
+          lastGear = gear;
+          dynoTick();
+        }
+        if (soundCtx && soundOsc) dynoSoundTune(lastEff);
+        if (!soundOn && soundCtx) dynoSoundStop(false);
+        if (lastRaw > 8480) shake = 9;
+        if (lastRaw >= RPM1 && frames >= DUR) finish();
+      }
+      for (let i = rings.length - 1; i >= 0; i--) {
+        const g = rings[i];
+        g.r += g.v;
+        g.a -= 0.032;
+        if (g.a <= 0) rings.splice(i, 1);
+      }
+      for (let i = sparks.length - 1; i >= 0; i--) {
+        const sp = sparks[i];
+        sp.x += sp.vx;
+        sp.y += sp.vy;
+        sp.vy += 0.12 * dpr;
+        sp.a -= 0.024;
+        if (sp.a <= 0) sparks.splice(i, 1);
+      }
+      if (flash > 0) flash *= 0.86;
+      if (shake > 0) shake *= 0.85;
+      draw();
+      rafId = (state === 'run' || rings.length > 0 || sparks.length > 0 || flash > 0.02 || shake > 0.5) ? requestAnimationFrame(step) : null;
+    }
+
+    function finish() {
+      state = 'done';
+      dynoSoundStop(true);
+      shake = 0;
+      if (stampEl && stampPk && stampRpm) {
+        stampPk.textContent = '1250';
+        stampRpm.textContent = '8250';
+        stampEl.hidden = false;
+        if (!reduceMotion && window.anime) {
+          try {
+            anime({ targets: stampEl, scale: [0.4, 1], opacity: [0, 1], duration: 620, easing: 'easeOutExpo' });
+          } catch (e) {}
+        }
+      }
+      if (!reduceMotion) {
+        flash = 1;
+        for (let i = 0; i < 3; i++) rings.push({ x: W / 2, y: H * 0.4, r: 10 * dpr, v: (4 + i * 2) * dpr, a: 0.9 - i * 0.16 });
+        const palette = ['#e10600', '#ff4b3e', '#f5f5f5'];
+        for (let i = 0; i < 36; i++) {
+          const a = Math.random() * Math.PI * 2;
+          const v = (1.6 + Math.random() * 4.6) * dpr;
+          sparks.push({ x: W / 2, y: H * 0.4, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 1.2 * dpr, a: 1, col: palette[i % 3] });
+        }
+      }
+      btn.textContent = 'Nog een pull \u2197';
+      btn.disabled = false;
+      if (sectionEl) {
+        sectionEl.classList.add('dyno-lit');
+        setTimeout(() => sectionEl.classList.remove('dyno-lit'), 2000);
+      }
+      if (rafId === null) rafId = requestAnimationFrame(step);
+    }
+
+    function start() {
+      state = 'run';
+      frames = 0;
+      peakPk = 0;
+      peakRpm = 0;
+      lastGear = 1;
+      lastRaw = RPM0;
+      lastEff = RPM0;
+      lastPk = 0;
+      lastNm = 0;
+      rings = [];
+      sparks = [];
+      flash = 0;
+      shake = 0;
+      if (stampEl) stampEl.hidden = true;
+      btn.disabled = true;
+      btn.textContent = 'Vol gas \u2014 meten\u2026';
+      dynoSoundStart();
+      if (rafId === null) rafId = requestAnimationFrame(step);
+    }
+
+    btn.addEventListener('click', () => {
+      if (state === 'run') return;
+      start();
+    });
+    resize();
+    window.addEventListener('resize', resize);
+  }
+
   /* ---------- Init (hardened: each step isolated) ---------- */
   window.addEventListener('DOMContentLoaded', () => {
     const steps = [
@@ -2982,6 +3342,7 @@
       ['buildLaunch', buildLaunch],
       ['buildRedline', buildRedline],
       ['buildMatch', buildMatch],
+      ['buildDyno', buildDyno],
       ['wireGameTabs', wireGameTabs],
       ['setupObserver', setupObserver],
       ['scrollEngine', scrollEngine],

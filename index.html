@@ -74,7 +74,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=23" />
+  <link rel="stylesheet" href="css/style.css?v=24" />
 </head>
 <body>
   <div class="cursor-dot"></div>
@@ -222,6 +222,23 @@
             <span>Carbon monocoque</span><span>Active aero</span><span>Torque vectoring</span><span>Ceramic brakes</span>
           </div>
           <button class="btn btn-ghost ignite-btn" id="igniteBtn" type="button">Ignition &nearr;</button>
+        </div>
+      </div>
+      <div class="dyno reveal" aria-label="Dyno-run">
+        <div class="dyno-head">
+          <div>
+            <div class="section-label">The Dyno</div>
+            <h3 class="dyno-title" data-split>PROOF, NOT PROMISES</h3>
+          </div>
+          <button class="btn btn-primary dyno-btn" id="dynoBtn" type="button">Start dyno-run &nearr;</button>
+        </div>
+        <div class="dyno-stage" data-dyno-stage>
+          <canvas id="dynoCanvas" aria-label="Dyno-run: live vermogen en koppel"></canvas>
+          <div class="dyno-stamp" data-dyno-stamp hidden>
+            <strong data-dyno-stamp-pk>1250</strong>
+            <span>PK @ <em data-dyno-stamp-rpm>8250</em> RPM</span>
+            <i>geverifieerd op de Motion Garage strip</i>
+          </div>
         </div>
       </div>
     </section>
@@ -471,6 +488,6 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
-  <script src="js/main.js?v=23"></script>
+  <script src="js/main.js?v=24"></script>
 </body>
 </html>

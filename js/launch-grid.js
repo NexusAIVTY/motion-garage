@@ -82,8 +82,8 @@
     function update(){
       if(state==='running'){
         const dt=1/60;elapsed+=dt;
-        const setupMod=setup==='grip'?1.08:setup==='boost'?1.02:.?1:1;
-        if(held){rpm+=setup==='grip'?220:190;if(nitroHeld&&nitro>0){rpm+=120;nitrp--;nitro-=24*dt;speed+=32*dt}else speed+=((11+gear*3.7)*setupMod)*dt}else{speed=Math.max(0,speed-12*dt);rpm=Math.max(1000,rpm-280*dt)}
+        const setupMod = setup === 'grip' ? 1.08 : setup === 'boost' ? 1.02 : 1;
+        if(held){rpm+=setup==='grip'?220:190;if(nitroHeld&&nitro>0){rpm+=120;nitroCharge--;nitro-=24*dt;speed+=32*dt}else speed+=((11+gear*3.7)*setupMod)*dt}else{speed=Math.max(0,speed-12*dt);rpm=Math.max(1000,rpm-280*dt)}
         if(rpm>8600){heat+=dt*(nitroHeld?2.2:1);speed+=nitroHeld?11*dt:0;if(gear<6&&heat>.85)shift.classList.add('hot')}else heat=Math.max(0,heat-dt*.45);
         speed=Math.min(355-Math.max(0,heat)*18,speed);rpm=Math.min(rpm,9600);if(rpm>7600)nitro=Math.min(100,nitro+dt*8);else nitro=Math.min(100,nitro+dt*2);
         if(nitro>=100)nitro.classList.add('ready');else nitro.classList.remove('ready');

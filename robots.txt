@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://nexusaivty.github.io/motion-garage/sitemap.xml

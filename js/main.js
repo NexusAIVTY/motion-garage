@@ -2099,7 +2099,7 @@
         }
       }
 
-      if (distance > 30) {
+      if (distance > 0.8) {
         const y = roadY(Math.min(439, distance));
         const half = roadHalf(Math.min(439, distance));
         c.strokeStyle = 'rgba(225,6,0,0.85)';
@@ -2376,6 +2376,7 @@
     const goBtn = document.querySelector('[data-rl-go]');
     const againBtn = document.querySelector('[data-rl-again]');
     const roundEl = document.querySelector('[data-rl-round]');
+    const multEl = document.querySelector('[data-rl-mult]');
     const totalEl = document.querySelector('[data-rl-total]');
     const bestEl = document.querySelector('[data-rl-best]');
     const finalEl = document.querySelector('[data-rl-final]');
@@ -2443,6 +2444,7 @@
       zoneW = Math.max(deg(8), deg(26 - (round - 1) * 4));
       zoneC = A0 + zoneW / 2 + (A1 - A0 - zoneW) * (0.12 + Math.random() * 0.76);
       if (roundEl) roundEl.textContent = round + ' / 5';
+      if (multEl) multEl.textContent = '\u00d7' + round;
       lastMsg = '';
       if (totalEl) totalEl.textContent = String(total);
     }
@@ -2511,12 +2513,16 @@
         c.textBaseline = 'middle';
         c.fillText(lastMsg, cx, cy - R * 0.52);
       } else if (state === 'aim') {
-        c.globalAlpha = 0.42 + 0.22 * (0.5 + 0.5 * Math.sin(Date.now() * 0.006));
-        c.fillStyle = '#f5f5f5';
-        c.font = '700 ' + Math.round(15 * dpr) + 'px "Anton", sans-serif';
+        c.globalAlpha = 0.55 + 0.35 * (0.5 + 0.5 * Math.sin(Date.now() * 0.006));
+        c.fillStyle = '#e10600';
+        c.font = '700 ' + Math.round(34 * dpr) + 'px "Anton", sans-serif';
         c.textAlign = 'center';
         c.textBaseline = 'middle';
-        c.fillText('RONDE \u00d7' + round, cx, cy - R * 0.52);
+        c.fillText('\u00d7' + round, cx, cy - R * 0.52);
+        c.font = '600 ' + Math.round(10 * dpr) + 'px "Space Grotesk", sans-serif';
+        c.globalAlpha = 0.6;
+        c.fillStyle = '#f5f5f5';
+        c.fillText('RONDE-BONUS', cx, cy - R * 0.52 - 22 * dpr);
         c.globalAlpha = 1;
         c.textBaseline = 'alphabetic';
       }
@@ -2543,7 +2549,7 @@
       if (off <= half) {
         const acc = 1 - off / half;
         pts = Math.round((60 + 40 * acc) * mult);
-        lastMsg = off < deg(2.2) ? 'PERFECT \u00d7' + mult : '+' + pts;
+        lastMsg = off < deg(2.2) ? 'PERFECT \u00d7' + mult : '\u00d7' + mult + '  +' + pts;
         rlSound('hit');
       } else {
         lastMsg = 'MIS';

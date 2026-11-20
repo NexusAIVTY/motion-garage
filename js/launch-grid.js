@@ -44,7 +44,7 @@
     const shell=oldFrame.querySelector('.launch-grid-shell');
     const pedal=oldFrame.querySelector('[data-lg-pedal]');
     const shift=oldFrame.querySelector('[data-lg-shift]');
-    const nitro=oldFrame.querySelector('[data-lg-nitro]');
+    const nitroBtn=oldFrame.querySelector('[data-lg-nitro]');
     const start=oldFrame.querySelector('[data-lg-start]');
     const go=oldFrame.querySelector('[data-lg-go]');
     const again=oldFrame.querySelector('[data-lg-again]');
@@ -70,7 +70,7 @@
     oldFrame.querySelectorAll('[data-tune]').forEach(btn=>btn.addEventListener('click',()=>{oldFrame.querySelectorAll('[data-tune]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');setup=btn.dataset.tune;}));
     go.addEventListener('click',begin);again.addEventListener('click',begin);
     pedal.addEventListener('pointerdown',e=>{e.preventDefault();pedal.setPointerCapture?.(e.pointerId);toggleHold(true)});pedal.addEventListener('pointerup',()=>toggleHold(false));pedal.addEventListener('pointercancel',()=>toggleHold(false));
-    nitro.addEventListener('pointerdown',e=>{e.preventDefault();nitro.setPointerCapture?.(e.pointerId);toggleNitro(true)});nitro.addEventListener('pointerup',()=>toggleNitro(false));nitro.addEventListener('pointercancel',()=>toggleNitro(false));
+    ('pointerdown',e=>{e.preventDefault();nitro.setPointerCapture?.(e.pointerId);toggleNitro(true)});('pointerup',()=>toggleNitro(false));('pointercancel',()=>toggleNitro(false));
     shift.addEventListener('click',shiftGear);
     window.addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();toggleHold(true)}if(e.key.toLowerCase()==='n')toggleNitro(true);if(e.key==='Shift'||e.key==='Enter')shiftGear});
     window.addEventListener('keyup',e=>{if(e.code==='Space')toggleHold(false);if(e.key.toLowerCase()==='n')toggleNitro(false)});

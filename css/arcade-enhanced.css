@@ -1,0 +1,51 @@
+/* Motion Garage — Arcade enhancement layer
+   Improves Launch, Redline and Spec Match without changing their core concepts. */
+
+.game { position: relative; isolation: isolate; }
+.game::before { content:""; position:absolute; inset:8% -20% -12%; z-index:-1; background:radial-gradient(ellipse at 50% 30%, rgba(225,6,0,.09), transparent 45%),radial-gradient(ellipse at 12% 70%, rgba(255,255,255,.035), transparent 30%); pointer-events:none; }
+
+.game-tabs { gap:8px; padding:8px; border:1px solid rgba(255,255,255,.07); border-radius:999px; background:rgba(255,255,255,.025); width:max-content; max-width:100%; margin-inline:auto; }
+.game-tab { min-height:44px; border-radius:999px; padding:12px 20px; border-color:transparent; }
+.game-tab:focus-visible { outline:2px solid #fff; outline-offset:3px; }
+
+.game-panel.active { animation:arcadePanelIn .55s cubic-bezier(.16,1,.3,1) both; }
+.game-frame { border-radius:16px; border-color:rgba(255,255,255,.12); box-shadow:0 36px 100px rgba(0,0,0,.58),0 0 0 1px rgba(225,6,0,.02); }
+.game-frame::after { content:""; position:absolute; inset:0; z-index:5; pointer-events:none; border-radius:inherit; box-shadow:inset 0 0 48px rgba(0,0,0,.28); }
+.game-hud { inset:16px 18px auto; gap:10px; padding:10px 12px; border:1px solid rgba(255,255,255,.09); border-radius:10px; background:rgba(7,7,9,.72); backdrop-filter:blur(12px); }
+.game-hud strong { font-size:clamp(15px,2vw,21px); }
+.game-overlay { background:linear-gradient(145deg, rgba(6,6,8,.94), rgba(12,12,15,.82)); }
+.game-overlay h3 { text-shadow:0 8px 36px rgba(225,6,0,.16); }
+.game-overlay .btn { min-height:48px; }
+
+/* Launch */
+.drag-garage { max-width:min(620px,92%); gap:10px; padding:8px 4px; scrollbar-color:rgba(225,6,0,.55) transparent; }
+.drag-chip { width:76px; min-height:64px; border-radius:10px; overflow:hidden; }
+.drag-chip img { height:46px; }
+.drag-chip span { padding:0 3px 4px; }
+.drag-chip:focus-visible { outline:2px solid #fff; outline-offset:3px; }
+.drag-intro { max-width:540px; }
+
+/* Redline */
+#rlCanvas { cursor:pointer; touch-action:manipulation; }
+[data-rl-frame] .game-hud { background:rgba(7,7,9,.82); }
+
+/* Spec Match */
+.match-grid { grid-template-columns:repeat(4,minmax(90px,1fr)); gap:14px; }
+.match-card { min-height:150px; border-radius:12px; overflow:hidden; }
+.match-card:focus-visible { outline:3px solid #fff; outline-offset:4px; }
+.match-face { border-radius:10px; transition:border-color .25s,box-shadow .25s,background .25s; }
+.match-card.done .match-face { background:linear-gradient(145deg,#15161a,#0c0d10); box-shadow:0 0 28px rgba(225,6,0,.24); }
+.match-back img { height:48%; }
+
+@keyframes arcadePanelIn { from{opacity:0;transform:translateY(18px) scale(.985)} to{opacity:1;transform:none} }
+
+@media(max-width:760px){
+  .game-tabs{position:sticky;top:74px;z-index:20;border-radius:14px;background:rgba(9,9,11,.92);backdrop-filter:blur(16px);width:calc(100% - 32px);overflow-x:auto;justify-content:flex-start;white-space:nowrap}
+  .game-tab{min-width:max-content;min-height:48px;padding:13px 16px}
+  .game-hud{inset:8px 8px auto;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:8px 6px}.game-hud strong{font-size:14px}
+  .game-overlay{gap:10px;padding:72px 12px 16px}.game-overlay h3{font-size:32px}.drag-intro{max-width:420px;font-size:12px}.drag-garage{max-width:94%;overflow-x:auto}.drag-chip{width:68px}.match-grid{grid-template-columns:repeat(4,minmax(56px,1fr));gap:7px}.match-card{min-height:112px}.match-back img{height:42%}.match-back strong{font-size:10px}.match-back i{font-size:8px}
+}
+
+@media(max-width:420px){.game-hud span{font-size:7px}.game-hud strong{font-size:12px}.match-grid{grid-template-columns:repeat(3,minmax(72px,1fr))}.match-card{aspect-ratio:3/4}.game-overlay{justify-content:flex-start;padding-top:62px}}
+
+@media(prefers-reduced-motion:reduce){.game-panel.active{animation:none}.game-hud,.game-overlay,.match-face{transition:none!important}}

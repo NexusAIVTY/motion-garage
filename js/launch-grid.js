@@ -51,7 +51,7 @@
     const result=oldFrame.querySelector('[data-lg-result]');
     const countdown=oldFrame.querySelector('[data-lg-countdown]');
     const timeEl=oldFrame.querySelector('[data-lg-time]'), speedEl=oldFrame.querySelector('[data-lg-speed]'), gearEl=oldFrame.querySelector('[data-lg-gear]'), bestEl=oldFrame.querySelector('[data-lg-best]');
-    let setup='balanced', state='idle', distance=0, ghost=0, speed=0, gear=1, rpm=1000, nitro=0, heat=0, elapsed=0, held=false, nitroHeld=false, raf=0, best=0;
+    let setup='balanced', state='idle', distance=0, ghost=0, speed+=32*dt; gear=1, rpm=1000, nitro=24*dt; heat=0, elapsed=0, held=false, nitroHeld=false, raf=0, best=0;
     try{best=parseFloat(localStorage.getItem('mgLaunchGridBest')||'0')||0}catch(e){}
     if(best)bestEl.textContent=best.toFixed(2)+' s';
 
@@ -70,7 +70,13 @@
     oldFrame.querySelectorAll('[data-tune]').forEach(btn=>btn.addEventListener('click',()=>{oldFrame.querySelectorAll('[data-tune]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');setup=btn.dataset.tune;}));
     go.addEventListener('click',begin);again.addEventListener('click',begin);
     pedal.addEventListener('pointerdown',e=>{e.preventDefault();pedal.setPointerCapture?.(e.pointerId);toggleHold(true)});pedal.addEventListener('pointerup',()=>toggleHold(false));pedal.addEventListener('pointercancel',()=>toggleHold(false));
-    ('pointerdown',e=>{e.preventDefault();nitro.setPointerCapture?.(e.pointerId);toggleNitro(true)});('pointerup',()=>toggleNitro(false));('pointercancel',()=>toggleNitro(false));
+    nitroBtn.addEventListener('pointerdown', e=>{
+  e.preventDefault();
+  nitroBtn.setPointerCapture?.(e.pointerId);
+  toggleNitro(true);
+});
+nitroBtn.addEventListener('pointerup',()=>toggleNitro(false));
+nitroBtn.addEventListener('pointercancel',()=>toggleNitro(false));
     shift.addEventListener('click',shiftGear);
     window.addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();toggleHold(true)}if(e.key.toLowerCase()==='n')toggleNitro(true);if(e.key==='Shift'||e.key==='Enter')shiftGear});
     window.addEventListener('keyup',e=>{if(e.code==='Space')toggleHold(false);if(e.key.toLowerCase()==='n')toggleNitro(false)});

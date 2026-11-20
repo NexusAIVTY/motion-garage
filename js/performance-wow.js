@@ -83,7 +83,7 @@
 
     if(!reduce){
       section.addEventListener('pointermove',e=>{
-        const r=section.getBoundingRect();
+        const r=section.getBoundingClientRect();
         const x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
         const center=section.querySelector('.pw-center');
         center.style.transform=`translate(-50%,-50%) rotateY(${x*7}deg) rotateX(${-y*5}deg)`;

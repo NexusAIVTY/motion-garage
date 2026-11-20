@@ -2504,12 +2504,21 @@
       c.fill();
 
       if (lastMsg) {
-        const perfect = lastMsg === 'PERFECT';
+        const perfect = lastMsg.indexOf('PERFECT') === 0;
         c.fillStyle = perfect ? '#e10600' : '#f5f5f5';
         c.font = '700 ' + Math.round((perfect ? 30 : 22) * dpr) + 'px "Anton", sans-serif';
         c.textAlign = 'center';
         c.textBaseline = 'middle';
         c.fillText(lastMsg, cx, cy - R * 0.52);
+      } else if (state === 'aim') {
+        c.globalAlpha = 0.42 + 0.22 * (0.5 + 0.5 * Math.sin(Date.now() * 0.006));
+        c.fillStyle = '#f5f5f5';
+        c.font = '700 ' + Math.round(15 * dpr) + 'px "Anton", sans-serif';
+        c.textAlign = 'center';
+        c.textBaseline = 'middle';
+        c.fillText('RONDE \u00d7' + round, cx, cy - R * 0.52);
+        c.globalAlpha = 1;
+        c.textBaseline = 'alphabetic';
       }
     }
 
@@ -2530,10 +2539,11 @@
       const half = zoneW / 2;
       const off = Math.abs(needle - zoneC);
       let pts = 0;
+      const mult = round;
       if (off <= half) {
         const acc = 1 - off / half;
-        pts = Math.round(60 + 40 * acc);
-        lastMsg = off < deg(2.2) ? 'PERFECT' : '+' + pts;
+        pts = Math.round((60 + 40 * acc) * mult);
+        lastMsg = off < deg(2.2) ? 'PERFECT \u00d7' + mult : '+' + pts;
         rlSound('hit');
       } else {
         lastMsg = 'MIS';
@@ -2564,10 +2574,10 @@
       if (finalEl) finalEl.textContent = total + ' punten';
       if (noteEl) {
         noteEl.textContent =
-          total >= 460 ? 'Motor van het jaar. De naald is bevangen.' :
-          total >= 400 ? 'Afstelling perfect. De teller respecteert je.' :
-          total >= 300 ? 'Degelijk shiftwerk \u2014 er zit meer in.' :
-          total >= 150 ? 'De naald won het gros van de discussies.' :
+          total >= 1250 ? 'Motor van het jaar. De naald is bevangen.' :
+          total >= 1000 ? 'Afstelling perfect. De teller respecteert je.' :
+          total >= 700 ? 'Degelijk shiftwerk \u2014 er zit meer in.' :
+          total >= 350 ? 'De naald won het gros van de discussies.' :
           'De motor loopt warm. Nog een keer?';
       }
       if (overOv) {
@@ -2642,7 +2652,7 @@
         const j = Math.floor(Math.random() * (i + 1));
         const t = pool[i]; pool[i] = pool[j]; pool[j] = t;
       }
-      faces = pool.slice(0, Math.min(8, pool.length));
+      faces = pool.slice(0, Math.min(6, pool.length));
     }
 
     let first = null, second = null, lock = false, moves = 0, found = 0;
@@ -2671,7 +2681,7 @@
 
     function renderHud() {
       if (movesEl) movesEl.textContent = String(moves);
-      if (foundEl) foundEl.textContent = found + ' / 8';
+      if (foundEl) foundEl.textContent = found + ' / 6';
     }
 
     function newGame() {
@@ -2748,7 +2758,7 @@
         renderHud();
         first = null;
         second = null;
-        if (found === 8) setTimeout(win, 500);
+        if (found === 6) setTimeout(win, 500);
       } else {
         lock = true;
         const f = first, s = second;

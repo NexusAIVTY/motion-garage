@@ -157,6 +157,48 @@
         ['Top', '250 km/h']
       ]
     },
+    {
+      img: 'assets/cars/card-amg.jpg',
+      tag: 'Nacht',
+      name: 'MERCEDES-AMG GT R',
+      alias: 'Groene Hel',
+      copy: 'Matzwart in de jachthaven: het breedste grille van Affalterbach slurpt de nacht, haar V8 antwoordt met een schreeuw die over het water kaatst.',
+      fact: 'De pers doopte haar \u201cThe Beast of the Green Hell\u201d nadat ze de N\u00fcrburgring verpletterde \u2014 rond, groen en 6:55.28 snel.',
+      specs: [
+        ['Vermogen', '585 PK'],
+        ['Motor', '4.0 V8 biturbo'],
+        ['0 \u2013 100', '3.6 s'],
+        ['Top', '318 km/h']
+      ]
+    },
+    {
+      img: 'assets/cars/card-720s.jpg',
+      tag: 'Superseries',
+      name: 'MCLAREN 720S',
+      alias: 'IJsvogel',
+      copy: 'Zilver in het laatste avondlicht: haar Monocage-cockpit oogt gesneden uit \u00e9\u00e9n kristalblok, met zwaartekracht als losse suggestie.',
+      fact: 'De Monocage II-carboncel weegt rond de 75 kilo \u2014 minder dan de gemiddelde bestuurder die erin plaatsneemt.',
+      specs: [
+        ['Vermogen', '720 PK'],
+        ['Motor', '4.0 V8 biturbo'],
+        ['0 \u2013 100', '2.9 s'],
+        ['Top', '341 km/h']
+      ]
+    },
+    {
+      img: 'assets/cars/card-aventador.jpg',
+      tag: 'V12',
+      name: 'LAMBORGHINI AVENTADOR',
+      alias: 'Blauwe Stier',
+      copy: 'Kobaltblauw op zijn scherpst: een punt, een hoge vleugelrand en twaalf cilinders die nooit beleefd vragen of je er klaar voor bent.',
+      fact: 'Ook Aventador is een vechtstier: zijn gevecht in Zaragoza (1993) leverde hem de trofee van de Pe\u00f1a La Madro\u00f1era op.',
+      specs: [
+        ['Vermogen', '740 PK'],
+        ['Motor', '6.5 V12'],
+        ['0 \u2013 100', '2.9 s'],
+        ['Top', '350 km/h']
+      ]
+    },
   ];
 
   /* ---------- Text helpers ---------- */
@@ -558,7 +600,9 @@
   /* ---------- Collection ---------- */
   function buildCollection() {
     const grid = document.getElementById('collectionGrid');
+    const cards = [];
     CARS.forEach((car, i) => {
+
       const card = document.createElement('article');
       card.className = 'car-card reveal';
       card.tabIndex = 0;
@@ -607,9 +651,43 @@
           easing: 'easeOutElastic(1, .55)'
         });
       });
+      if (i >= 6) {
+        card.classList.add('collection-extra');
+        card.classList.remove('reveal');
+      }
       grid.appendChild(card);
       observer.observe(card);
+      cards.push(card);
     });
+
+    const extras = cards.slice(6);
+    extras.forEach((el) => { el.style.display = 'none'; });
+    const moreBtn = document.getElementById('collectionMore');
+    if (moreBtn && extras.length) {
+      let expanded = false;
+      const setLabel = () => {
+        moreBtn.textContent = expanded ? 'Toon minder \u2191' : 'Toon alle ' + CARS.length + ' auto\u2019s \u2193';
+      };
+      moreBtn.hidden = false;
+      setLabel();
+      moreBtn.addEventListener('click', () => {
+        expanded = !expanded;
+        extras.forEach((el) => { el.style.display = expanded ? '' : 'none'; });
+        if (expanded && !reduceMotion) {
+          anime({
+            targets: extras,
+            opacity: [0, 1],
+            translateY: [34, 0],
+            rotateY: [-16, 0],
+            scale: [0.94, 1],
+            delay: anime.stagger(85),
+            duration: 760,
+            easing: 'easeOutExpo'
+          });
+        }
+        setLabel();
+      });
+    }
   }
 
   /* ---------- Modal ---------- */
@@ -1591,8 +1669,8 @@
     if (bestEl) bestEl.textContent = best ? best.toFixed(2) + ' s' : '\u2014';
 
     /* echte modellen: eigen toerenlimiet, topsnelheid, vermogen en 0-100 */
-    const REDLINES = [9000, 7000, 7600, 7500, 6900, 8700, 9000, 8500, 5800];
-    const PAINT = ['#e10600', '#101013', '#16335e', '#131315', '#e6e6ec', '#14141a', '#1e1e22', '#e8620a', '#18181c'];
+    const REDLINES = [9000, 7000, 7600, 7500, 6900, 8700, 9000, 8500, 5800, 7200, 8500, 8500];
+    const PAINT = ['#e10600', '#101013', '#16335e', '#131315', '#e6e6ec', '#14141a', '#1e1e22', '#e8620a', '#18181c', '#131316', '#c9ccd4', '#1b3a7a'];
     const RATIO = [0, 0.267, 0.442, 0.605, 0.75, 0.878, 1.0];
     const DEF_BASE = [0, 56, 43, 34, 27, 21, 16];
     const IDLE = 1200;
@@ -1863,28 +1941,61 @@
       rafId = state === 'run' || state === 'tree' ? requestAnimationFrame(step) : null;
     }
 
+    const PROFILES = [
+      { bodyH: 0.60, cab0: 0.34, cab1: 0.80, wing: 0 },
+      { bodyH: 0.80, cab0: 0.16, cab1: 0.90, wing: 0 },
+      { bodyH: 0.72, cab0: 0.26, cab1: 0.78, wing: 0 },
+      { bodyH: 0.74, cab0: 0.34, cab1: 0.88, wing: 0 },
+      { bodyH: 0.56, cab0: 0.36, cab1: 0.76, wing: 0 },
+      { bodyH: 0.62, cab0: 0.30, cab1: 0.80, wing: 0 },
+      { bodyH: 0.62, cab0: 0.32, cab1: 0.72, wing: 1 },
+      { bodyH: 0.60, cab0: 0.33, cab1: 0.76, wing: 0 },
+      { bodyH: 0.76, cab0: 0.40, cab1: 0.92, wing: 0 },
+      { bodyH: 0.72, cab0: 0.30, cab1: 0.74, wing: 1 },
+      { bodyH: 0.56, cab0: 0.34, cab1: 0.82, wing: 0 },
+      { bodyH: 0.54, cab0: 0.38, cab1: 0.84, wing: 0 }
+    ];
+
     function drawCar(x, gw, color, wheelSpin) {
       const gh = gw * 0.42;
       const y = py();
       let bob = shiftFlash > 0 ? Math.sin(shiftFlash) * 2 * dpr : (limitedActive() ? Math.sin(frames * 1.8) * 1.6 * dpr : 0);
       if (launchQ === 'WHEELSPIN' && state === 'run' && frames < launchModUntil) bob += Math.sin(frames * 2.3) * 2.5 * dpr;
+      const P = PROFILES[carIdx] || { bodyH: 0.7, cab0: 0.3, cab1: 0.78, wing: 0 };
+      const bh2 = gh * P.bodyH;
+      const cabTop = -gh;
       c.save();
       c.translate(x, y + bob);
       c.fillStyle = 'rgba(0,0,0,0.55)';
-      roundRect(-gw / 2 + 3 * dpr, -gh * 0.35, gw, gh, gh * 0.34);
+      roundRect(-gw / 2 + 3 * dpr, -bh2 * 0.35, gw, bh2, bh2 * 0.3);
       c.fill();
       c.fillStyle = color;
-      roundRect(-gw / 2, -gh, gw, gh, gh * 0.34);
+      roundRect(-gw / 2, -bh2, gw, bh2, bh2 * 0.3);
       c.fill();
       c.strokeStyle = 'rgba(255,255,255,0.25)';
       c.lineWidth = 1.2 * dpr;
       c.stroke();
+      c.fillStyle = color;
+      c.beginPath();
+      c.moveTo(-gw / 2 + gw * P.cab0, -bh2);
+      c.lineTo(-gw / 2 + gw * (P.cab0 + (1 - P.bodyH) * 0.55), cabTop);
+      c.lineTo(-gw / 2 + gw * P.cab1, cabTop);
+      c.lineTo(-gw / 2 + gw * Math.min(1, P.cab1 + (1 - P.bodyH) * 0.45), -bh2);
+      c.closePath();
+      c.fill();
       c.fillStyle = 'rgba(0,0,0,0.55)';
-      roundRect(-gw * 0.3, -gh * 0.82, gw * 0.6, gh * 0.34, 3 * dpr);
+      roundRect(-gw / 2 + gw * P.cab0 + gw * 0.03, cabTop + 2.5 * dpr, gw * Math.max(0.06, P.cab1 - P.cab0 - 0.06), Math.max(3 * dpr, gh * (1 - P.bodyH) - 5 * dpr), 3 * dpr);
       c.fill();
       c.fillStyle = 'rgba(255,255,255,0.9)';
-      c.fillRect(-gw * 0.38, -gh * 0.16, gw * 0.18, 2.4 * dpr);
-      c.fillRect(gw * 0.2, -gh * 0.16, gw * 0.18, 2.4 * dpr);
+      c.fillRect(gw * 0.2, -bh2 * 0.32, gw * 0.18, 2.4 * dpr);
+      c.fillStyle = 'rgba(225,6,0,0.85)';
+      c.fillRect(-gw * 0.4, -bh2 * 0.32, gw * 0.16, 2.4 * dpr);
+      if (P.wing) {
+        c.fillStyle = '#101014';
+        c.fillRect(-gw * 0.5 + 1 * dpr, -gh - 7 * dpr, gw * 0.3, 3 * dpr);
+        c.fillRect(-gw * 0.43, -gh - 4 * dpr, 2 * dpr, 5 * dpr);
+        c.fillRect(-gw * 0.27, -gh - 4 * dpr, 2 * dpr, 5 * dpr);
+      }
       const wa = (distance * 0.35) % (Math.PI * 2);
       [-gw * 0.3, gw * 0.3].forEach((cxp) => {
         c.fillStyle = '#141418';
@@ -2519,16 +2630,20 @@
     try { best = parseInt(localStorage.getItem('mgMatchBest') || '0', 10) || 0; } catch (e) {}
     if (bestEl) bestEl.textContent = best ? best + ' beurten' : '\u2014';
 
-    const FACES = [
-      ['FERRARI LAFERRARI', '\u201cRosso Apex\u201d \u00b7 V12 \u00b7 963 PK', 'assets/cars/card-rosso.jpg'],
-      ['AUDI RS6', '\u201cPhantom\u201d \u00b7 V8 biturbo \u00b7 600 PK', 'assets/cars/card-phantom.jpg'],
-      ['BMW M4', '\u201cNighthawk\u201d \u00b7 R6 biturbo \u00b7 510 PK', 'assets/cars/card-nighthawk.jpg'],
-      ['FORD MUSTANG GT', '\u201cHeritage\u201d \u00b7 V8 5.0 \u00b7 460 PK', 'assets/cars/card-heritage.jpg'],
-      ['BUGATTI CHIRON', '\u201cArctic Ghost\u201d \u00b7 W16 \u00b7 1500 PK', 'assets/cars/card-arctic.jpg'],
-      ['AUDI R8', '\u201cNachtvogel\u201d \u00b7 V10 \u00b7 620 PK', 'assets/cars/card-r8.jpg'],
-      ['PORSCHE 911 GT3', '\u201cFlat Six\u201d \u00b7 flat-6 \u00b7 510 PK', 'assets/cars/card-gt3.jpg'],
-      ['LAMBORGHINI HURAC\u00c1N', '\u201cOrkaan\u201d \u00b7 V10 \u00b7 640 PK', 'assets/cars/card-huracan.jpg']
-    ];
+    const FACE_POOL = CARS.map((car) => [
+      car.name,
+      '\u201c' + car.alias + '\u201d \u00b7 ' + car.specs[1][1] + ' \u00b7 ' + car.specs[0][1],
+      car.img
+    ]);
+    let faces = [];
+    function rollFaces() {
+      const pool = FACE_POOL.slice();
+      for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const t = pool[i]; pool[i] = pool[j]; pool[j] = t;
+      }
+      faces = pool.slice(0, Math.min(8, pool.length));
+    }
 
     let first = null, second = null, lock = false, moves = 0, found = 0;
 
@@ -2568,8 +2683,9 @@
       found = 0;
       renderHud();
       if (winOv) winOv.hidden = true;
+      rollFaces();
       const deck = [];
-      FACES.forEach((f, i) => {
+      faces.forEach((f, i) => {
         deck.push({ i: i, name: f[0], sub: f[1], img: f[2] });
         deck.push({ i: i, name: f[0], sub: f[1], img: f[2] });
       });

@@ -1,0 +1,192 @@
+/* Motion Garage — editorial polish layer (keeps the Garage Arcade untouched) */
+:root {
+  --mg-red: #f1261d;
+  --mg-ink: #08090b;
+  --mg-panel: #111316;
+  --mg-line: rgba(255, 255, 255, .12);
+  --mg-gutter: clamp(22px, 7vw, 112px);
+}
+
+html { scroll-padding-top: 86px; }
+body { text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
+
+/* A calmer, more considered masthead */
+header.nav {
+  min-height: 78px;
+  padding-inline: var(--mg-gutter);
+  background: linear-gradient(180deg, rgba(7, 8, 10, .9), rgba(7, 8, 10, .28));
+  border-bottom-color: rgba(255,255,255,.07);
+}
+header.nav.nav-scrolled {
+  background: rgba(8, 9, 11, .88);
+  border-bottom-color: var(--mg-line);
+  box-shadow: 0 14px 40px rgba(0,0,0,.2);
+}
+header.nav .logo { letter-spacing: .16em; white-space: nowrap; }
+header.nav .btn-nav { white-space: nowrap; }
+header.nav .nav-replay { border-radius: 2px; }
+
+/* More cinematic opening frame */
+#hero { min-height: min(900px, 100svh); }
+#hero .hero-content { padding-left: var(--mg-gutter); padding-bottom: clamp(90px, 13vh, 160px); }
+#hero .hero-eyebrow { letter-spacing: .32em; }
+#hero .hero-title { max-width: 1100px; text-wrap: balance; }
+#hero .hero-sub { max-width: 440px; font-size: clamp(16px, 1.5vw, 20px); }
+#hero .hero-cta { gap: 12px; }
+#hero .hero-cta .btn { border-radius: 2px; }
+#hero .hero-tiny { opacity: .8; }
+#hero .scroll-hint { bottom: 28px; }
+
+/* Editorial rhythm across the non-arcade experience */
+#signature { min-height: 88vh; }
+#concept, #performance, #collection, #design, #contact {
+  padding: clamp(88px, 11vw, 156px) var(--mg-gutter);
+}
+:where(#concept, #performance, #collection, #design, #contact) .section-title {
+  max-width: 1050px;
+  font-size: clamp(46px, 7.4vw, 104px);
+  letter-spacing: .025em;
+  text-wrap: balance;
+}
+#concept .section-intro { max-width: 680px; font-size: clamp(16px, 1.55vw, 19px); }
+#concept .feature-grid { gap: 1px; background: var(--mg-line); border: 1px solid var(--mg-line); }
+#concept .feature {
+  background: linear-gradient(145deg, rgba(23,25,29,.98), rgba(10,11,13,.98));
+  padding: clamp(24px, 3vw, 38px);
+  min-height: 220px;
+}
+#concept .feature:hover { transform: translateY(-4px); }
+
+/* Image-led chapters: let the photography carry the story */
+.showcase { min-height: min(900px, 100svh); }
+.showcase .showcase-text { max-width: 560px; padding-block: 140px; }
+.showcase .showcase-title { font-size: clamp(54px, 8vw, 112px); text-wrap: balance; }
+.showcase .showcase-copy { max-width: 430px; }
+.showcase .showcase-stats { gap: clamp(18px, 3vw, 42px); }
+.showcase .showcase-stats strong { font-size: clamp(25px, 3vw, 36px); }
+.cinema { min-height: min(780px, 88svh); }
+.cinema .cinema-quote { max-width: 1000px; text-wrap: balance; }
+
+/* Performance and collection become a cohesive premium dashboard */
+#performance { background: radial-gradient(ellipse at 82% 18%, rgba(225,6,0,.08), transparent 38%), #0d0e10; }
+#performance .perf-grid { gap: clamp(38px, 7vw, 100px); }
+#performance .perf-note { border-color: rgba(255,255,255,.13); border-radius: 3px; }
+#performance .dyno-stage { border-color: rgba(255,255,255,.14); box-shadow: 0 26px 80px rgba(0,0,0,.22); }
+#collection { background: radial-gradient(ellipse at 50% 0, rgba(255,255,255,.035), transparent 50%), #0d0e10; }
+#collection .collection-sub { max-width: 570px; line-height: 1.8; }
+#collection .collection-grid { gap: clamp(14px, 2vw, 26px); }
+#collection .car-card { border: 1px solid rgba(255,255,255,.08); background: #111316; }
+#collection .car-card:hover { border-color: rgba(241,38,29,.5); box-shadow: 0 24px 70px rgba(0,0,0,.3); }
+#collection .car-card-name { text-wrap: balance; }
+#collection .collection-more-wrap { margin-top: 48px; }
+#collection #collectionMore { border-radius: 2px; }
+
+/* Design studio and rotunda */
+#design { background: #0a0b0d; }
+#design .design-band { gap: clamp(36px, 7vw, 100px); }
+#design .design-panel { min-height: clamp(300px, 36vw, 460px); border-color: rgba(255,255,255,.1); }
+#design .design-ring { box-shadow: 0 0 90px rgba(225,6,0,.2); }
+#design .rotunda { margin-top: clamp(64px, 9vw, 120px); }
+#design .rotunda-stage { height: clamp(300px, 42vw, 500px); }
+#design .rotunda-card { border-color: rgba(255,255,255,.16); box-shadow: 0 34px 90px rgba(0,0,0,.68); }
+#design .finish-dot { width: 38px; height: 38px; }
+
+/* The final invitation and footer */
+#contact { min-height: 620px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+#contact .section-title { max-width: 1000px; margin-bottom: 26px; }
+#contact .cta-sub { max-width: 540px; line-height: 1.8; }
+#contact .btn-large { margin-top: 12px; border-radius: 2px; }
+footer.footer { padding-bottom: max(22px, env(safe-area-inset-bottom)); }
+footer .marquee { margin-top: 0; }
+footer .footer-note { padding-inline: 20px; }
+
+/* Clear keyboard focus on the site's non-game controls */
+header.nav a:focus-visible,
+header.nav button:focus-visible,
+#hero a:focus-visible,
+#concept a:focus-visible,
+#performance a:focus-visible,
+#performance button:focus-visible,
+#collection a:focus-visible,
+#collection button:focus-visible,
+#design button:focus-visible,
+#contact a:focus-visible,
+.car-modal button:focus-visible,
+.car-modal a:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 4px;
+}
+
+@media (max-width: 900px) {
+  header.nav { min-height: 68px; padding: 12px 24px; }
+  header.nav .nav-links { gap: 18px; }
+  header.nav .nav-link { font-size: 10px; letter-spacing: .14em; }
+  header.nav .btn-nav { padding-inline: 14px; font-size: 10px; }
+  #hero .hero-content { padding-inline: 7vw; }
+}
+
+@media (max-width: 760px) {
+  header.nav { flex-wrap: wrap; gap: 8px 14px; padding: 10px 20px; }
+  header.nav .logo { font-size: 20px; }
+  header.nav .nav-links {
+    display: flex;
+    order: 5;
+    flex: 1 0 100%;
+    gap: 22px;
+    overflow-x: auto;
+    padding: 7px 0 4px;
+    scrollbar-width: none;
+    mask-image: linear-gradient(90deg, #000 90%, transparent);
+  }
+  header.nav .nav-links::-webkit-scrollbar { display: none; }
+  header.nav .nav-link { flex: 0 0 auto; font-size: 9px; }
+  header.nav .nav-replay { display: none; }
+  header.nav .btn-nav { margin-left: auto; font-size: 9px; padding: 8px 12px; }
+  #hero { min-height: 100svh; }
+  #hero .hero-content { padding: 0 22px 112px; }
+  #hero .hero-title { font-size: clamp(58px, 15vw, 105px); }
+  #hero .hero-sub { font-size: 15px; }
+  #hero .hero-cta { gap: 10px; margin-top: 25px; }
+  #hero .hero-cta .btn { padding: 13px 18px; font-size: 10px; }
+  #signature { min-height: 70svh; }
+  #concept, #performance, #collection, #design, #contact { padding: 82px 22px; }
+  :where(#concept, #performance, #collection, #design, #contact) .section-title { margin-bottom: 34px; }
+  #concept .section-intro { margin-top: -12px; margin-bottom: 34px; }
+  #concept .feature-grid { grid-template-columns: 1fr; }
+  #concept .feature { min-height: auto; padding: 24px; }
+  .showcase { min-height: 760px; align-items: flex-end; }
+  .showcase .showcase-text,
+  .showcase-right .showcase-text { width: 100%; max-width: 620px; padding: 180px 22px 78px; margin: 0; }
+  .showcase .showcase-title { font-size: clamp(52px, 13vw, 86px); }
+  .showcase .showcase-copy { font-size: 14px; }
+  .showcase .showcase-stats { gap: 18px; flex-wrap: wrap; }
+  .showcase .showcase-stats strong { font-size: 25px; }
+  .showcase .showcase-stats span { font-size: 9px; letter-spacing: .12em; }
+  .cinema { min-height: 68svh; }
+  #performance .perf-grid { gap: 42px; }
+  #performance .perf-note { padding: 30px 24px; }
+  #collection .collection-sub { margin-top: -12px; margin-bottom: 38px; }
+  #collection .collection-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); }
+  #design .design-band { gap: 30px; }
+  #design .design-panel { min-height: 280px; }
+  #design .rotunda-stage { height: 290px; }
+  #design .rotunda-card { width: min(260px, 70vw); height: 170px; margin-top: -85px; margin-left: calc(min(260px, 70vw) / -2); }
+  #contact { min-height: 540px; }
+  #contact .cta-sub { margin-top: -10px; margin-bottom: 32px; }
+  footer .marquee-track { font-size: 28px; }
+}
+
+@media (max-width: 420px) {
+  header.nav { padding-inline: 15px; }
+  header.nav .logo { font-size: 18px; letter-spacing: .1em; }
+  header.nav .btn-nav { padding: 7px 9px; letter-spacing: .1em; }
+  #hero .hero-content { padding-inline: 18px; }
+  #hero .hero-cta { align-items: flex-start; flex-direction: column; }
+  #hero .hero-cta .btn { min-width: 220px; text-align: center; }
+  .showcase .showcase-stats { gap: 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  #concept .feature, #collection .car-card { transition-duration: .01ms; }
+}

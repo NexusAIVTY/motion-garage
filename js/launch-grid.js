@@ -8,7 +8,7 @@
     if(!panel||panel.dataset.launchGrid==='true')return;
     panel.dataset.launchGrid='true';
 
-    const oldFrame=panel.querySelector('[data-game-frame]');
+    const nitroBtn = oldFrame.querySelector('[data-lg-nitro]');
     if(!oldFrame)return;
     oldFrame.innerHTML=`<div class="launch-grid-shell">
       <canvas class="launch-grid-canvas" aria-label="Launch Grid racebanen"></canvas>

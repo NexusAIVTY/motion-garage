@@ -207,6 +207,38 @@
     @media (prefers-reduced-motion: reduce) {
       .iphone-frame { transition: none; transform: none; }
     }
+    /* opstart-animatie in het scherm (zoals de home-page) */
+    .phone-boot {
+      position: absolute; inset: 0; z-index: 90;
+      background: #050506;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;
+    }
+    .phone-boot h1 {
+      font-family: var(--font-display); font-weight: 400;
+      font-size: 26px; letter-spacing: 3px; color: #fff; margin: 0; line-height: 1;
+      white-space: nowrap;
+    }
+    .phone-boot h1 span {
+      display: inline-block; opacity: 0; transform: translateY(14px);
+      animation: bootChar 0.45s ease forwards;
+      animation-delay: calc(90ms + var(--i, 0) * 34ms);
+    }
+    .phone-boot h1 span:last-child { color: #e10600; }
+    .phone-boot-bar { width: 150px; height: 2px; background: rgba(255, 255, 255, 0.12); overflow: hidden; }
+    .phone-boot-fill {
+      display: block; width: 0; height: 100%; background: #e10600;
+      box-shadow: 0 0 14px rgba(225, 6, 0, 0.5);
+      animation: bootFill 0.95s cubic-bezier(0.4, 0, 0.2, 1) 0.1s forwards;
+    }
+    .phone-boot-note {
+      margin: 0; font-size: 8px; letter-spacing: 0.28em; text-transform: uppercase;
+      color: #94949c; opacity: 0; animation: bootNote 0.5s ease 0.35s forwards;
+    }
+    .phone-boot.boot-out { opacity: 0; transition: opacity 0.4s ease; pointer-events: none; }
+    @keyframes bootChar { to { opacity: 1; transform: translateY(0); } }
+    @keyframes bootFill { to { width: 100%; } }
+    @keyframes bootNote { to { opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) { .phone-boot { display: none; } }
   </style>
 </head>
 <body>
@@ -220,6 +252,12 @@
     <div class="phone-wrap">
       <div class="iphone-frame">
         <div class="phone-screen">
+          <div class="phone-boot" data-phone-boot data-boot-note="App wordt gestart" aria-hidden="true">
+            <h1 data-boot-title></h1>
+            <div class="phone-boot-bar"><span class="phone-boot-fill"></span></div>
+            <p class="phone-boot-note">App wordt gestart</p>
+          </div>
+
           <div class="dynamic-island"><span class="camera-lens"></span></div>
 
           <div class="top-status-bar">
@@ -369,6 +407,28 @@
       /* entrance */
       var reduce = false;
       try { reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+
+      /* opstartanimatie van de app in het scherm (letters + rode laadbalk, zoals de home-page) */
+      var boot = document.querySelector('[data-phone-boot]');
+      if (boot) {
+        var ptEl = document.querySelector('[data-play-title]');
+        var bl = ((ptEl && ptEl.textContent) || 'MOTION GARAGE').trim();
+        var bt = boot.querySelector('[data-boot-title]');
+        if (bt) {
+          for (var ci = 0; ci < bl.length; ci++) {
+            var ch = document.createElement('span');
+            ch.textContent = bl[ci] === ' ' ? '\u00a0' : bl[ci];
+            ch.style.setProperty('--i', String(ci));
+            bt.appendChild(ch);
+          }
+        }
+        var removeBoot = function () { if (boot.parentNode) boot.parentNode.removeChild(boot); };
+        if (reduce) { removeBoot(); }
+        else {
+          setTimeout(function () { boot.classList.add('boot-out'); }, 1450);
+          setTimeout(removeBoot, 1900);
+        }
+      }
       if (!reduce && window.anime) {
         try {
           anime.set('.iphone-frame', { opacity: 0, translateY: 56, rotateY: -20 });

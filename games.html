@@ -264,7 +264,6 @@
       display: flex;
       justify-content: center;
     }
-    .dock-app .app-icon { border-radius: 999px; }
 
     .home-indicator {
       flex: 0 0 auto;
@@ -330,10 +329,10 @@
 
     /* collectie-kaarten compact in de telefoon */
     .page-garage .collection-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; perspective: 800px; }
-    .page-garage .car-card { height: 200px; }
-    .page-garage .car-card-tag { font-size: 7.5px; letter-spacing: 0.2em; }
-    .page-garage .car-card-name { font-size: 15px; letter-spacing: 2px; }
-    .page-garage .car-card-alias { font-size: 9px; }
+    .page-garage .car-card { height: 236px; }
+    .page-garage .car-card-tag { font-size: 8px; letter-spacing: 0.22em; }
+    .page-garage .car-card-name { font-size: 16.5px; letter-spacing: 2px; }
+    .page-garage .car-card-alias { font-size: 10px; }
     .page-garage .car-card-hint { display: none; }
     .page-garage .collection-more-wrap { margin-top: 18px; }
     .page-garage .collection-more-wrap .btn { padding: 11px 18px; font-size: 10px; letter-spacing: 0.16em; }
@@ -363,6 +362,38 @@
       .iphone-frame { transition: none; transform: none; }
       .app-item:hover .app-icon { transform: none; }
     }
+    /* opstart-animatie in het scherm (zoals de home-page) */
+    .phone-boot {
+      position: absolute; inset: 0; z-index: 90;
+      background: #050506;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;
+    }
+    .phone-boot h1 {
+      font-family: var(--font-display); font-weight: 400;
+      font-size: 26px; letter-spacing: 3px; color: #fff; margin: 0; line-height: 1;
+      white-space: nowrap;
+    }
+    .phone-boot h1 span {
+      display: inline-block; opacity: 0; transform: translateY(14px);
+      animation: bootChar 0.45s ease forwards;
+      animation-delay: calc(90ms + var(--i, 0) * 34ms);
+    }
+    .phone-boot h1 span:last-child { color: #e10600; }
+    .phone-boot-bar { width: 150px; height: 2px; background: rgba(255, 255, 255, 0.12); overflow: hidden; }
+    .phone-boot-fill {
+      display: block; width: 0; height: 100%; background: #e10600;
+      box-shadow: 0 0 14px rgba(225, 6, 0, 0.5);
+      animation: bootFill 0.95s cubic-bezier(0.4, 0, 0.2, 1) 0.1s forwards;
+    }
+    .phone-boot-note {
+      margin: 0; font-size: 8px; letter-spacing: 0.28em; text-transform: uppercase;
+      color: #94949c; opacity: 0; animation: bootNote 0.5s ease 0.35s forwards;
+    }
+    .phone-boot.boot-out { opacity: 0; transition: opacity 0.4s ease; pointer-events: none; }
+    @keyframes bootChar { to { opacity: 1; transform: translateY(0); } }
+    @keyframes bootFill { to { width: 100%; } }
+    @keyframes bootNote { to { opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) { .phone-boot { display: none; } }
   </style>
 </head>
 <body>
@@ -390,6 +421,12 @@
     <div class="phone-wrap">
       <div class="iphone-frame">
         <div class="phone-screen">
+          <div class="phone-boot" data-phone-boot data-boot-label="MOTION GARAGE" data-boot-note="Garage OS wordt gestart" aria-hidden="true">
+            <h1 data-boot-title></h1>
+            <div class="phone-boot-bar"><span class="phone-boot-fill"></span></div>
+            <p class="phone-boot-note">Garage OS wordt gestart</p>
+          </div>
+
           <div class="dynamic-island"><span class="camera-lens"></span></div>
 
           <div class="top-status-bar">
@@ -405,6 +442,20 @@
             <div class="lock-clock">
               <div class="clock" data-status-time>23:47</div>
               <div class="date">Nachtshift &bull; Motion Garage</div>
+            </div>
+
+            <div class="weather-card" data-weather-card>
+              <div class="weather-top">
+                <span class="garage-card-loc">Utrecht</span>
+                <svg width="30" height="22" viewBox="0 0 30 22" fill="none" aria-hidden="true"><path d="M9 18a6 6 0 0 1-.6-11.97A7.5 7.5 0 0 1 23 7.5 5 5 0 0 1 23.5 17.5" stroke="#f5f5f5" stroke-width="1.7" stroke-linecap="round"/></svg>
+              </div>
+              <div class="weather-main">
+                <span class="garage-card-temp"><span data-weather-temp>2</span><small style="font-size:11px; letter-spacing:0.1em;">&deg;C</small></span>
+                <span class="weather-desc">
+                  <span class="garage-card-loc" style="font-size:11.5px;" data-weather-desc>Zwaar bewolkt</span>
+                  <span class="garage-card-updated" data-weather-updated style="display:block;">Laatste meting 23:47</span>
+                </span>
+              </div>
             </div>
 
             <div class="app-grid">
@@ -441,20 +492,6 @@
               </span>
             </div>
 
-            <div class="weather-card" data-weather-card>
-              <div class="weather-top">
-                <span class="garage-card-loc">Utrecht</span>
-                <svg width="30" height="22" viewBox="0 0 30 22" fill="none" aria-hidden="true"><path d="M9 18a6 6 0 0 1-.6-11.97A7.5 7.5 0 0 1 23 7.5 5 5 0 0 1 23.5 17.5" stroke="#f5f5f5" stroke-width="1.7" stroke-linecap="round"/></svg>
-              </div>
-              <div class="weather-main">
-                <span class="garage-card-temp"><span data-weather-temp>2</span><small style="font-size:11px; letter-spacing:0.1em;">&deg;C</small></span>
-                <span class="weather-desc">
-                  <span class="garage-card-loc" style="font-size:11.5px;" data-weather-desc>Zwaar bewolkt</span>
-                  <span class="garage-card-updated" data-weather-updated style="display:block;">Laatste meting 23:47</span>
-                </span>
-              </div>
-            </div>
-
             <div class="garage-card">
               <div class="garage-card-top">
                 <span class="garage-card-loc">Motion Garage &mdash; Strip 1</span>
@@ -469,9 +506,10 @@
             <div class="home-dock">
               <button class="app-item dock-app" type="button" data-open-garage aria-label="Open de garage-collectie">
                 <span class="app-icon" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="#f5f5f5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 4l9 6.5"/><path d="M5 10.5V19h14v-8.5" stroke="#e10600"/><path d="M9 19v-5h6v5"/></svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#f5f5f5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20V9l9-5 9 5v11"/><path d="M6.5 20v-8h11v8" stroke="#e10600"/><path d="M9.5 13h5M9.5 15.5h5"/></svg>
                 </span>
                 <span class="app-name">De Garage</span>
+                <span class="app-sub">12 auto&rsquo;s</span>
               </button>
             </div>
 
@@ -530,6 +568,27 @@
       };
       tick();
       setInterval(tick, 20000);
+
+      /* opstartanimatie in het scherm (letters + rode laadbalk, zoals de home-page) */
+      var boot = document.querySelector('[data-phone-boot]');
+      if (boot) {
+        var bt = boot.querySelector('[data-boot-title]');
+        var bl = boot.getAttribute('data-boot-label') || 'MOTION GARAGE';
+        if (bt) {
+          for (var ci = 0; ci < bl.length; ci++) {
+            var ch = document.createElement('span');
+            ch.textContent = bl[ci] === ' ' ? '\u00a0' : bl[ci];
+            ch.style.setProperty('--i', String(ci));
+            bt.appendChild(ch);
+          }
+        }
+        var removeBoot = function () { if (boot.parentNode) boot.parentNode.removeChild(boot); };
+        if (reduce) { removeBoot(); }
+        else {
+          setTimeout(function () { boot.classList.add('boot-out'); }, 1450);
+          setTimeout(removeBoot, 1900);
+        }
+      }
 
       /* echte records uit localStorage onder de apps */
       try {

@@ -353,8 +353,13 @@
     .page-garage .collection-more-wrap .btn { padding: 11px 18px; font-size: 10px; letter-spacing: 0.16em; }
 
     /* auto-modal binnenin de telefoon */
-    .phone-screen .car-modal { position: absolute; z-index: 60; }
-    .phone-screen .car-modal-panel { grid-template-columns: 1fr; grid-template-rows: 32% 1fr; overflow: hidden; }
+        .phone-screen .car-modal {
+      position: absolute;
+      z-index: 60;
+      /* sheet begint onder de statusbalk zodat dynamic island/klok zichtbaar blijven */
+      inset: 44px 0 0;
+    }
+    .phone-screen .car-modal-panel { grid-template-columns: 1fr; grid-template-rows: 32% 1fr; overflow: hidden; border-radius: 20px 20px 0 0; }
     .phone-screen .car-modal-media { height: 32%; background: #0b0b0c; }
     .phone-screen .car-modal-media img { object-fit: contain; }
     .phone-screen .car-modal-close {
@@ -376,6 +381,8 @@
       gap: 10px;
       padding: 14px 16px 36px;
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
     }
     .phone-screen .car-modal-name { font-size: 23px; letter-spacing: 2px; line-height: 1.05; }
     .phone-screen .car-modal-alias { margin: 0; font-size: 12px; letter-spacing: 0.14em; }

@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=30" />
+  <link rel="stylesheet" href="css/style.css?v=31" />
   <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
   <style>
     body { padding-bottom: 0; }
@@ -293,6 +293,15 @@
     .weather-desc .garage-card-updated { margin-top: 4px; }
 
     /* ---------- In-phone pagina's ---------- */
+    .phone-screen, .screen-home, .page-garage,
+    .page-garage .garage-page-body,
+    .phone-screen .car-modal-panel,
+    .phone-screen .car-modal-info {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .phone-screen::-webkit-scrollbar,
+    .phone-screen ::-webkit-scrollbar { width: 0; height: 0; display: none; }
     .screen-home { overflow-y: auto; }
     .page-garage {
       position: absolute;
@@ -315,19 +324,23 @@
       color: #f5f5f5;
     }
     .garage-page-head small { display: block; font-size: 8.5px; letter-spacing: 0.24em; text-transform: uppercase; color: rgba(245, 245, 245, 0.45); margin-top: 3px; }
-    .garage-back {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 8.5px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--red);
-      background: transparent;
-      border: 1px solid rgba(225, 6, 0, 0.4);
-      padding: 7px 11px;
-      border-radius: 999px;
-      cursor: pointer;
+    .page-garage { overflow-y: hidden; padding: 54px 18px 8px; }
+    .garage-page-head { justify-content: center; text-align: center; }
+    .garage-page-body {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
     }
-    .garage-back:hover { color: #fff; border-color: var(--red); }
+    .garage-indicator {
+      flex: 0 0 auto; height: 24px; margin-top: 10px;
+      display: flex; align-items: center; justify-content: center;
+      background: transparent; border: none; padding: 0; cursor: pointer;
+    }
+    .garage-indicator span { transition: width 0.25s ease, background 0.25s ease; }
+    .garage-indicator:hover span,
+    .garage-indicator:focus-visible span { background: var(--red); width: 132px; box-shadow: 0 0 14px rgba(225, 6, 0, 0.5); }
 
     /* collectie-kaarten compact in de telefoon */
     .page-garage .collection-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; perspective: 800px; }
@@ -336,7 +349,7 @@
     .page-garage .car-card-name { font-size: 16.5px; letter-spacing: 2px; }
     .page-garage .car-card-alias { font-size: 10px; }
     .page-garage .car-card-hint { display: none; }
-    .page-garage .collection-more-wrap { margin-top: 18px; }
+    .page-garage .collection-more-wrap { display: none; }
     .page-garage .collection-more-wrap .btn { padding: 11px 18px; font-size: 10px; letter-spacing: 0.16em; }
 
     /* auto-modal binnenin de telefoon */
@@ -524,12 +537,16 @@
                 <strong>GARAGE FLEET</strong>
                 <small>Twaalf machines</small>
               </span>
-              <button class="garage-back" type="button" data-close-garage>&larr; Apps</button>
             </div>
-            <div class="collection-grid" id="collectionGrid"></div>
-            <div class="collection-more-wrap">
-              <button id="collectionMore" class="btn btn-ghost" type="button" hidden>Toon meer</button>
+
+            <div class="garage-page-body">
+              <div class="collection-grid" id="collectionGrid"></div>
+              <div class="collection-more-wrap">
+                <button id="collectionMore" class="btn btn-ghost" type="button" hidden>Toon meer</button>
+              </div>
             </div>
+
+            <button class="home-indicator garage-indicator" type="button" data-close-garage aria-label="Terug naar de apps"><span></span></button>
           </div>
 
           <div class="car-modal" id="carModal" aria-hidden="true" role="dialog" aria-modal="true">
@@ -629,7 +646,7 @@
       }
     })();
   </script>
-  <script src="js/main.js?v=30"></script>
+  <script src="js/main.js?v=31"></script>
   <script>
     (function () {
       /* in-phone navigatie: apps <-> garage-collectie */
@@ -663,6 +680,31 @@
             .catch(function () {});
         }
       } catch (e) {}
+
+      /* alle twaalf auto's direct tonen in de telefoon (geen toon-meer-knop) */
+      var reduce2 = false;
+      try { reduce2 = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+      var showAllCars = function () {
+        var grid = document.getElementById('collectionGrid');
+        if (!grid || !grid.childElementCount) { setTimeout(showAllCars, 140); return; }
+        var extras = grid.querySelectorAll('.collection-extra');
+        for (var i = 0; i < extras.length; i++) extras[i].style.display = '';
+        if (!reduce2 && window.anime && extras.length) {
+          try {
+            anime.set(extras, { opacity: 0, translateY: 30 });
+            anime({
+              targets: extras,
+              opacity: 1,
+              translateY: 0,
+              delay: anime.stagger(70, { start: 140 }),
+              duration: 640,
+              easing: 'easeOutCubic'
+            });
+          } catch (e) {}
+        }
+      };
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', showAllCars);
+      else showAllCars();
     })();
   </script>
 </body>

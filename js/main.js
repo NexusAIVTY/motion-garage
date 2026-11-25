@@ -2277,7 +2277,8 @@
     function resize() {
       const r = frame.getBoundingClientRect();
       const cw = r.width || 340;
-      const cssH = Math.min(560, Math.max(300, cw * 0.72));
+      const fh = r.height;
+      const cssH = (fh > 150) ? fh : Math.min(560, Math.max(300, cw * 0.72));
       dpr = Math.min(2, window.devicePixelRatio || 1);
       W = Math.floor(cw * dpr);
       H = Math.floor(cssH * dpr);
@@ -2438,7 +2439,8 @@
     function resize() {
       const r = frame.getBoundingClientRect();
       const cw = r.width || 340;
-      const cssH = Math.min(460, Math.max(300, cw * 0.66));
+      const fh = r.height;
+      const cssH = (fh > 150) ? fh : Math.min(460, Math.max(300, cw * 0.66));
       dpr = Math.min(2, window.devicePixelRatio || 1);
       W = Math.floor(cw * dpr);
       H = Math.floor(cssH * dpr);
@@ -2446,7 +2448,7 @@
       cv.height = H;
       cv.style.height = cssH.toFixed(0) + 'px';
       cx = W / 2;
-      cy = H * 0.62;
+      cy = H * 0.66;
       R = Math.min(W, H) * 0.36;
       draw();
     }
@@ -2777,7 +2779,8 @@
       if (visible && rafId === null) rafId = requestAnimationFrame(step);
     }
 
-    cv.addEventListener('pointerdown', stopNeedle);
+    const tapZone = cv.closest('.phone-screen') || frame || cv;
+    tapZone.addEventListener('pointerdown', stopNeedle);
     window.addEventListener('keydown', (e) => {
       if (state !== 'aim') return;
       if (e.code === 'Space' || e.key === ' ' || e.key === 'Spacebar') {

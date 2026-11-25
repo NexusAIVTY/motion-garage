@@ -394,8 +394,6 @@ img { display: block; }
   line-height: 0.94;
   letter-spacing: 2px;
   color: #fff;
-  
-  .hero-title {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -405,7 +403,6 @@ img { display: block; }
 .hero-title .hero-word {
   display: block;
   white-space: nowrap;
-}
 }
 .hero-side {
   position: absolute;

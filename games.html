@@ -354,24 +354,26 @@
 
     /* auto-modal binnenin de telefoon */
     .phone-screen .car-modal { position: absolute; z-index: 60; }
-    .phone-screen .car-modal-panel { grid-template-columns: 1fr; grid-template-rows: 30% 1fr; overflow: hidden; }
-    .phone-screen .car-modal-media { height: 30%; }
+    .phone-screen .car-modal-panel { grid-template-columns: 1fr; grid-template-rows: 32% 1fr; overflow: hidden; }
+    .phone-screen .car-modal-media { height: 32%; background: #0b0b0c; }
+    .phone-screen .car-modal-media img { object-fit: contain; }
     .phone-screen .car-modal-close { top: 12px; right: 12px; width: 32px; height: 32px; font-size: 16px; }
     /* niet centreren: bij overflow klappen anders naam (boven) en knop (onder) buiten beeld */
     .phone-screen .car-modal-info {
       justify-content: flex-start;
-      gap: 9px;
-      padding: 14px 16px 12px;
+      gap: 10px;
+      padding: 14px 16px 14px;
       overflow-y: auto;
     }
-    .phone-screen .car-modal-name { font-size: 21px; letter-spacing: 2px; line-height: 1.05; }
-    .phone-screen .car-modal-alias { margin: 0; font-size: 10.5px; letter-spacing: 0.14em; }
-    .phone-screen .car-modal-fact { margin: 0; font-size: 10.5px; line-height: 1.5; padding-left: 8px; }
-    .phone-screen .car-modal-copy { margin: 0; font-size: 10.5px; line-height: 1.55; max-width: none; }
-    .phone-screen .car-modal-specs { gap: 7px 18px; padding-top: 9px; margin-top: 3px; max-width: none; }
-    .phone-screen .car-modal-specs dd { font-size: 16px; letter-spacing: 1px; line-height: 1.1; }
-    .phone-screen .car-modal-specs .btn { font-size: 9.5px; padding: 10px 16px; align-self: flex-start; }
-    .phone-screen .car-modal-specs a { font-size: 9.5px; }
+    .phone-screen .car-modal-name { font-size: 23px; letter-spacing: 2px; line-height: 1.05; }
+    .phone-screen .car-modal-alias { margin: 0; font-size: 12px; letter-spacing: 0.14em; }
+    .phone-screen .car-modal-fact { margin: 0; font-size: 12.5px; line-height: 1.55; padding-left: 8px; }
+    .phone-screen .car-modal-copy { margin: 0; font-size: 12.5px; line-height: 1.6; max-width: none; }
+    .phone-screen .car-modal-specs { gap: 9px 20px; padding-top: 10px; margin-top: 3px; max-width: none; }
+    .phone-screen .car-modal-specs dt { font-size: 10.5px; letter-spacing: 2.5px; }
+    .phone-screen .car-modal-specs dd { font-size: 19px; letter-spacing: 1px; line-height: 1.1; }
+    .phone-screen .car-modal-specs .btn { font-size: 11px; padding: 12px 18px; align-self: flex-start; }
+    .phone-screen .car-modal-specs a { font-size: 11px; }
 
     /* ---------- Responsive ---------- */
     @media (max-width: 900px) {
@@ -381,6 +383,23 @@
       .phone-wrap { justify-self: center; }
       .iphone-frame { transform: none !important; }
       @media (hover: hover) { .phone-wrap:hover .iphone-frame { transform: none !important; } }
+    }
+    /* echte mobiel: de telefoon past volledig op het scherm (zoals play.html) */
+    @media (max-width: 500px) {
+      .arcade-head { padding: 10px 4vw; }
+      .arcade-logo { font-size: 16px; }
+      .arcade-back { font-size: 10px; padding: 7px 10px; }
+      .arcade-intro { display: none; }
+      .arcade-main { display: block; padding: 10px 0 12px; }
+      .phone-wrap { padding: 0 8px; }
+      .iphone-frame {
+        max-width: none;
+        height: calc(100dvh - 110px);
+        min-height: 0;
+        border-radius: 40px;
+        padding: 9px;
+      }
+      .phone-screen { border-radius: 32px; }
     }
     @media (prefers-reduced-motion: reduce) {
       .iphone-frame { transition: none; transform: none; }

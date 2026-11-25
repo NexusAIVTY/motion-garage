@@ -635,6 +635,20 @@
   }
 
   /* ---------- Collection ---------- */
+  /* gedeelde AudioContext (bestaat één keer): geen vertraging meer bij de eerste actie */
+  let __mgSharedAC = null;
+  function mgAudioCtx() {
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      if (!__mgSharedAC) __mgSharedAC = new AC();
+      if (__mgSharedAC.state === 'suspended') {
+        try { __mgSharedAC.resume().catch(function () {}); } catch (e) {}
+      }
+      return __mgSharedAC;
+    } catch (e) { return null; }
+  }
+
   function buildCollection() {
     const grid = document.getElementById('collectionGrid');
     if (!grid) return;
@@ -1580,9 +1594,8 @@
   function revEngine() {
     if (!soundOn) return;
     try {
-      const AC = window.AudioContext || window.webkitAudioContext;
-      if (!AC) return;
-      const ctx = new AC();
+      const ctx = mgAudioCtx();
+      if (!ctx) return;
       const t0 = ctx.currentTime;
 
       const osc1 = ctx.createOscillator();
@@ -1634,7 +1647,6 @@
       noise.start(t0);
       osc1.stop(t0 + 1.6);
       osc2.stop(t0 + 1.6);
-      setTimeout(() => ctx.close().catch(() => {}), 1900);
     } catch (e) {}
   }
 
@@ -1753,9 +1765,8 @@
     function engineStart() {
       if (!soundOn || engine) return;
       try {
-        const AC = window.AudioContext || window.webkitAudioContext;
-        if (!AC) return;
-        const ctx = new AC();
+        const ctx = mgAudioCtx();
+        if (!ctx) return;
         const o = ctx.createOscillator();
         o.type = 'sawtooth';
         const o2 = ctx.createOscillator();
@@ -1785,7 +1796,6 @@
       try {
         engine.o.stop(engine.ctx.currentTime + 0.12);
         engine.o2.stop(engine.ctx.currentTime + 0.12);
-        setTimeout(() => { try { engine.ctx.close().catch(() => {}); } catch (e) {} }, 260);
       } catch (e) {}
       engine = null;
     }
@@ -1816,9 +1826,8 @@
     function launchSound(kind) {
       if (!soundOn) return;
       try {
-        const AC = window.AudioContext || window.webkitAudioContext;
-        if (!AC) return;
-        const ctx = new AC();
+        const ctx = mgAudioCtx();
+        if (!ctx) return;
         const t0 = ctx.currentTime;
         const o = ctx.createOscillator();
         o.type = 'square';
@@ -1831,7 +1840,6 @@
         g.connect(ctx.destination);
         o.start(t0);
         o.stop(t0 + 0.13);
-        setTimeout(() => ctx.close().catch(() => {}), 220);
       } catch (e) {}
     }
 
@@ -2448,8 +2456,8 @@
       cv.height = H;
       cv.style.height = cssH.toFixed(0) + 'px';
       cx = W / 2;
-      cy = H * 0.66;
-      R = Math.min(W, H) * 0.36;
+      cy = H * 0.52;
+      R = Math.min(W * 0.44, H * 0.30);
       draw();
     }
     resize();
@@ -2459,9 +2467,8 @@
     function rlSound(kind) {
       if (!soundOn) return;
       try {
-        const AC = window.AudioContext || window.webkitAudioContext;
-        if (!AC) return;
-        const ctx = new AC();
+        const ctx = mgAudioCtx();
+        if (!ctx) return;
         const t0 = ctx.currentTime;
         const o = ctx.createOscillator();
         o.type = kind === 'perfect' ? 'triangle' : kind === 'mis' ? 'sawtooth' : 'square';
@@ -2476,16 +2483,14 @@
         g.connect(ctx.destination);
         o.start(t0);
         o.stop(t0 + 0.15);
-        setTimeout(() => ctx.close().catch(() => {}), 260);
       } catch (e) {}
     }
 
     function rlPerfectSound(flawless) {
       if (!soundOn) return;
       try {
-        const AC = window.AudioContext || window.webkitAudioContext;
-        if (!AC) return;
-        const ctx = new AC();
+        const ctx = mgAudioCtx();
+        if (!ctx) return;
         const t0 = ctx.currentTime;
         const notes = flawless ? [440, 660, 880, 1320] : [660, 990];
         notes.forEach((f, i) => {
@@ -2512,7 +2517,6 @@
         g2.connect(ctx.destination);
         o2.start(t0);
         o2.stop(t0 + 0.32);
-        setTimeout(() => ctx.close().catch(() => {}), 700);
       } catch (e) {}
     }
 
@@ -2841,9 +2845,8 @@
     function matchSound(kind) {
       if (!soundOn) return;
       try {
-        const AC = window.AudioContext || window.webkitAudioContext;
-        if (!AC) return;
-        const ctx = new AC();
+        const ctx = mgAudioCtx();
+        if (!ctx) return;
         const t0 = ctx.currentTime;
         const o = ctx.createOscillator();
         o.type = kind === 'ok' ? 'triangle' : 'sine';
@@ -2856,7 +2859,6 @@
         g.connect(ctx.destination);
         o.start(t0);
         o.stop(t0 + 0.15);
-        setTimeout(() => ctx.close().catch(() => {}), 260);
       } catch (e) {}
     }
 
@@ -2898,7 +2900,7 @@
         front.textContent = 'MG';
         const back = document.createElement('span');
         back.className = 'match-face match-back';
-        back.innerHTML = '<img src="' + card.img + '" alt="" loading="lazy" decoding="async"><strong></strong><i></i>';
+        back.innerHTML = '<img src="' + card.img + '" alt="" decoding="async"><strong></strong><i></i>';
         back.querySelector('strong').textContent = card.name;
         back.querySelector('i').textContent = card.sub;
         inner.appendChild(front);
@@ -3062,9 +3064,8 @@
     function dynoSoundStart() {
       if (!soundOn) return;
       try {
-        const AC = window.AudioContext || window.webkitAudioContext;
-        if (!AC) return;
-        soundCtx = new AC();
+        soundCtx = mgAudioCtx();
+        if (!soundCtx) return;
         soundOsc = soundCtx.createOscillator();
         soundGain = soundCtx.createGain();
         const lp = soundCtx.createBiquadFilter();
@@ -3109,7 +3110,6 @@
             o.stop(t0 + i * 0.07 + 0.45);
           });
         }
-        if (sc) setTimeout(() => sc.close().catch(() => {}), 1000);
       } catch (e) {}
     }
 

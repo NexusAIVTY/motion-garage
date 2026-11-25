@@ -204,9 +204,26 @@
   /* ---------- Text helpers ---------- */
   function splitChars(el) {
     if (el.dataset.splitDone) return Array.from(el.querySelectorAll('.char'));
-    const text = el.textContent;
-    el.textContent = '';
-    const frag = document.createDocumentFragment();
+
+  const text = el.textContent.trim();
+  el.textContent = '';
+  const frag = document.createDocumentFragment();
+
+  if (el.classList.contains('hero-title')) {
+    text.split(/\s+/).forEach((word) => {
+      const wordWrap = document.createElement('span');
+      wordWrap.className = 'hero-word';
+
+      for (const ch of word) {
+        const span = document.createElement('span');
+        span.className = 'char';
+        span.textContent = ch;
+        wordWrap.appendChild(span);
+      }
+
+      frag.appendChild(wordWrap);
+    });
+  } else {
     for (const ch of text) {
       if (ch === ' ') {
         frag.appendChild(document.createTextNode('\u00A0\u00A0'));
@@ -217,10 +234,12 @@
         frag.appendChild(span);
       }
     }
-    el.appendChild(frag);
-    el.dataset.splitDone = 'true';
-    return Array.from(el.querySelectorAll('.char'));
   }
+
+  el.appendChild(frag);
+  el.dataset.splitDone = 'true';
+  return Array.from(el.querySelectorAll('.char'));
+}
 
   function splitWords(el) {
     const text = el.textContent.trim();

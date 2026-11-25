@@ -854,6 +854,15 @@ img { display: block; }
   touch-action: none;
   cursor: crosshair;
 }
+#rlCanvas {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.game-frame {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
 .game-hud {
   position: absolute;
   top: 12px;

@@ -2989,6 +2989,20 @@
       if (name === 'redline' && gameApi.resizeRed) gameApi.resizeRed();
     }
     tabs.forEach((t) => t.addEventListener('click', () => activate(t.getAttribute('data-game-tab'))));
+
+    /* deep-link vanaf games.html: #game-launch / #game-red / #game-match */
+    const hm = (window.location.hash || '').match(/^#game-(dash|launch|red|redline|match)$/i);
+    if (hm) {
+      const map = { dash: 'dash', launch: 'dash', red: 'redline', redline: 'redline', match: 'match' };
+      const name = map[hm[1].toLowerCase()];
+      if (name) {
+        activate(name);
+        setTimeout(() => {
+          const sec = document.getElementById('game');
+          if (sec) sec.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+        }, reduce ? 250 : 3000);
+      }
+    }
   }
 
   /* ---------- The Dyno \u2014 live power-run ---------- */

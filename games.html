@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GARAGE OS — de arcade in je zak | Motion Garage</title>
+  <meta name="description" content="De Motion Garage arcade als telefoon: LAUNCH, Redline en Spec Match als apps. Speel de drie races waar en wanneer je wilt." />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a0a0a'/%3E%3Cpath d='M6 21 L16 9 L26 21' stroke='%23e10600' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css?v=27" />
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
+  <style>
+    body { padding-bottom: 0; }
+
+    /* ---------- Arcade page layout ---------- */
+    .arcade-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 22px 6vw;
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      background: rgba(10, 10, 10, 0.88);
+      backdrop-filter: blur(10px);
+      z-index: 5;
+    }
+    .arcade-logo {
+      font-family: var(--font-display);
+      font-size: 20px;
+      letter-spacing: 2px;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .arcade-logo em { color: var(--red); font-style: normal; }
+    .arcade-back {
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      border: 1px solid var(--line);
+      padding: 9px 14px;
+      border-radius: 999px;
+      transition: color 0.2s, border-color 0.2s;
+      white-space: nowrap;
+    }
+    .arcade-back:hover { color: var(--text); border-color: var(--red); }
+
+    .arcade-main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 64px 6vw 90px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 56px;
+      align-items: center;
+    }
+    .arcade-intro { max-width: 430px; }
+    .arcade-intro .section-label { margin-bottom: 18px; }
+    .arcade-title {
+      font-family: var(--font-display);
+      font-size: clamp(40px, 6vw, 76px);
+      line-height: 0.98;
+      letter-spacing: 2px;
+      color: var(--text);
+      margin: 0 0 22px;
+      text-transform: uppercase;
+    }
+    .arcade-title .line { display: block; white-space: nowrap; }
+    .arcade-title .line span { color: var(--red); }
+    .arcade-copy { color: var(--muted); font-weight: 300; font-size: 16px; line-height: 1.8; margin-bottom: 26px; }
+    .arcade-list { list-style: none; display: grid; gap: 12px; }
+    .arcade-list li { display: flex; gap: 12px; align-items: baseline; color: var(--muted); font-size: 14px; line-height: 1.6; }
+    .arcade-list li::before { content: '\2197'; color: var(--red); font-size: 12px; }
+
+    /* ---------- The phone ---------- */
+    .phone-wrap {
+      justify-self: center;
+      perspective: 1400px;
+      padding: 10px 0 20px;
+    }
+    .iphone-frame {
+      width: 100%;
+      max-width: 375px;
+      height: min(780px, 86vh);
+      min-height: 620px;
+      background: #050506;
+      border-radius: 52px;
+      padding: 11px;
+      box-sizing: border-box;
+      box-shadow:
+        0 30px 80px -18px rgba(0, 0, 0, 0.8),
+        0 0 0 2px #1c1c1f,
+        inset 0 0 3px rgba(255, 255, 255, 0.28);
+      position: relative;
+      transform: rotateY(-8deg) rotateX(2deg);
+      transition: transform 0.5s ease;
+    }
+    @media (hover: hover) {
+      .phone-wrap:hover .iphone-frame { transform: rotateY(0deg) rotateX(0deg); }
+    }
+    @media (max-height: 720px) {
+      .iphone-frame { height: 620px; }
+    }
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      border-radius: 42px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      background:
+        radial-gradient(120% 60% at 50% 108%, rgba(225, 6, 0, 0.34), transparent 62%),
+        radial-gradient(90% 45% at 18% -6%, rgba(70, 70, 84, 0.5), transparent 60%),
+        linear-gradient(175deg, #131316 0%, #0a0a0c 58%, #050506 100%);
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .dynamic-island {
+      width: 92px;
+      height: 26px;
+      background: #000;
+      border-radius: 20px;
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 9px;
+      z-index: 40;
+      box-sizing: border-box;
+    }
+    .camera-lens {
+      width: 9px;
+      height: 9px;
+      background: #16181d;
+      border-radius: 50%;
+      box-shadow: inset 0 0 2px rgba(225, 6, 0, 0.6);
+    }
+    .top-status-bar {
+      height: 44px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 26px 0;
+      font-size: 13px;
+      font-weight: 600;
+      color: #f5f5f5;
+      position: relative;
+      z-index: 30;
+      box-sizing: border-box;
+      flex: 0 0 auto;
+    }
+    .status-icons { display: flex; align-items: center; gap: 6px; }
+
+    .screen-home {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 6px 22px 18px;
+      box-sizing: border-box;
+      min-height: 0;
+    }
+    .lock-clock {
+      text-align: center;
+      margin: 14px 0 20px;
+    }
+    .lock-clock .clock {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 300;
+      font-size: 58px;
+      line-height: 1;
+      color: #f5f5f5;
+      letter-spacing: 1px;
+      font-variant-numeric: tabular-nums;
+    }
+    .lock-clock .date {
+      margin-top: 6px;
+      font-size: 11px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(245, 245, 245, 0.6);
+    }
+    .app-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px 12px;
+      align-content: start;
+    }
+    .app-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+      text-decoration: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .app-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 17px;
+      background: linear-gradient(160deg, #1b1b1f, #101012);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.12s ease, box-shadow 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .app-icon::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(60% 45% at 50% 0%, rgba(225, 6, 0, 0.22), transparent 70%);
+    }
+    .app-icon svg { width: 34px; height: 34px; position: relative; z-index: 1; }
+    .app-item:hover .app-icon { transform: translateY(-3px) scale(1.04); box-shadow: 0 14px 28px rgba(0, 0, 0, 0.6), 0 0 18px rgba(225, 6, 0, 0.25); }
+    .app-item:active .app-icon { transform: scale(0.92); }
+    .app-name {
+      font-family: var(--font-display);
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      color: #f5f5f5;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .app-sub {
+      font-size: 9.5px;
+      color: rgba(245, 245, 245, 0.5);
+      margin-top: -3px;
+      white-space: nowrap;
+      letter-spacing: 0.04em;
+    }
+    .app-item.soon { opacity: 0.42; pointer-events: none; }
+    .app-item.soon .app-icon::after { background: none; }
+
+    .garage-card {
+      margin-top: auto;
+      padding: 14px 16px 13px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      box-sizing: border-box;
+    }
+    .garage-card-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .garage-card-loc { font-size: 14px; font-weight: 650; color: #f5f5f5; letter-spacing: 0.02em; }
+    .garage-card-updated { font-size: 9px; opacity: 0.62; color: #f5f5f5; margin-top: 3px; letter-spacing: 0.06em; }
+    .garage-card-temp { font-size: 30px; font-weight: 300; color: #e10600; line-height: 1; font-family: var(--font-display); letter-spacing: 1px; }
+    .garage-card-main { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 7px; }
+    .garage-card-desc { font-size: 10.5px; color: rgba(245, 245, 245, 0.7); line-height: 1.5; }
+    .home-dock {
+      margin-top: 14px;
+      display: flex;
+      justify-content: center;
+    }
+    .dock-app .app-icon { border-radius: 999px; }
+
+    .home-indicator {
+      flex: 0 0 auto;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .home-indicator span { width: 120px; height: 4px; border-radius: 4px; background: rgba(245, 245, 245, 0.34); }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 900px) {
+      .arcade-main { grid-template-columns: 1fr; gap: 44px; padding-top: 44px; }
+      .arcade-intro { max-width: 520px; margin: 0 auto; text-align: center; }
+      .arcade-list li { justify-content: center; }
+      .phone-wrap { justify-self: center; }
+      .iphone-frame { transform: none; }
+      @media (hover: hover) { .phone-wrap:hover .iphone-frame { transform: none; } }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .iphone-frame { transition: none; transform: none; }
+      .app-item:hover .app-icon { transform: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="arcade-head">
+    <a class="arcade-logo" href="index.html">MOTION <em>GARAGE</em></a>
+    <a class="arcade-back" href="index.html#game">Terug naar Motion Garage</a>
+  </header>
+
+  <main class="arcade-main">
+    <div class="arcade-intro">
+      <div class="section-label">Garage OS &mdash; v1.0</div>
+      <h1 class="arcade-title">
+        <span class="line">DE ARCADE</span>
+        <span class="line"><span>IN JE ZAK.</span></span>
+      </h1>
+      <p class="arcade-copy">Drie games, &eacute;&eacute;n telefoon. De races van Motion Garage zijn nu apps &mdash; tik op een icoon en de garage start op je eigen telefoon, waar je ook staat.</p>
+      <ul class="arcade-list">
+        <li>LAUNCH &mdash; kwart-mijl dragrace op het scherm ingedrukt houden om gas te geven. Werkt met tikken en met spatie.</li>
+        <li>Redline &mdash; tik de toerenteller stil zodra de naald het rode venster raakt. Elke tik is een griepmoment.</li>
+        <li>Spec Match &mdash; draai de kaarten pari&ecirc;n naar de juiste specs. Puur geheugen, puur nacht.</li>
+      </ul>
+    </div>
+
+    <div class="phone-wrap">
+      <div class="iphone-frame">
+        <div class="phone-screen">
+          <div class="dynamic-island"><span class="camera-lens"></span></div>
+
+          <div class="top-status-bar">
+            <span data-status-time>23:47</span>
+            <div class="status-icons">
+              <svg width="16" height="11" viewBox="0 0 18 12" fill="#f5f5f5" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="0.5"/><rect x="4.5" y="5" width="3" height="7" rx="0.5"/><rect x="9" y="2" width="3" height="10" rx="0.5"/><rect x="13.5" y="0" width="3" height="12" rx="0.5" opacity="0.4"/></svg>
+              <svg width="15" height="12" viewBox="0 0 24 24" fill="none" stroke="#f5f5f5" stroke-width="2.4" aria-hidden="true"><path d="M2 8.5a16 16 0 0 1 20 0"/><path d="M5 12.5a11 11 0 0 1 14 0"/><path d="M8.5 16.5a6 6 0 0 1 7 0"/><path d="M12 20h.01"/></svg>
+              <svg width="24" height="12" viewBox="0 0 27 13" aria-hidden="true"><rect x="0.5" y="0.5" width="21" height="12" rx="3.5" fill="none" stroke="#f5f5f5" stroke-opacity="0.4"/><rect x="2.2" y="2.2" width="14.6" height="8.6" rx="2" fill="#e10600"/><rect x="23" y="4.4" width="2.4" height="4.2" rx="1.2" fill="#f5f5f5" fill-opacity="0.4"/></svg>
+            </div>
+          </div>
+
+          <div class="screen-home">
+            <div class="lock-clock">
+              <div class="clock" data-status-time>23:47</div>
+              <div class="date">Nachtshift &bull; Motion Garage</div>
+            </div>
+
+            <div class="app-grid">
+              <a class="app-item" href="index.html#game-launch">
+                <span class="app-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#e10600" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8h20M2 8l3.2-3.2M2 8l3.2 3.2M2 16h20M2 16l3.2-3.2M2 16l3.2 3.2"/><circle cx="16.5" cy="12" r="2.6" fill="#e10600" stroke="none"/></svg>
+                </span>
+                <span class="app-name">Launch</span>
+                <span class="app-sub" data-record="mgDragBest" data-record-unit="s" data-record-lower="1">nog geen record</span>
+              </a>
+
+              <a class="app-item" href="index.html#game-red">
+                <span class="app-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#f5f5f5" stroke-width="1.8" stroke-linecap="round"><path d="M4 19a9 9 0 1 1 16 0"/><path d="M12 19l4.2-6.4" stroke="#e10600" stroke-width="2.2"/><circle cx="12" cy="19" r="1.6" fill="#f5f5f5" stroke="none"/></svg>
+                </span>
+                <span class="app-name">Redline</span>
+                <span class="app-sub" data-record="mgRedBest" data-record-unit="pt">nog geen record</span>
+              </a>
+
+              <a class="app-item" href="index.html#game-match">
+                <span class="app-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#f5f5f5" stroke-width="1.8" stroke-linejoin="round"><rect x="3.5" y="4.5" width="10" height="15" rx="2" stroke="#e10600"/><rect x="10.5" y="6.5" width="10" height="13" rx="2" fill="#101012" stroke="#f5f5f5"/><path d="M13.5 12.5l2 2 3.5-3.5" stroke="#e10600" stroke-width="2" stroke-linecap="round"/></svg>
+                </span>
+                <span class="app-name">Spec Match</span>
+                <span class="app-sub" data-record="mgMatchBest" data-record-unit="zetten" data-record-lower="1">nog geen record</span>
+              </a>
+
+              <span class="app-item soon">
+                <span class="app-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#94949c" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8.4"/><path d="M12 7.6V12l3 1.8"/></svg>
+                </span>
+                <span class="app-name">Binnenkort</span>
+                <span class="app-sub">we bouwen</span>
+              </span>
+            </div>
+
+            <div class="garage-card">
+              <div class="garage-card-top">
+                <span class="garage-card-loc">Motion Garage &mdash; Strip 1</span>
+                <span class="garage-card-temp">1250 <small style="font-size:11px; letter-spacing:0.1em;">PK</small></span>
+              </div>
+              <div class="garage-card-main">
+                <span class="garage-card-desc">Asfalt 4&deg;C &bull; grip perfect &bull; 12 auto&rsquo;s present</span>
+                <span class="garage-card-updated" style="align-self:flex-end;">live</span>
+              </div>
+            </div>
+
+            <div class="home-dock">
+              <a class="app-item dock-app" href="index.html">
+                <span class="app-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#f5f5f5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M14 6l6 6-6 6"/></svg>
+                </span>
+                <span class="app-name">De Garage</span>
+              </a>
+            </div>
+
+            <div class="home-indicator"><span></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      var reduce = false;
+      try { reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+
+      /* klok */
+      var tick = function () {
+        var d = new Date();
+        var t = ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
+        var els = document.querySelectorAll('[data-status-time]');
+        for (var i = 0; i < els.length; i++) els[i].textContent = t;
+      };
+      tick();
+      setInterval(tick, 20000);
+
+      /* echte records uit localStorage onder de apps */
+      try {
+        var subs = document.querySelectorAll('[data-record]');
+        for (var i = 0; i < subs.length; i++) {
+          var el = subs[i];
+          var raw = window.localStorage.getItem(el.getAttribute('data-record'));
+          if (raw === null) continue;
+          var v = parseFloat(raw);
+          if (!isFinite(v)) continue;
+          var unit = el.getAttribute('data-record-unit') || '';
+          var text = unit === 's' ? v.toFixed(2) + ' s' : Math.round(v) + ' ' + unit;
+          el.textContent = text;
+        }
+      } catch (e) {}
+
+      /* intro-animatie */
+      if (!reduce && window.anime) {
+        try {
+          anime.set('.arcade-title .line span', { opacity: 0, translateY: 44, rotateX: -70 });
+          anime.set('.arcade-list li, .arcade-copy, .arcade-intro .section-label', { opacity: 0, translateY: 22 });
+          anime.set('.iphone-frame', { opacity: 0, translateY: 70, rotateY: -22 });
+          anime.set('.app-item', { opacity: 0, translateY: 26, scale: 0.86 });
+          anime.set('.lock-clock, .garage-card, .dock-app, .home-indicator', { opacity: 0 });
+
+          var tl = anime.timeline({ easing: 'easeOutExpo' });
+          tl.add({ targets: '.iphone-frame', opacity: 1, translateY: 0, rotateY: -8, duration: 950 }, 100)
+            .add({ targets: '.lock-clock, .garage-card, .home-indicator', opacity: 1, duration: 420 }, 620)
+            .add({ targets: '.app-item', opacity: 1, translateY: 0, scale: 1, duration: 520, delay: anime.stagger(95, { start: 760 }) })
+            .add({ targets: '.arcade-title .line span', opacity: 1, translateY: 0, rotateX: 0, duration: 820, delay: anime.stagger(140) }, 340)
+            .add({ targets: '.arcade-intro .section-label, .arcade-copy, .arcade-list li', opacity: 1, translateY: 0, duration: 520, delay: anime.stagger(90) }, 700);
+        } catch (e) {}
+      }
+      if (reduce) {
+        document.querySelectorAll('.arcade-title .line span, .arcade-list li, .arcade-copy, .arcade-intro .section-label, .iphone-frame, .app-item, .lock-clock, .garage-card, .home-indicator').forEach(function (el) { el.style.opacity = 1; });
+      }
+    })();
+  </script>
+</body>
+</html>

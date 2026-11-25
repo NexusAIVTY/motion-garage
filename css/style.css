@@ -312,6 +312,7 @@ img { display: block; }
 /* ---------- Buttons ---------- */
 .btn {
   display: inline-block;
+  background: transparent;
   font-family: var(--font-body);
   font-weight: 700;
   font-size: 12px;

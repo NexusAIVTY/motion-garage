@@ -506,6 +506,7 @@ img { display: block; }
   color: #fff;
 }
 .showcase-title .char { display: inline-block; opacity: 0; }
+.showcase-title .showcase-word { display: block; white-space: nowrap; }
 .showcase-copy {
   color: rgba(245,245,245,0.82);
   font-weight: 300;

@@ -209,7 +209,21 @@
   el.textContent = '';
   const frag = document.createDocumentFragment();
 
-  if (el.classList.contains('hero-title')) {
+  if (el.classList.contains('showcase-title')) {
+    text.split(/\s+/).forEach((word) => {
+      const wordWrap = document.createElement('span');
+      wordWrap.className = 'showcase-word';
+
+      for (const ch of word) {
+        const span = document.createElement('span');
+        span.className = 'char';
+        span.textContent = ch;
+        wordWrap.appendChild(span);
+      }
+
+      frag.appendChild(wordWrap);
+    });
+  } else if (el.classList.contains('hero-title')) {
     text.split(/\s+/).forEach((word) => {
       const wordWrap = document.createElement('span');
       wordWrap.className = 'hero-word';

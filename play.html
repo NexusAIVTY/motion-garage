@@ -124,17 +124,42 @@
     }
     .play-title span { font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(245, 245, 245, 0.5); }
 
-    /* de game-sectie sluit naadloos op het telefoonscherm */
-    .phone-screen .game.section { padding: 0; background: transparent; }
+    /* de game vult het hele telefoonscherm */
+    .phone-screen .game.section {
+      padding: 0;
+      background: transparent;
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
     .phone-screen .game .section-label,
     .phone-screen .game .section-title,
     .phone-screen .game .collection-sub { display: none; }
-    .phone-screen .game-tabs { margin: 10px 0 0; flex-wrap: nowrap; padding: 4px; }
-    .phone-screen .game-tab { padding: 9px 8px; font-size: 9px; letter-spacing: 0.1em; flex: 1 1 0; }
-    .phone-screen .game-panel { margin: 0; }
-    .phone-screen .game-frame { margin: 10px 12px 14px; max-width: none; border-radius: 18px; }
-    .phone-screen #launchCanvas { height: min(430px, 58vh); }
-    .phone-screen #rlCanvas { height: min(400px, 56vh); }
+    .phone-screen .game-panel {
+      margin: 0;
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .phone-screen .game-panel[hidden] { display: none; }
+    .phone-screen .game-frame {
+      flex: 1;
+      min-height: 0;
+      margin: 0;
+      max-width: none;
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+    }
+    .phone-screen .game-frame-match { overflow-y: auto; }
+    .phone-screen #launchCanvas,
+    .phone-screen #rlCanvas { height: 100%; }
+    .phone-screen .home-indicator { text-decoration: none; cursor: pointer; }
+    .phone-screen .home-indicator span { transition: width 0.25s ease, background 0.25s ease; }
+    .phone-screen .home-indicator:hover span,
+    .phone-screen .home-indicator:focus-visible span { background: var(--red); width: 132px; box-shadow: 0 0 14px rgba(225, 6, 0, 0.5); }
     .phone-screen .game-overlay { padding: 16px; }
     .phone-screen .game-overlay h3 { font-size: 30px; }
     .phone-screen .game-overlay p { font-size: 11.5px; max-width: 92%; line-height: 1.55; }
@@ -143,14 +168,13 @@
     .phone-screen .game-hud strong { font-size: 15px; }
     .phone-screen .game-frame-match { padding: 10px; }
     .phone-screen .match-hud { margin-bottom: 10px; }
-    .phone-screen .match-grid { gap: 9px; }
+    .phone-screen .match-grid { gap: 9px; margin-bottom: 8px; }
     .phone-screen .gameover-score { font-size: 34px; }
     .phone-screen .home-indicator {
-      flex: 0 0 auto; height: 16px;
+      flex: 0 0 auto; height: 20px;
       display: flex; align-items: center; justify-content: center;
     }
     .phone-screen .home-indicator span { width: 110px; height: 4px; border-radius: 4px; background: rgba(245, 245, 245, 0.34); }
-    .phone-screen .match-grid { margin-bottom: 8px; }
 
     .play-foot { text-align: center; color: rgba(245, 245, 245, 0.4); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; margin-top: 18px; }
 
@@ -196,12 +220,6 @@
             <div class="section-label reveal">The games</div>
             <h2 class="section-title reveal" data-split>GARAGE ARCADE</h2>
             <p class="collection-sub reveal">Drie spelletjes, &eacute;&eacute;n garage. Kies je race.</p>
-
-            <div class="game-tabs reveal" role="tablist">
-              <button class="game-tab active" data-game-tab="dash" type="button" role="tab">01 &mdash; Launch</button>
-              <button class="game-tab" data-game-tab="redline" type="button" role="tab">02 &mdash; Redline</button>
-              <button class="game-tab" data-game-tab="match" type="button" role="tab">03 &mdash; Spec Match</button>
-            </div>
 
             <div class="game-panel active" data-game-panel="dash">
               <div class="game-frame reveal" data-game-frame>
@@ -276,7 +294,7 @@
             </div>
           </section>
 
-          <div class="home-indicator"><span></span></div>
+          <a class="home-indicator" href="games.html" aria-label="Terug naar alle games" title="Terug naar alle games"><span></span></a>
         </div>
       </div>
       <p class="play-foot">Tik in het scherm om te spelen &bull; spatie werkt ook</p>
@@ -333,15 +351,13 @@
       if (!reduce && window.anime) {
         try {
           anime.set('.iphone-frame', { opacity: 0, translateY: 56, rotateY: -20 });
-          anime.set('.game-tabs .game-tab', { opacity: 0, translateY: 12 });
           anime.set('.play-title', { opacity: 0 });
           var tl = anime.timeline({ easing: 'easeOutExpo' });
           tl.add({ targets: '.iphone-frame', opacity: 1, translateY: 0, rotateY: -7, duration: 850 }, 60)
-            .add({ targets: '.play-title', opacity: 1, duration: 360 }, 520)
-            .add({ targets: '.game-tabs .game-tab', opacity: 1, translateY: 0, duration: 420, delay: anime.stagger(70, { start: 560 }) });
+            .add({ targets: '.play-title', opacity: 1, duration: 360 }, 520);
         } catch (e) {}
       } else if (reduce) {
-        document.querySelectorAll('.iphone-frame, .game-tabs .game-tab, .play-title').forEach(function (el) { el.style.opacity = 1; });
+        document.querySelectorAll('.iphone-frame, .play-title').forEach(function (el) { el.style.opacity = 1; });
       }
     })();
   </script>

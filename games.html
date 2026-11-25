@@ -275,6 +275,81 @@
     }
     .home-indicator span { width: 120px; height: 4px; border-radius: 4px; background: rgba(245, 245, 245, 0.34); }
 
+    /* ---------- Weerskaart (zoals in het origineel) ---------- */
+    .weather-card {
+      margin-top: auto;
+      padding: 13px 16px 12px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      box-sizing: border-box;
+    }
+    .weather-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .weather-main { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 8px; }
+    .weather-desc { text-align: left; }
+    .weather-desc .garage-card-loc { font-size: 14px; }
+    .weather-desc .garage-card-updated { margin-top: 4px; }
+
+    /* ---------- In-phone pagina's ---------- */
+    .screen-home { overflow-y: auto; }
+    .page-garage {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      padding: 54px 18px 16px;
+      box-sizing: border-box;
+      overflow-y: auto;
+      background: linear-gradient(175deg, #131316 0%, #0a0a0c 70%, #050506 100%);
+      z-index: 20;
+    }
+    .phone-screen.garage-open .page-garage { display: flex; }
+    .garage-page-head { display: flex; align-items: center; justify-content: space-between; margin: 0 0 14px; }
+    .garage-page-head strong {
+      font-family: var(--font-display);
+      font-weight: 400;
+      font-size: 16px;
+      letter-spacing: 2.5px;
+      color: #f5f5f5;
+    }
+    .garage-page-head small { display: block; font-size: 8.5px; letter-spacing: 0.24em; text-transform: uppercase; color: rgba(245, 245, 245, 0.45); margin-top: 3px; }
+    .garage-back {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 8.5px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--red);
+      background: transparent;
+      border: 1px solid rgba(225, 6, 0, 0.4);
+      padding: 7px 11px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    .garage-back:hover { color: #fff; border-color: var(--red); }
+
+    /* collectie-kaarten compact in de telefoon */
+    .page-garage .collection-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; perspective: 800px; }
+    .page-garage .car-card { height: 200px; }
+    .page-garage .car-card-tag { font-size: 7.5px; letter-spacing: 0.2em; }
+    .page-garage .car-card-name { font-size: 15px; letter-spacing: 2px; }
+    .page-garage .car-card-alias { font-size: 9px; }
+    .page-garage .car-card-hint { display: none; }
+    .page-garage .collection-more-wrap { margin-top: 18px; }
+    .page-garage .collection-more-wrap .btn { padding: 11px 18px; font-size: 10px; letter-spacing: 0.16em; }
+
+    /* auto-modal binnenin de telefoon */
+    .phone-screen .car-modal { position: absolute; z-index: 60; }
+    .phone-screen .car-modal-panel { grid-template-columns: 1fr; grid-template-rows: 36% 1fr; overflow: auto; }
+    .phone-screen .car-modal-info { padding: 16px 18px; overflow-y: auto; }
+    .phone-screen .car-modal-name { font-size: 22px; }
+    .phone-screen .car-modal-alias { font-size: 11px; }
+    .phone-screen .car-modal-fact,
+    .phone-screen .car-modal-copy { font-size: 11.5px; }
+    .phone-screen .car-modal-specs { font-size: 11px; }
+    .phone-screen .car-modal-specs .btn,
+    .car-modal-specs a { font-size: 10px; }
+
     /* ---------- Responsive ---------- */
     @media (max-width: 900px) {
       .arcade-main { grid-template-columns: 1fr; gap: 44px; padding-top: 44px; }
@@ -366,6 +441,20 @@
               </span>
             </div>
 
+            <div class="weather-card" data-weather-card>
+              <div class="weather-top">
+                <span class="garage-card-loc">Utrecht</span>
+                <svg width="30" height="22" viewBox="0 0 30 22" fill="none" aria-hidden="true"><path d="M9 18a6 6 0 0 1-.6-11.97A7.5 7.5 0 0 1 23 7.5 5 5 0 0 1 23.5 17.5" stroke="#f5f5f5" stroke-width="1.7" stroke-linecap="round"/></svg>
+              </div>
+              <div class="weather-main">
+                <span class="garage-card-temp"><span data-weather-temp>2</span><small style="font-size:11px; letter-spacing:0.1em;">&deg;C</small></span>
+                <span class="weather-desc">
+                  <span class="garage-card-loc" style="font-size:11.5px;" data-weather-desc>Zwaar bewolkt</span>
+                  <span class="garage-card-updated" data-weather-updated style="display:block;">Laatste meting 23:47</span>
+                </span>
+              </div>
+            </div>
+
             <div class="garage-card">
               <div class="garage-card-top">
                 <span class="garage-card-loc">Motion Garage &mdash; Strip 1</span>
@@ -378,15 +467,49 @@
             </div>
 
             <div class="home-dock">
-              <a class="app-item dock-app" href="index.html">
+              <button class="app-item dock-app" type="button" data-open-garage aria-label="Open de garage-collectie">
                 <span class="app-icon" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="#f5f5f5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M14 6l6 6-6 6"/></svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#f5f5f5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 4l9 6.5"/><path d="M5 10.5V19h14v-8.5" stroke="#e10600"/><path d="M9 19v-5h6v5"/></svg>
                 </span>
                 <span class="app-name">De Garage</span>
-              </a>
+              </button>
             </div>
 
             <div class="home-indicator"><span></span></div>
+          </div>
+
+          <div class="page-garage">
+            <div class="garage-page-head">
+              <span>
+                <strong>GARAGE FLEET</strong>
+                <small>Twaalf machines</small>
+              </span>
+              <button class="garage-back" type="button" data-close-garage>&larr; Apps</button>
+            </div>
+            <div class="collection-grid" id="collectionGrid"></div>
+            <div class="collection-more-wrap">
+              <button id="collectionMore" class="btn btn-ghost" type="button" hidden>Toon meer</button>
+            </div>
+          </div>
+
+          <div class="car-modal" id="carModal" aria-hidden="true" role="dialog" aria-modal="true">
+            <div class="car-modal-backdrop" data-modal-close></div>
+            <div class="car-modal-panel">
+              <button class="car-modal-close" data-modal-close aria-label="Sluiten">&times;</button>
+              <div class="car-modal-media">
+                <img id="carModalImg" src="" alt="" />
+                <div class="media-veil"></div>
+              </div>
+              <div class="car-modal-info">
+                <div class="section-label" id="carModalTag"></div>
+                <h2 class="car-modal-name" id="carModalName"></h2>
+                <p class="car-modal-alias" id="carModalAlias"></p>
+                <p class="car-modal-fact" id="carModalFact"></p>
+                <p class="car-modal-copy" id="carModalCopy"></p>
+                <dl class="car-modal-specs" id="carModalSpecs"></dl>
+                <a href="index.html" class="btn btn-primary" data-modal-close>Naar de garage &nearr;</a>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -443,6 +566,42 @@
       if (reduce) {
         document.querySelectorAll('.arcade-title .line span, .arcade-list li, .arcade-copy, .arcade-intro .section-label, .iphone-frame, .app-item, .lock-clock, .garage-card, .home-indicator').forEach(function (el) { el.style.opacity = 1; });
       }
+    })();
+  </script>
+  <script src="js/main.js?v=28"></script>
+  <script>
+    (function () {
+      /* in-phone navigatie: apps <-> garage-collectie */
+      var ps = document.querySelector('.phone-screen');
+      var open = function (e) { if (e) e.preventDefault(); if (ps) ps.classList.add('garage-open'); };
+      var close = function (e) { if (e) e.preventDefault(); if (ps) ps.classList.remove('garage-open'); };
+      Array.prototype.forEach.call(document.querySelectorAll('[data-open-garage]'), function (el) { el.addEventListener('click', open); });
+      Array.prototype.forEach.call(document.querySelectorAll('[data-close-garage]'), function (el) { el.addEventListener('click', close); });
+
+      /* live weer (open-meteo) met nette fallback */
+      try {
+        var tEl = document.querySelector('[data-weather-temp]');
+        var dEl = document.querySelector('[data-weather-desc]');
+        var uEl = document.querySelector('[data-weather-updated]');
+        if (window.fetch && tEl && dEl && uEl) {
+          var codes = {
+            0: 'Heldere nacht', 1: 'Licht bewolkt', 2: 'Half bewolkt', 3: 'Zwaar bewolkt',
+            45: 'Mist', 48: 'Mist', 51: 'Motregen', 53: 'Motregen', 55: 'Motregen',
+            61: 'Regen', 63: 'Regen', 65: 'Regen', 71: 'Sneeuw', 73: 'Sneeuw', 75: 'Sneeuw',
+            80: 'Buien', 81: 'Buien', 82: 'Buien', 95: 'Onweer', 96: 'Onweer', 99: 'Onweer'
+          };
+          window.fetch('https://api.open-meteo.com/v1/forecast?latitude=52.0907&longitude=5.1214&current=temperature_2m,weather_code')
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (d) {
+              if (!d || !d.current) return;
+              tEl.textContent = String(Math.round(d.current.temperature_2m));
+              dEl.textContent = codes[d.current.weather_code] || 'Nacht in de garage';
+              var n = new Date();
+              uEl.textContent = 'Laatste meting ' + ('0' + n.getHours()).slice(-2) + ':' + ('0' + n.getMinutes()).slice(-2);
+            })
+            .catch(function () {});
+        }
+      } catch (e) {}
     })();
   </script>
 </body>

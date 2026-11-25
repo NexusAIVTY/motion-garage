@@ -203,6 +203,7 @@
 
   /* ---------- Text helpers ---------- */
   function splitChars(el) {
+    if (!el) return [];
     if (el.dataset.splitDone) return Array.from(el.querySelectorAll('.char'));
 
   const text = el.textContent.trim();
@@ -366,7 +367,9 @@
 
   /* ---------- Hero intro timeline (replayable) ---------- */
   function heroIntro() {
-    const chars = splitChars(document.querySelector('.hero-title'));
+    const heroTitleEl = document.querySelector('.hero-title');
+    if (!heroTitleEl) return;
+    const chars = splitChars(heroTitleEl);
     if (chars.length >= 10) chars.slice(6).forEach((c) => c.classList.add('char-outline'));
 
     anime.remove(chars);
@@ -434,6 +437,7 @@
   function heroDust() {
     if (reduceMotion) return;
     const wrap = document.querySelector('.hero-dust');
+    if (!wrap) return;
     for (let i = 0; i < 16; i++) {
       const d = document.createElement('div');
       d.className = 'dust';
@@ -633,6 +637,7 @@
   /* ---------- Collection ---------- */
   function buildCollection() {
     const grid = document.getElementById('collectionGrid');
+    if (!grid) return;
     const cards = [];
     CARS.forEach((car, i) => {
 
@@ -1263,6 +1268,7 @@
     if (window.matchMedia('(hover: none)').matches || reduceMotion) return;
     const dot = document.querySelector('.cursor-dot');
     const ring = document.querySelector('.cursor-ring');
+    if (!dot || !ring) return;
     let mx = -100, my = -100, rx = -100, ry = -100;
 
     window.addEventListener('mousemove', (e) => {

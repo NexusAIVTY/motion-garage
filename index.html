@@ -74,8 +74,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=27" />
-  <link rel="stylesheet" href="css/launch-grid.css?v=28" />
+  <link rel="stylesheet" href="css/style.css?v=28" />
   <link rel="stylesheet" href="css/arcade-enhanced.css?v=27" />
 </head>
 <body>
@@ -358,91 +357,6 @@
       </div>
     </section>
 
-    <!-- GAMES — drie varianten -->
-    <section class="game section section-dark" id="game">
-      <div class="section-label reveal">The games</div>
-      <h2 class="section-title reveal" data-split>GARAGE ARCADE</h2>
-      <p class="collection-sub reveal">Drie spelletjes, &eacute;&eacute;n garage. Kies je race.</p>
-
-      <div class="game-tabs reveal" role="tablist">
-        <button class="game-tab active" data-game-tab="dash" type="button" role="tab">01 &mdash; Launch</button>
-        <button class="game-tab" data-game-tab="redline" type="button" role="tab">02 &mdash; Redline</button>
-        <button class="game-tab" data-game-tab="match" type="button" role="tab">03 &mdash; Spec Match</button>
-      </div>
-
-      <div class="game-panel active" data-game-panel="dash">
-        <div class="game-frame reveal" data-game-frame>
-          <canvas id="launchCanvas" aria-label="Launch speelveld"></canvas>
-
-          <div class="game-hud" aria-hidden="true">
-            <span>Tijd <strong data-drag-time>0.00 s</strong></span>
-            <span>Snelheid <strong data-drag-speed>0 km/h</strong></span>
-            <span>Versnelling <strong data-drag-gear>&mdash;</strong></span>
-            <span>Record <strong data-drag-best>&mdash;</strong></span>
-          </div>
-
-          <div class="game-overlay" data-drag-start>
-            <h3>LAUNCH</h3>
-            <p class="drag-intro">Kies je machine &mdash; elk model rijdt met eigen vermogen, versnellingen en toerenlimiet. Houd SPATIE (of de baan) ingedrukt en houd de toeren in het groen wanneer de lichten op groen springen. Laat daarna los en druk snel opnieuw in om te schakelen &mdash; houd de meter in het rode shift-venster en wacht op de SCHAKEL!-prompt voor de perfecte shift. 402 m: vol gas, geen rem. Bij de finish krijg je je volledige tijdopname.</p>
-            <div class="drag-garage" data-drag-garage role="listbox" aria-label="Kies je race-auto"></div>
-            <p class="drag-picked" data-drag-picked></p>
-            <button class="btn btn-primary" data-drag-go type="button">Start &nearr;</button>
-            </div>
-
-          <div class="game-overlay" data-drag-over hidden>
-            <h3>&mdash; Finish &mdash;</h3>
-            <p class="gameover-score" data-drag-final>&mdash;</p>
-            <p class="gameover-note" data-drag-note></p>
-            <p class="gameover-note" style="opacity:0.65;font-size:11px">Tip: SPATIE = nog een run</p>
-            <button class="btn btn-ghost" data-drag-again type="button">Nog een run &nearr;</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="game-panel" data-game-panel="redline" hidden>
-        <div class="game-frame reveal" data-rl-frame>
-          <canvas id="rlCanvas" aria-label="Redline speelveld"></canvas>
-
-          <div class="game-hud" aria-hidden="true">
-            <span>Ronde <strong data-rl-round>&mdash;</strong></span>
-            <span>Bonus <strong data-rl-mult>&times;1</strong></span>
-            <span>Totaal <strong data-rl-total>0</strong></span>
-            <span>Record <strong data-rl-best>0</strong></span>
-          </div>
-
-          <div class="game-overlay" data-rl-start>
-            <h3>REDLINE</h3>
-            <p>Stop de naald precies in de rode zone van de toerenteller. Vijf ronden &mdash; elke ronde sneller en smaller, en de bonus groeit: ronde 1 is &times;1, ronde 5 &times;5. Raak je het midden, dan is het een perfecte hit &mdash; met een knalletje als beloning. Alle vijf perfect? <strong>FLAWLESS.</strong></p>
-            <button class="btn btn-primary" data-rl-go type="button">Start &nearr;</button>
-          </div>
-
-          <div class="game-overlay" data-rl-over hidden>
-            <h3>&mdash; Uitslag &mdash;</h3>
-            <p class="gameover-score" data-rl-final>0</p>
-            <p class="gameover-note" data-rl-note></p>
-            <button class="btn btn-ghost" data-rl-again type="button">Nog een run &nearr;</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="game-panel" data-game-panel="match" hidden>
-        <div class="game-frame game-frame-match reveal" data-match-frame>
-          <div class="match-hud game-hud" aria-hidden="true">
-            <span>Beurten <strong data-match-moves>0</strong></span>
-            <span>Gevonden <strong data-match-found>0 / 6</strong></span>
-            <span>Record <strong data-match-best>&mdash;</strong></span>
-          </div>
-
-          <div class="match-grid" id="matchGrid"></div>
-
-          <div class="game-overlay" data-match-win hidden>
-            <h3>&mdash; Alles gevonden &mdash;</h3>
-            <p class="gameover-score" data-match-final>0 beurten</p>
-            <button class="btn btn-ghost" data-match-reset type="button">Nieuw spel &nearr;</button>
-          </div>
-        </div>
-      </div>
-    </section>
 
     <!-- CONTACT -->
     <section class="cta section" id="contact">
@@ -490,8 +404,7 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
-  <script src="js/main.js?v=27"></script>
-  <script src="js/launch-grid.js?v=28"></script>
+  <script src="js/main.js?v=28"></script>
   <script src="js/launch-car.js?v=1"></script>
   <script src="js/performance-wow.js?v=26"></script>
 </body>

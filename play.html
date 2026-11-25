@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LAUNCH — GARAGE OS | Motion Garage</title>
+  <meta name="description" content="Speel de Motion Garage games op de telefoon: LAUNCH dragrace, Redline reactiespel en Spec Match geheugen. Tik op de app in de garage en racen maar." />
+  <meta name="robots" content="noindex, follow" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a0a0a'/%3E%3Cpath d='M6 21 L16 9 L26 21' stroke='%23e10600' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css?v=28" />
+  <link rel="stylesheet" href="css/arcade-enhanced.css?v=27" />
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
+  <style>
+    body { padding-bottom: 0; }
+
+    .arcade-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 6vw;
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      background: rgba(10, 10, 10, 0.88);
+      backdrop-filter: blur(10px);
+      z-index: 5;
+    }
+    .arcade-logo {
+      font-family: var(--font-display);
+      font-size: 18px;
+      letter-spacing: 2px;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .arcade-logo em { color: var(--red); font-style: normal; }
+    .arcade-back {
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      border: 1px solid var(--line);
+      padding: 8px 13px;
+      border-radius: 999px;
+      transition: color 0.2s, border-color 0.2s;
+      white-space: nowrap;
+    }
+    .arcade-back:hover { color: var(--text); border-color: var(--red); }
+
+    .play-main {
+      min-height: calc(100vh - 60px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 34px 6vw 60px;
+    }
+    .phone-wrap { perspective: 1400px; }
+    .iphone-frame {
+      width: 100%;
+      max-width: 392px;
+      height: min(830px, 92vh);
+      min-height: 640px;
+      background: #050506;
+      border-radius: 52px;
+      padding: 11px;
+      box-sizing: border-box;
+      box-shadow:
+        0 30px 80px -18px rgba(0, 0, 0, 0.8),
+        0 0 0 2px #1c1c1f,
+        inset 0 0 3px rgba(255, 255, 255, 0.28);
+      position: relative;
+      transform: rotateY(-7deg) rotateX(2deg);
+      transition: transform 0.5s ease;
+    }
+    @media (hover: hover) {
+      .phone-wrap:hover .iphone-frame { transform: rotateY(0deg) rotateX(0deg); }
+    }
+    @media (max-height: 700px) { .iphone-frame { height: 640px; min-height: 0; } }
+
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      border-radius: 42px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      background:
+        radial-gradient(130% 55% at 50% 110%, rgba(225, 6, 0, 0.26), transparent 62%),
+        linear-gradient(175deg, #131316 0%, #0a0a0c 58%, #050506 100%);
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .dynamic-island {
+      width: 92px; height: 26px; background: #000; border-radius: 20px;
+      position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+      display: flex; align-items: center; justify-content: flex-end;
+      padding-right: 9px; z-index: 40; box-sizing: border-box;
+    }
+    .camera-lens {
+      width: 9px; height: 9px; background: #16181d; border-radius: 50%;
+      box-shadow: inset 0 0 2px rgba(225, 6, 0, 0.6);
+    }
+    .top-status-bar {
+      height: 40px; flex: 0 0 auto;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 6px 24px 0; font-size: 12px; font-weight: 600; color: #f5f5f5;
+      position: relative; z-index: 30; box-sizing: border-box;
+    }
+    .status-icons { display: flex; align-items: center; gap: 6px; }
+    .play-title {
+      flex: 0 0 auto;
+      display: flex; align-items: baseline; justify-content: space-between;
+      padding: 6px 16px 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    }
+    .play-title strong {
+      font-family: var(--font-display); font-weight: 400;
+      font-size: 16px; letter-spacing: 2.5px; color: #f5f5f5;
+    }
+    .play-title span { font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(245, 245, 245, 0.5); }
+
+    /* de game-sectie sluit naadloos op het telefoonscherm */
+    .phone-screen .game.section { padding: 0; background: transparent; }
+    .phone-screen .game .section-label,
+    .phone-screen .game .section-title,
+    .phone-screen .game .collection-sub { display: none; }
+    .phone-screen .game-tabs { margin: 10px 0 0; flex-wrap: nowrap; padding: 4px; }
+    .phone-screen .game-tab { padding: 9px 8px; font-size: 9px; letter-spacing: 0.1em; flex: 1 1 0; }
+    .phone-screen .game-panel { margin: 0; }
+    .phone-screen .game-frame { margin: 10px 12px 14px; max-width: none; border-radius: 18px; }
+    .phone-screen #launchCanvas { height: min(430px, 58vh); }
+    .phone-screen #rlCanvas { height: min(400px, 56vh); }
+    .phone-screen .game-overlay { padding: 16px; }
+    .phone-screen .game-overlay h3 { font-size: 30px; }
+    .phone-screen .game-overlay p { font-size: 11.5px; max-width: 92%; line-height: 1.55; }
+    .phone-screen .drag-intro { max-width: 92%; font-size: 10.5px; }
+    .phone-screen .game-hud { top: 8px; left: 10px; right: 10px; gap: 8px; }
+    .phone-screen .game-hud strong { font-size: 15px; }
+    .phone-screen .game-frame-match { padding: 10px; }
+    .phone-screen .match-hud { margin-bottom: 10px; }
+    .phone-screen .match-grid { gap: 9px; }
+    .phone-screen .gameover-score { font-size: 34px; }
+    .phone-screen .home-indicator {
+      flex: 0 0 auto; height: 16px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .phone-screen .home-indicator span { width: 110px; height: 4px; border-radius: 4px; background: rgba(245, 245, 245, 0.34); }
+    .phone-screen .match-grid { margin-bottom: 8px; }
+
+    .play-foot { text-align: center; color: rgba(245, 245, 245, 0.4); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; margin-top: 18px; }
+
+    @media (max-width: 640px) {
+      .play-main { padding: 18px 5vw 44px; }
+      .iphone-frame { transform: none !important; max-width: 100%; }
+      @media (hover: hover) { .phone-wrap:hover .iphone-frame { transform: none; } }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .iphone-frame { transition: none; transform: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="arcade-head">
+    <a class="arcade-logo" href="index.html">MOTION <em>GARAGE</em></a>
+    <a class="arcade-back" href="games.html">&larr; Terug naar de apps</a>
+  </header>
+
+  <main class="play-main">
+    <div class="phone-wrap">
+      <div class="iphone-frame">
+        <div class="phone-screen">
+          <div class="dynamic-island"><span class="camera-lens"></span></div>
+
+          <div class="top-status-bar">
+            <span data-status-time>23:47</span>
+            <span style="font-size:9px; letter-spacing:0.2em; color:rgba(245,245,245,0.62);">GARAGE OS</span>
+            <div class="status-icons">
+              <svg width="16" height="11" viewBox="0 0 18 12" fill="#f5f5f5" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="0.5"/><rect x="4.5" y="5" width="3" height="7" rx="0.5"/><rect x="9" y="2" width="3" height="10" rx="0.5"/><rect x="13.5" y="0" width="3" height="12" rx="0.5" opacity="0.4"/></svg>
+              <svg width="24" height="12" viewBox="0 0 27 13" aria-hidden="true"><rect x="0.5" y="0.5" width="21" height="12" rx="3.5" fill="none" stroke="#f5f5f5" stroke-opacity="0.4"/><rect x="2.2" y="2.2" width="14.6" height="8.6" rx="2" fill="#e10600"/><rect x="23" y="4.4" width="2.4" height="4.2" rx="1.2" fill="#f5f5f5" fill-opacity="0.4"/></svg>
+            </div>
+          </div>
+
+          <div class="play-title">
+            <strong data-play-title>LAUNCH</strong>
+            <span data-play-app>app 01 / 03</span>
+          </div>
+
+          <!-- GAMES — verhuisd van de home-pagina -->
+          <section class="game section section-dark" id="game">
+            <div class="section-label reveal">The games</div>
+            <h2 class="section-title reveal" data-split>GARAGE ARCADE</h2>
+            <p class="collection-sub reveal">Drie spelletjes, &eacute;&eacute;n garage. Kies je race.</p>
+
+            <div class="game-tabs reveal" role="tablist">
+              <button class="game-tab active" data-game-tab="dash" type="button" role="tab">01 &mdash; Launch</button>
+              <button class="game-tab" data-game-tab="redline" type="button" role="tab">02 &mdash; Redline</button>
+              <button class="game-tab" data-game-tab="match" type="button" role="tab">03 &mdash; Spec Match</button>
+            </div>
+
+            <div class="game-panel active" data-game-panel="dash">
+              <div class="game-frame reveal" data-game-frame>
+                <canvas id="launchCanvas" aria-label="Launch speelveld"></canvas>
+
+                <div class="game-hud" aria-hidden="true">
+                  <span>Tijd <strong data-drag-time>0.00 s</strong></span>
+                  <span>Snelheid <strong data-drag-speed>0 km/h</strong></span>
+                  <span>Versnelling <strong data-drag-gear>&mdash;</strong></span>
+                  <span>Record <strong data-drag-best>&mdash;</strong></span>
+                </div>
+
+                <div class="game-overlay" data-drag-start>
+                  <h3>LAUNCH</h3>
+                  <p class="drag-intro">Kies je machine &mdash; elk model rijdt met eigen vermogen, versnellingen en toerenlimiet. Houd je vinger (of SPATIE) op de baan en houd de toeren in het groen wanneer de lichten op groen springen. Laat daarna los en druk snel opnieuw in om te schakelen &mdash; wacht op de SCHAKEL!-prompt voor de perfecte shift. 402 m: vol gas, geen rem.</p>
+                  <div class="drag-garage" data-drag-garage role="listbox" aria-label="Kies je race-auto"></div>
+                  <p class="drag-picked" data-drag-picked></p>
+                  <button class="btn btn-primary" data-drag-go type="button">Start &nearr;</button>
+                </div>
+
+                <div class="game-overlay" data-drag-over hidden>
+                  <h3>&mdash; Finish &mdash;</h3>
+                  <p class="gameover-score" data-drag-final>&mdash;</p>
+                  <p class="gameover-note" data-drag-note></p>
+                  <button class="btn btn-ghost" data-drag-again type="button">Nog een run &nearr;</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="game-panel" data-game-panel="redline" hidden>
+              <div class="game-frame reveal" data-rl-frame>
+                <canvas id="rlCanvas" aria-label="Redline speelveld"></canvas>
+
+                <div class="game-hud" aria-hidden="true">
+                  <span>Ronde <strong data-rl-round>&mdash;</strong></span>
+                  <span>Bonus <strong data-rl-mult>&times;1</strong></span>
+                  <span>Totaal <strong data-rl-total>0</strong></span>
+                  <span>Record <strong data-rl-best>0</strong></span>
+                </div>
+
+                <div class="game-overlay" data-rl-start>
+                  <h3>REDLINE</h3>
+                  <p>Stop de naald precies in de rode zone van de toerenteller. Vijf ronden &mdash; elke ronde sneller en smaller, en de bonus groeit: ronde 1 is &times;1, ronde 5 &times;5. Raak je het midden, dan is het een perfecte hit &mdash; met een knalletje als beloning. Alle vijf perfect? <strong>FLAWLESS.</strong></p>
+                  <button class="btn btn-primary" data-rl-go type="button">Start &nearr;</button>
+                </div>
+
+                <div class="game-overlay" data-rl-over hidden>
+                  <h3>&mdash; Uitslag &mdash;</h3>
+                  <p class="gameover-score" data-rl-final>0</p>
+                  <p class="gameover-note" data-rl-note></p>
+                  <button class="btn btn-ghost" data-rl-again type="button">Nog een run &nearr;</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="game-panel" data-game-panel="match" hidden>
+              <div class="game-frame game-frame-match reveal" data-match-frame>
+                <div class="match-hud game-hud" aria-hidden="true">
+                  <span>Beurten <strong data-match-moves>0</strong></span>
+                  <span>Gevonden <strong data-match-found>0 / 6</strong></span>
+                  <span>Record <strong data-match-best>&mdash;</strong></span>
+                </div>
+
+                <div class="match-grid" id="matchGrid"></div>
+
+                <div class="game-overlay" data-match-win hidden>
+                  <h3>&mdash; Alles gevonden &mdash;</h3>
+                  <p class="gameover-score" data-match-final>0 beurten</p>
+                  <button class="btn btn-ghost" data-match-reset type="button">Nieuw spel &nearr;</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <div class="home-indicator"><span></span></div>
+        </div>
+      </div>
+      <p class="play-foot">Tik in het scherm om te spelen &bull; spatie werkt ook</p>
+    </div>
+  </main>
+
+  <script>
+    /* Kies het panel o.b.v. ?g= vóórdat main.js de games bouwt */
+    (function () {
+      var map = { launch: 'dash', dash: 'dash', red: 'redline', redline: 'redline', match: 'match' };
+      var q = (window.location.search || '').match(/[?&]g=(dash|launch|red|redline|match)/i);
+      var name = map[(q && q[1].toLowerCase()) || 'launch'] || 'dash';
+
+      var panels = document.querySelectorAll('[data-game-panel]');
+      Array.prototype.forEach.call(panels, function (p) {
+        var on = p.getAttribute('data-game-panel') === name;
+        p.hidden = !on;
+        p.classList.toggle('active', on);
+      });
+      var tabs = document.querySelectorAll('[data-game-tab]');
+      Array.prototype.forEach.call(tabs, function (t) {
+        var on = t.getAttribute('data-game-tab') === name;
+        t.classList.toggle('active', on);
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+
+      var titles = {
+        dash: ['LAUNCH', 'app 01 / 03', 'LAUNCH \u2014 GARAGE OS | Motion Garage'],
+        redline: ['REDLINE', 'app 02 / 03', 'REDLINE \u2014 GARAGE OS | Motion Garage'],
+        match: ['SPEC MATCH', 'app 03 / 03', 'SPEC MATCH \u2014 GARAGE OS | Motion Garage']
+      };
+      var t = titles[name];
+      if (t) {
+        var el = document.querySelector('[data-play-title]');
+        var ap = document.querySelector('[data-play-app]');
+        if (el) el.textContent = t[0];
+        if (ap) ap.textContent = t[1];
+        document.title = t[2];
+      }
+
+      /* klok */
+      var tick = function () {
+        var d = new Date();
+        var tt = ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
+        var els = document.querySelectorAll('[data-status-time]');
+        for (var i = 0; i < els.length; i++) els[i].textContent = tt;
+      };
+      tick();
+      setInterval(tick, 20000);
+
+      /* entrance */
+      var reduce = false;
+      try { reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+      if (!reduce && window.anime) {
+        try {
+          anime.set('.iphone-frame', { opacity: 0, translateY: 56, rotateY: -20 });
+          anime.set('.game-tabs .game-tab', { opacity: 0, translateY: 12 });
+          anime.set('.play-title', { opacity: 0 });
+          var tl = anime.timeline({ easing: 'easeOutExpo' });
+          tl.add({ targets: '.iphone-frame', opacity: 1, translateY: 0, rotateY: -7, duration: 850 }, 60)
+            .add({ targets: '.play-title', opacity: 1, duration: 360 }, 520)
+            .add({ targets: '.game-tabs .game-tab', opacity: 1, translateY: 0, duration: 420, delay: anime.stagger(70, { start: 560 }) });
+        } catch (e) {}
+      } else if (reduce) {
+        document.querySelectorAll('.iphone-frame, .game-tabs .game-tab, .play-title').forEach(function (el) { el.style.opacity = 1; });
+      }
+    })();
+  </script>
+  <script src="js/main.js?v=28"></script>
+  <script src="js/launch-car.js?v=1"></script>
+</body>
+</html>

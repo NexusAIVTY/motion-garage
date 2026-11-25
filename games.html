@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=27" />
+  <link rel="stylesheet" href="css/style.css?v=28" />
   <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
   <style>
     body { padding-bottom: 0; }
@@ -281,8 +281,8 @@
       .arcade-intro { max-width: 520px; margin: 0 auto; text-align: center; }
       .arcade-list li { justify-content: center; }
       .phone-wrap { justify-self: center; }
-      .iphone-frame { transform: none; }
-      @media (hover: hover) { .phone-wrap:hover .iphone-frame { transform: none; } }
+      .iphone-frame { transform: none !important; }
+      @media (hover: hover) { .phone-wrap:hover .iphone-frame { transform: none !important; } }
     }
     @media (prefers-reduced-motion: reduce) {
       .iphone-frame { transition: none; transform: none; }
@@ -304,7 +304,7 @@
         <span class="line">DE ARCADE</span>
         <span class="line"><span>IN JE ZAK.</span></span>
       </h1>
-      <p class="arcade-copy">Drie games, &eacute;&eacute;n telefoon. De races van Motion Garage zijn nu apps &mdash; tik op een icoon en de garage start op je eigen telefoon, waar je ook staat.</p>
+      <p class="arcade-copy">Drie games, &eacute;&eacute;n telefoon. De races van Motion Garage zijn nu apps &mdash; tik op een icoon en de game opent in het scherm van de telefoon, en je speelt meteen.</p>
       <ul class="arcade-list">
         <li>LAUNCH &mdash; kwart-mijl dragrace op het scherm ingedrukt houden om gas te geven. Werkt met tikken en met spatie.</li>
         <li>Redline &mdash; tik de toerenteller stil zodra de naald het rode venster raakt. Elke tik is een griepmoment.</li>
@@ -333,7 +333,7 @@
             </div>
 
             <div class="app-grid">
-              <a class="app-item" href="index.html#game-launch">
+              <a class="app-item" href="play.html?g=launch">
                 <span class="app-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none" stroke="#e10600" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8h20M2 8l3.2-3.2M2 8l3.2 3.2M2 16h20M2 16l3.2-3.2M2 16l3.2 3.2"/><circle cx="16.5" cy="12" r="2.6" fill="#e10600" stroke="none"/></svg>
                 </span>
@@ -341,7 +341,7 @@
                 <span class="app-sub" data-record="mgDragBest" data-record-unit="s" data-record-lower="1">nog geen record</span>
               </a>
 
-              <a class="app-item" href="index.html#game-red">
+              <a class="app-item" href="play.html?g=red">
                 <span class="app-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none" stroke="#f5f5f5" stroke-width="1.8" stroke-linecap="round"><path d="M4 19a9 9 0 1 1 16 0"/><path d="M12 19l4.2-6.4" stroke="#e10600" stroke-width="2.2"/><circle cx="12" cy="19" r="1.6" fill="#f5f5f5" stroke="none"/></svg>
                 </span>
@@ -349,7 +349,7 @@
                 <span class="app-sub" data-record="mgRedBest" data-record-unit="pt">nog geen record</span>
               </a>
 
-              <a class="app-item" href="index.html#game-match">
+              <a class="app-item" href="play.html?g=match">
                 <span class="app-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none" stroke="#f5f5f5" stroke-width="1.8" stroke-linejoin="round"><rect x="3.5" y="4.5" width="10" height="15" rx="2" stroke="#e10600"/><rect x="10.5" y="6.5" width="10" height="13" rx="2" fill="#101012" stroke="#f5f5f5"/><path d="M13.5 12.5l2 2 3.5-3.5" stroke="#e10600" stroke-width="2" stroke-linecap="round"/></svg>
                 </span>

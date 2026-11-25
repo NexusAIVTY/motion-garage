@@ -712,10 +712,11 @@
       cards.push(card);
     });
 
+    const phoneMode = !!grid.closest('.page-garage');
     const extras = cards.slice(6);
-    extras.forEach((el) => { el.style.display = 'none'; });
+    if (!phoneMode) extras.forEach((el) => { el.style.display = 'none'; });
     const moreBtn = document.getElementById('collectionMore');
-    if (moreBtn && extras.length) {
+    if (!phoneMode && moreBtn && extras.length) {
       let expanded = false;
       const setLabel = () => {
         moreBtn.textContent = expanded ? 'Toon minder \u2191' : 'Toon alle ' + CARS.length + ' auto\u2019s \u2193';

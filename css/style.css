@@ -1291,6 +1291,27 @@ img { display: block; }
   perspective: 1400px;
 }
 .car-card { transform-style: preserve-3d; }
+/* favoriet-hartje op de kaarten */
+.card-fav {
+  position: absolute;
+  top: 10px; right: 10px;
+  z-index: 4;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(245, 245, 245, 0.28);
+  background: rgba(10, 10, 11, 0.55);
+  color: #f5f5f5;
+  font-size: 14px; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; padding: 0;
+  transition: color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.card-fav:hover { border-color: var(--red); color: var(--red); }
+.car-card.fav .card-fav {
+  color: var(--red); border-color: var(--red);
+  box-shadow: 0 0 14px rgba(225, 6, 0, 0.4);
+  text-shadow: 0 0 10px rgba(225, 6, 0, 0.6);
+}
 .signature-wall { perspective: 700px; }
 .car-card {
   position: relative;

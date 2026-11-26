@@ -649,6 +649,18 @@
     } catch (e) { return null; }
   }
 
+  /* favorieten: één auto mag benchmark worden (hartje op de kaart, wallpaper in de telefoon) */
+  function mgUpdateFavs() {
+    let fav = -1;
+    try { fav = parseInt(localStorage.getItem('mgFav') || '-1', 10); } catch (e) {}
+    document.querySelectorAll('.car-card').forEach((el) => {
+      const on = String(fav) === el.dataset.index;
+      el.classList.toggle('fav', on);
+      const b = el.querySelector('.card-fav');
+      if (b) b.textContent = on ? '\u2665' : '\u2661';
+    });
+  }
+
   function buildCollection() {
     const grid = document.getElementById('collectionGrid');
     if (!grid) return;
@@ -669,7 +681,26 @@
           <div class="car-card-name">${car.name}</div>
           <div class="car-card-alias">Bijnaam: &ldquo;${car.alias}&rdquo;</div>
         </div>`;
+      const favBtn = document.createElement('button');
+      favBtn.type = 'button';
+      favBtn.className = 'card-fav';
+      favBtn.setAttribute('aria-label', 'Zet als favoriet');
+      card.appendChild(favBtn);
+
       card.addEventListener('click', () => openModal(i));
+
+      favBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        let cur = -1;
+        try { cur = parseInt(localStorage.getItem('mgFav') || '-1', 10); } catch (err) {}
+        try { localStorage.setItem('mgFav', String(cur === i ? -1 : i)); } catch (err) {}
+        mgUpdateFavs();
+        if (grid.closest('.page-garage')) {
+          const carGrid = card.parentNode;
+          if (cur !== i && carGrid && carGrid.firstChild) carGrid.insertBefore(card, carGrid.firstChild);
+        }
+        try { window.dispatchEvent(new CustomEvent('mg-fav', { detail: i })); } catch (err) {}
+      });
       card.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
@@ -711,6 +742,8 @@
       observer.observe(card);
       cards.push(card);
     });
+
+    mgUpdateFavs();
 
     const phoneMode = !!grid.closest('.page-garage');
     const extras = cards.slice(6);

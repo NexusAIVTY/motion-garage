@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=49" />
+  <link rel="stylesheet" href="css/style.css?v=50" />
   <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
   <style>
     body { padding-bottom: 0; }
@@ -521,6 +521,12 @@
     .page-dyno.gas .curve-line { stroke: #ff2213; }
     .page-dyno.maxed .curve-line { filter: drop-shadow(0 0 7px rgba(225,6,0,0.85)); }
     .page-dyno.maxed .dyno-hold { color: #e10600; animation: holdPulse 0.7s ease infinite; }
+    .dyno-trace { filter: drop-shadow(0 0 3px rgba(245,245,245,0.55)); }
+    .dyno-boostbar { height: 5px; background: rgba(245,245,245,0.09); border-radius: 3px; overflow: hidden; margin: 8px 2px 0; }
+    .dyno-boostbar span { display: block; width: 0; height: 100%; background: linear-gradient(90deg, rgba(225,6,0,0.45), #e10600); box-shadow: 0 0 8px rgba(225,6,0,0.6); transition: width 0.12s linear; }
+    .dyno-history { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 2px 0; }
+    .dyno-history i { font-style: normal; font-size: 8.5px; letter-spacing: 0.06em; color: #94949c; background: rgba(245,245,245,0.05); border: 1px solid rgba(245,245,245,0.09); border-radius: 8px; padding: 3px 8px; }
+    .dyno-history i.top { color: #f5f5f5; border-color: rgba(225,6,0,0.6); box-shadow: 0 0 10px rgba(225,6,0,0.25); }
     /* v44c: rijker dyno-bord */
     .dyno-stats.klein { margin: 6px 0 12px; }
     .dyno-stats.klein div { padding: 7px 4px; }
@@ -816,14 +822,18 @@
                 <path d="M4 130 C 60 128, 90 118, 120 95 S 180 42, 210 30 S 270 24, 296 26 L 296 146 L 4 146 Z" fill="rgba(225,6,0,0.12)" stroke="none"/>
                 <path class="curve-line" id="dynoPath" d="M4 130 C 60 128, 90 118, 120 95 S 180 42, 210 30 S 270 24, 296 26" fill="none" stroke="#e10600" stroke-width="2.2" stroke-linecap="round"/>
                 <circle class="curve-dot" data-dyno-dot cx="-20" cy="-20" r="3.2" fill="#f5f5f5"/>
+                <path class="dyno-trace" data-dyno-trace d="" fill="none" stroke="#f5f5f5" stroke-width="1.6" stroke-linecap="round" opacity="0"/>
+                <circle data-dyno-peakdot cx="-20" cy="-20" r="2.6" fill="#e10600" opacity="0"/>
               </svg>
               <span class="dyno-axis"><i>toeren</i><i>vermogen</i></span>
               <div class="dyno-shifts" data-dyno-shifts aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
               <div class="dyno-meter"><span data-dyno-gear>N</span> &bull; <span data-dyno-rpm>1.200</span> RPM &bull; <span data-dyno-boost>0,4</span> bar</div>
+              <div class="dyno-boostbar" aria-hidden="true"><span data-dyno-boostbar></span></div>
               <div class="dyno-hold">HOUD INGEDRUKT VOOR GAS</div>
               <div class="dyno-result" data-dyno-result>&nbsp;</div>
+            <div class="dyno-history" data-dyno-history></div>
             </div>
-            <p class="page-app-note">Krachtcurve van de fleet-top: de hybride-turbo's slaan vanaf 4000 tpm pas écht aan en het piekvermogen zit rond 8.250 tpm — daarboven valt hij terug. Je hoogst behaalde PK wordt als record bewaard (zie de app-rij).</p>
+            <p class="page-app-note">Krachtcurve van de fleet-top: de hybride-turbo's slaan vanaf 4000 tpm pas écht aan en het piekvermogen zit rond 8.250 tpm — daarboven valt hij terug. De witte trace tekent je meting live op de karakteristiek, het rode stipje markeert je piek, en je laatste drie runs staan onder de bank. Je hoogst behaalde PK wordt als record bewaard (zie de app-rij).</p>
             <button class="home-indicator garage-indicator" type="button" data-close-app aria-label="Terug naar de apps"><span></span></button>
           </div>
 
@@ -960,7 +970,7 @@
       }
     })();
   </script>
-  <script src="js/main.js?v=49"></script>
+  <script src="js/main.js?v=50"></script>
   <script>
     (function () {
       /* in-phone navigatie: apps <-> garage-collectie */
@@ -1103,7 +1113,7 @@
         });
         var wipe = document.querySelector('[data-wipe-records]');
         if (wipe) wipe.addEventListener('click', function () {
-          try { ['mgDragBest', 'mgRedBest', 'mgMatchBest', 'mgMidBest', 'mgDynoBest'].forEach(function (k) { window.localStorage.removeItem(k); }); } catch (e) {}
+          try { ['mgDragBest', 'mgRedBest', 'mgMatchBest', 'mgMidBest', 'mgDynoBest', 'mgDynoLog'].forEach(function (k) { window.localStorage.removeItem(k); }); } catch (e) {}
           Array.prototype.forEach.call(document.querySelectorAll('[data-record]'), function (el) { el.textContent = 'nog geen record'; });
         });
 
@@ -1141,9 +1151,13 @@
           var resEl = document.querySelector('[data-dyno-result]');
           var shiftWrap = document.querySelector('[data-dyno-shifts]');
           var shiftDots = shiftWrap ? Array.prototype.slice.call(shiftWrap.children) : [];
+          var traceEl = document.querySelector('[data-dyno-trace]');
+          var peakDot = document.querySelector('[data-dyno-peakdot]');
+          var boostBar = document.querySelector('[data-dyno-boostbar]');
+          var histEl = document.querySelector('[data-dyno-history]');
           var hasPath = !!(path && path.getTotalLength);
-          var len = 0, rpm = 1200, gas = 0, raf = null, last = 0, peakPk = 0, peakRpm = 0;
-          var osc = null, gain = null;
+          var len = 0, rpm = 1200, gas = 0, raf = null, last = 0, peakPk = 0, peakRpm = 0, maxF = 0;
+          var osc = null, gain = null, osc2 = null, gain2 = null;
           var LIM = 9000;
 
           function toneOn() {
@@ -1161,11 +1175,22 @@
               }
               osc.frequency.setTargetAtTime(48 + (rpm / LIM) * 300, ctx.currentTime, 0.05);
               gain.gain.setTargetAtTime(0.045, ctx.currentTime, 0.08);
+              if (!osc2) {
+                osc2 = ctx.createOscillator();
+                gain2 = ctx.createGain();
+                osc2.type = 'sine';
+                gain2.gain.value = 0;
+                osc2.connect(gain2); gain2.connect(ctx.destination);
+                osc2.start();
+              }
+              osc2.frequency.setTargetAtTime(700 + (rpm / LIM) * 1900, ctx.currentTime, 0.06);
+              gain2.gain.setTargetAtTime(0.012, ctx.currentTime, 0.1);
             } catch (e) {}
           }
           function toneOff() {
             try {
               if (gain && osc && window.mgAudioCtx) gain.gain.setTargetAtTime(0, window.mgAudioCtx().currentTime, 0.12);
+              if (gain2 && osc2 && window.mgAudioCtx) gain2.gain.setTargetAtTime(0, window.mgAudioCtx().currentTime, 0.12);
             } catch (e) {}
           }
 
@@ -1188,6 +1213,21 @@
                 dotEl.setAttribute('opacity', '1');
               } catch (e) {}
             }
+            if (f > maxF) maxF = f;
+            if (hasPath && traceEl) {
+              try {
+                if (!len) len = path.getTotalLength();
+                var n = 26, steps = Math.round(n * Math.min(Math.max(maxF, 0), 1));
+                var dstr = '';
+                for (var ti = 0; ti <= steps; ti++) {
+                  var tp = path.getPointAtLength(len * Math.min(ti / n, 1));
+                  dstr += (dstr ? ' L' : 'M') + tp.x.toFixed(1) + ' ' + tp.y.toFixed(1);
+                }
+                traceEl.setAttribute('d', dstr);
+                traceEl.setAttribute('opacity', gas ? '1' : '0.8');
+              } catch (e) {}
+            }
+            if (boostBar) boostBar.style.width = (Math.min(Math.max(f, 0), 1) * 100).toFixed(1) + '%';
             app.classList.toggle('maxed', rpm > LIM - 120);
             if (gas && rpm > peakRpm) peakRpm = rpm;
             if (gearEl) gearEl.textContent = gas ? 'G' + (1 + Math.min(7, Math.floor(Math.max(f, 0) * 7.999))) : 'N';
@@ -1208,8 +1248,10 @@
           }
           function start() {
             gas = 1;
-            peakPk = 0; peakRpm = 0;
+            peakPk = 0; peakRpm = 0; maxF = 0;
             if (resEl) { resEl.classList.remove('record'); resEl.innerHTML = '&nbsp;'; }
+            if (traceEl) { traceEl.setAttribute('d', ''); traceEl.setAttribute('opacity', '0'); }
+            if (peakDot) peakDot.setAttribute('opacity', '0');
             app.classList.add('gas');
             if (!raf) { last = window.performance.now(); raf = window.requestAnimationFrame(loop); }
           }
@@ -1227,8 +1269,37 @@
               resEl.textContent = 'PIEK ' + peakPk + ' PK @ ' + Math.round(peakRpm).toLocaleString('nl-NL') + ' RPM' + (isNew ? ' — NIEUW RECORD' : '');
               resEl.classList.toggle('record', isNew);
             }
+            if (hasPath && peakDot && peakRpm) {
+              try {
+                if (!len) len = path.getTotalLength();
+                var fp = Math.min(1, Math.max(0, (peakRpm - 1200) / (LIM - 1200)));
+                var pp = path.getPointAtLength(len * fp);
+                peakDot.setAttribute('cx', pp.x.toFixed(1));
+                peakDot.setAttribute('cy', pp.y.toFixed(1));
+                peakDot.setAttribute('opacity', '1');
+              } catch (e) {}
+            }
+            var log = [];
+            try { log = JSON.parse(window.localStorage.getItem('mgDynoLog') || '[]') || []; } catch (e2) { log = []; }
+            if (!Array.isArray(log)) log = [];
+            log.unshift({ pk: peakPk, rpm: Math.round(peakRpm) });
+            log = log.slice(0, 3);
+            try { window.localStorage.setItem('mgDynoLog', JSON.stringify(log)); } catch (e3) {}
+            renderHist();
             peakPk = 0; peakRpm = 0;
           }
+          function renderHist() {
+            if (!histEl) return;
+            var log = [];
+            try { log = JSON.parse(window.localStorage.getItem('mgDynoLog') || '[]') || []; } catch (e) { log = []; }
+            if (!Array.isArray(log)) log = [];
+            var best = 0;
+            log.forEach(function (r) { if (r && r.pk > best) best = r.pk; });
+            histEl.innerHTML = log.length ? log.map(function (r) {
+              return '<i' + (r && r.pk === best && best > 0 ? ' class="top"' : '') + '>' + r.pk + ' PK @ ' + (r.rpm || 0).toLocaleString('nl-NL') + '</i>';
+            }).join('') : '';
+          }
+          try { renderHist(); } catch (e) {}
           function stop() {
             gas = 0;
             app.classList.remove('gas');

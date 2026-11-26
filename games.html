@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=51" />
+  <link rel="stylesheet" href="css/style.css?v=52" />
   <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
   <style>
     body { padding-bottom: 0; }
@@ -838,12 +838,13 @@
               <div class="dyno-meter"><span data-dyno-gear>N</span> &bull; <span data-dyno-rpm>1.200</span> RPM &bull; <span data-dyno-boost>0,4</span> bar</div>
               <div class="dyno-meter"><span data-dyno-spd>0</span> km/u &bull; <span data-dyno-tim>0,00</span> s</div>
               <div class="dyno-boostbar" aria-hidden="true"><span data-dyno-boostbar></span></div>
-              <div class="dyno-hold">GAS = VASTHOUDEN &bull; ZET DE TOEREN IN HET GROENE VAK VOOR GROEN LICHT</div>
+              <div class="dyno-hold">TIK VOOR DE STARTLICHTEN &bull; DRUK OP GROEN &bull; TE VROEG = VALSE START</div>
               <div class="dyno-result" data-dyno-result>&nbsp;</div>
             <div class="dyno-history" data-dyno-history></div>
             </div>
             <div class="dyno-dragrow"><span>0&ndash;100 record</span><b data-record="mgDynoDrag" data-record-unit="s" data-record-lower="1">nog geen record</b></div>
-            <p class="page-app-note">Krachtcurve van de fleet-top: de hybride-turbo's slaan vanaf 4000 tpm pas écht aan en het piekvermogen zit rond 8.250 tpm — daarboven valt hij terug. De witte trace tekent je meting live op de karakteristiek, het rode stipje markeert je piek, en je laatste drie runs staan onder de bank. Je hoogst behaalde PK wordt als record bewaard (zie de app-rij). En: houd het startlicht in de gaten &mdash; zodra je gas geeft tellen drie rode lichten af, en op groen vertrek je voor een sprint 0&ndash;100. Je toeren op het moment van groen bepalen je start: in het groene vak = perfecte launch.</p>
+            <div class="dyno-dragrow"><span>Reactie record</span><b data-record="mgDynoReact" data-record-unit="ms" data-record-lower="1">nog geen record</b></div>
+            <p class="page-app-note">Krachtcurve van de fleet-top: de hybride-turbo's slaan vanaf 4000 tpm pas écht aan en het piekvermogen zit rond 8.250 tpm — daarboven valt hij terug. De witte trace tekent je meting live op de karakteristiek, het rode stipje markeert je piek, en je laatste drie runs staan onder de bank. Je hoogst behaalde PK wordt als record bewaard (zie de app-rij). En: het is nu een reactiespel &mdash; tik voor de start, drie rode lichten tellen af en op een willekeurig moment springt het groen. Druk dan zo snel mogelijk: je reactietijd bepaalt je launch (onder 0,2 s is blitsend), en te vroeg drukken is een valse start. Je reactietijd en 0&ndash;100-tijd worden allebei als record bewaard.</p>
             <button class="home-indicator garage-indicator" type="button" data-close-app aria-label="Terug naar de apps"><span></span></button>
           </div>
 
@@ -980,7 +981,7 @@
       }
     })();
   </script>
-  <script src="js/main.js?v=51"></script>
+  <script src="js/main.js?v=52"></script>
   <script>
     (function () {
       /* in-phone navigatie: apps <-> garage-collectie */
@@ -1019,7 +1020,7 @@
           if (!box) return;
           var items = [];
           try {
-            var rows = [['LAUNCH', 'mgDragBest', ' s'], ['REDLINE', 'mgRedBest', ' pt'], ['SPEC MATCH', 'mgMatchBest', ' zetten'], ['MIDNIGHT', 'mgMidBest', ' m'], ['DYNO DRAG', 'mgDynoDrag', ' s']];
+            var rows = [['LAUNCH', 'mgDragBest', ' s'], ['REDLINE', 'mgRedBest', ' pt'], ['SPEC MATCH', 'mgMatchBest', ' zetten'], ['MIDNIGHT', 'mgMidBest', ' m'], ['DYNO DRAG', 'mgDynoDrag', ' s'], ['DYNO REACTIE', 'mgDynoReact', ' ms']];
             for (var r = 0; r < rows.length; r++) {
               var raw = window.localStorage.getItem(rows[r][1]);
               if (raw === null) continue;
@@ -1123,7 +1124,7 @@
         });
         var wipe = document.querySelector('[data-wipe-records]');
         if (wipe) wipe.addEventListener('click', function () {
-          try { ['mgDragBest', 'mgRedBest', 'mgMatchBest', 'mgMidBest', 'mgDynoBest', 'mgDynoLog', 'mgDynoDrag'].forEach(function (k) { window.localStorage.removeItem(k); }); } catch (e) {}
+          try { ['mgDragBest', 'mgRedBest', 'mgMatchBest', 'mgMidBest', 'mgDynoBest', 'mgDynoLog', 'mgDynoDrag', 'mgDynoReact'].forEach(function (k) { window.localStorage.removeItem(k); }); } catch (e) {}
           Array.prototype.forEach.call(document.querySelectorAll('[data-record]'), function (el) { el.textContent = 'nog geen record'; });
         });
 
@@ -1169,8 +1170,9 @@
           var len = 0, rpm = 1200, gas = 0, raf = null, last = 0, peakPk = 0, peakRpm = 0, maxF = 0;
           var osc = null, gain = null, osc2 = null, gain2 = null;
           var LIM = 9000;
-          /* v51: DYNO DRAG — toeren regelen met vasthouden/loslaten, launch op groen */
+          /* v52: DYNO DRAG — reactiespel: druk op groen, je reactietijd bepaalt je launch */
           var mode = 'stage', counting = false, countTimers = [], spd = 0, runT = 0, qk = 1;
+          var greenAt = 0, reactMs = -1;
           var lightsWrap = document.querySelector('[data-dyno-lights]');
           var lightDots = lightsWrap ? Array.prototype.slice.call(lightsWrap.children) : [];
           var spdEl = document.querySelector('[data-dyno-spd]');
@@ -1187,21 +1189,49 @@
             countTimers.push(window.setTimeout(function () { if (lightDots[0]) lightDots[0].classList.add('on'); }, 350));
             countTimers.push(window.setTimeout(function () { if (lightDots[1]) lightDots[1].classList.add('on'); }, 1050));
             countTimers.push(window.setTimeout(function () { if (lightDots[2]) lightDots[2].classList.add('on'); }, 1750));
-            countTimers.push(window.setTimeout(greenLaunch, 2450));
+            /* v52: groen op een willekeurig moment (2,25-2,95 s) zodat je niet kunt memoriseren */
+            countTimers.push(window.setTimeout(greenLaunch, 2250 + Math.random() * 700));
           }
           function greenLaunch() {
             counting = false;
-            mode = 'run';
-            spd = 0; runT = 0;
+            mode = 'armed';
+            greenAt = window.performance.now();
+            reactMs = -1;
             for (var i = 0; i < lightDots.length; i++) lightDots[i].classList.remove('on');
             for (var j = 0; j < lightDots.length; j++) lightDots[j].classList.add('green');
-            countTimers.push(window.setTimeout(lightsReset, 900));
-            /* startkwaliteit op basis van de toeren op het moment van groen */
-            if (rpm >= 4200 && rpm <= 5800) { qk = 1.18; if (resEl) resEl.textContent = 'PERFECTE START!'; }
-            else if (rpm > 2500 && rpm < 7200) { qk = 1.0; if (resEl) resEl.textContent = 'Goede start'; }
-            else if (rpm <= 2500) { qk = 0.78; if (resEl) resEl.textContent = 'Te laag gestart — verzuurd'; }
-            else { qk = 0.85; if (resEl) resEl.textContent = 'Te hoog — wheelspin'; }
+            if (resEl) { resEl.textContent = 'OP GROEN DRUKKEN!'; resEl.classList.remove('record'); }
+            /* geen reactie? dan vertrekt de auto na 3 s met trage launch */
+            countTimers.push(window.setTimeout(function () { if (mode === 'armed') reactionLaunch(3000); }, 3000));
+          }
+          function reactionLaunch(react) {
+            if (mode !== 'armed') return;
+            for (var ci = 0; ci < countTimers.length; ci++) window.clearTimeout(countTimers[ci]);
+            countTimers = [];
+            lightsReset();
+            reactMs = react;
+            var rTxt = (react / 1000).toFixed(3).replace('.', ',');
+            if (react <= 200) { qk = 1.25; if (resEl) resEl.textContent = 'BLITSE REACTIE — ' + rTxt + ' s!'; }
+            else if (react <= 320) { qk = 1.15; if (resEl) resEl.textContent = 'PERFECTE REACTIE — ' + rTxt + ' s'; }
+            else if (react <= 500) { qk = 1.0; if (resEl) resEl.textContent = 'Goede reactie — ' + rTxt + ' s'; }
+            else if (react <= 800) { qk = 0.9; if (resEl) resEl.textContent = 'Langzame reactie — ' + rTxt + ' s'; }
+            else { qk = 0.8; if (resEl) resEl.textContent = 'Te traag — ' + rTxt + ' s'; }
             resEl && resEl.classList.remove('record');
+            mode = 'run';
+            spd = 0; runT = 0;
+            peakPk = 0; peakRpm = 0;
+            gas = 1;
+            app.classList.add('gas');
+            if (!raf) { last = window.performance.now(); raf = window.requestAnimationFrame(loop); }
+          }
+          function falseStart() {
+            for (var fi = 0; fi < countTimers.length; fi++) window.clearTimeout(countTimers[fi]);
+            countTimers = [];
+            counting = false;
+            lightsReset();
+            reactMs = -1;
+            if (resEl) { resEl.textContent = 'VALSE START — te vroeg!'; resEl.classList.remove('record'); }
+            mode = 'run';
+            spd = 0; runT = 0; qk = 0.7;
             peakPk = 0; peakRpm = 0;
             gas = 1;
             app.classList.add('gas');
@@ -1220,9 +1250,21 @@
               try { window.localStorage.setItem('mgDynoDrag', String(t)); } catch (e) {}
               Array.prototype.forEach.call(document.querySelectorAll('[data-record="mgDynoDrag"]'), function (el) { el.textContent = t.toFixed(2) + ' s'; });
             }
+            /* v52: reactietijd als eigen record (mgDynoReact, ms, lager = beter) */
+            var reactTxt = '', rNew = false;
+            if (reactMs >= 0) {
+              var rms = Math.round(reactMs), rBest = 0;
+              try { rBest = parseInt(window.localStorage.getItem('mgDynoReact') || '0', 10) || 0; } catch (e) {}
+              rNew = !rBest || rms < rBest;
+              if (rNew) {
+                try { window.localStorage.setItem('mgDynoReact', String(rms)); } catch (e) {}
+                Array.prototype.forEach.call(document.querySelectorAll('[data-record="mgDynoReact"]'), function (el) { el.textContent = rms + ' ms'; });
+              }
+              reactTxt = ' — REACTIE ' + (reactMs / 1000).toFixed(3).replace('.', ',') + ' s';
+            }
             if (resEl) {
-              resEl.textContent = '0–100 IN ' + txt + ' s — ' + resEl.textContent + (isNew ? ' — NIEUW RECORD' : '');
-              resEl.classList.toggle('record', isNew);
+              resEl.textContent = '0–100 IN ' + txt + ' s' + reactTxt + (isNew || rNew ? ' — NIEUW RECORD' : '');
+              resEl.classList.toggle('record', isNew || rNew);
             }
             raf = null;
           }
@@ -1336,7 +1378,9 @@
           }
           function start() {
             if (mode === 'run') return;
+            if (mode === 'armed') { reactionLaunch(window.performance.now() - greenAt); return; }
             if (mode === 'result') resetRun();
+            if (counting) { falseStart(); return; }
             gas = 1;
             peakPk = 0; peakRpm = 0; maxF = 0;
             if (traceEl) { traceEl.setAttribute('d', ''); traceEl.setAttribute('opacity', '0'); }
@@ -1400,6 +1444,7 @@
           try { renderHist(); } catch (e) {}
           function stop() {
             if (mode === 'run') return;
+            if (mode === 'armed') { gas = 0; app.classList.remove('gas'); return; }
             gas = 0;
             app.classList.remove('gas');
             saveRecord();

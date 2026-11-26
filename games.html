@@ -359,18 +359,18 @@
       /* sheet begint onder de statusbalk zodat dynamic island/klok zichtbaar blijven */
       inset: 44px 0 0;
     }
-    /* de hele sheet scrolt: ook swipe op de foto of onder de tekst schuift de auto mee (info = in de flow) */
+    /* de sheet scrolt niet zelf: de pagina eromheen scrolt (gebruikersverzoek v42) */
     .phone-screen .car-modal-panel {
       display: flex;
       flex-direction: column;
-      overflow-y: auto;
+      overflow: hidden;
       border-radius: 20px 20px 0 0;
-      -webkit-overflow-scrolling: touch;
-      overscroll-behavior: contain;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
     }
-    .phone-screen .car-modal-media { flex: 0 0 32%; min-height: 0; background: #0b0b0c; pointer-events: none; }
+    .phone-screen .car-modal-media { flex: 0 0 30%; min-height: 0; background: #0b0b0c; pointer-events: none; }
     .phone-screen .car-modal-media img { object-fit: contain; }
-    .phone-screen .car-modal-panel { touch-action: pan-y; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
     .phone-screen .car-modal-close {
       top: 12px; right: 12px;
       width: 30px; height: 30px;
@@ -712,28 +712,16 @@
       var xc = cm && cm.querySelector('.car-modal-close');
       if (cm && xc && xc.parentNode !== cm) cm.appendChild(xc);
 
-      /* muis-Sheet: met de muis slepen = scrollen (touch gebruikt gewoon native scroll) */
-      try {
-        var sheet = cm && cm.querySelector('.car-modal-panel');
-        if (sheet) {
-          var dragging = false, dsx = 0, dsy = 0, dsTop = 0, didMove = false;
-          sheet.addEventListener('pointerdown', function (e) {
-            if (e.pointerType !== 'mouse' || e.button !== 0) return;
-            dragging = true; didMove = false;
-            dsx = e.clientX; dsy = e.clientY; dsTop = sheet.scrollTop;
-          });
-          sheet.addEventListener('pointermove', function (e) {
-            if (!dragging || e.pointerType !== 'mouse') return;
-            var dy = dsy - e.clientY;
-            if (!didMove && Math.abs(dy) > 6) didMove = true;
-            if (didMove) sheet.scrollTop = dsTop + dy;
-          });
-          sheet.addEventListener('pointerup', function () { dragging = false; });
-          sheet.addEventListener('click', function (e) {
-            if (didMove) { didMove = false; e.stopPropagation(); e.preventDefault(); }
-          }, true);
-        }
-      } catch (err) {}
+      /* het paginapaneel mag door-scrollen terwijl er een auto open staat:
+         main.js zet body-overflow op hidden bij het openen; hier draaien we dat terug */
+      if (cm && window.MutationObserver) {
+        new MutationObserver(function () {
+          if (cm.classList.contains('open') && document.body.style.overflow === 'hidden') {
+            document.body.style.overflow = '';
+          }
+        }).observe(cm, { attributes: true, attributeFilter: ['class'] });
+      }
+
 
       /* live weer (open-meteo) met nette fallback */
       try {

@@ -3721,35 +3721,79 @@
       if (distEl) distEl.textContent = Math.round(dist) + ' m';
       if (speedEl) speedEl.textContent = Math.round(speed) + ' km/h';
 
-      if (state === 'run') {
-        /* fysica: tempo groeit met de afstand, verkeer komt dichterbij */
-        const dtm = 1 / 60;
-        speed = Math.min(236, 64 + dist / 12);
-        dist += (speed / 3.6) * 1.2 * dtm;
-        dash += speed * 0.62;
-        px0 += ((lane + 0.5) / 3 - px0) * 0.22;
-        cars.forEach((t) => { t.z += (speed * 0.45 / 3.6) * 1.2 * dtm / 30; t.wob += 0.1; });
-        cars = cars.filter((t) => t.z < 1.08);
-        spawnAt -= 1;
-        if (spawnAt <= 0) {
-          spawnCar();
-          spawnAt = Math.max(26, 58 - Math.round(dist / 110));
-        }
-        /* botsing */
-        const hit = cars.some((t) => {
-          if (t.z <= 0.6 || t.z >= 0.99) return false;
-          const tx = laneX(t.lane);
-          const ax = road.x0 + px0 * (road.x1 - road.x0);
-          return Math.abs(tx - ax) < roadHalf() * 0.3;
+    }
+    /* v46: fysica los van tekenen - een tekenfout kan de rit nooit meer bevriezen */
+    function step() {
+      if (state !== 'run') return;
+      const dtm = 1 / 60;
+      speed = Math.min(236, 64 + dist / 12);
+      dist += (speed / 3.6) * 1.2 * dtm;
+      dash += speed * 0.62;
+      px0 += ((lane + 0.5) / 3 - px0) * 0.22;
+      cars.forEach((t) => { t.z += (speed * 0.45 / 3.6) * 1.2 * dtm / 30; t.wob += 0.1; });
+      cars = cars.filter((t) => t.z < 1.08);
+      spawnAt -= 1;
+      if (spawnAt <= 0) {
+        spawnCar();
+        spawnAt = Math.max(26, 58 - Math.round(dist / 110));
+      }
+      const hit = cars.some((t) => {
+        if (t.z <= 0.6 || t.z >= 0.99) return false;
+        const tx = laneX(t.lane);
+        const ax = road.x0 + px0 * (road.x1 - road.x0);
+        return Math.abs(tx - ax) < roadHalf() * 0.3;
+      });
+      if (hit) crash();
+    }
+    /* v46: minimale veilige weergave - faalt de volledige tekening, dan blijft de rit zichtbaar */
+    function paintSafe() {
+      try {
+        c.globalAlpha = 1; c.shadowBlur = 0;
+        c.setTransform(dpr, 0, 0, dpr, 0, 0);
+      } catch (e) {}
+      try {
+        const hy = H * 0.16;
+        c.fillStyle = '#07070a';
+        c.fillRect(0, 0, W, H);
+        c.fillStyle = '#0c0c0f';
+        c.fillRect(W * 0.14, hy, W * 0.72, H - hy);
+        c.fillStyle = '#e10600';
+        c.fillRect(W * 0.14 - 2, hy, 2, H - hy);
+        c.fillRect(W * 0.86, hy, 2, H - hy);
+        c.fillStyle = 'rgba(245,245,245,0.4)';
+        for (let y = hy - 90 + (dash % 90); y < H; y += 90) c.fillRect(W / 2 - 2, y, 4, 34);
+        cars.forEach((t) => {
+          const yy = hy + t.z * (H - hy);
+          const w = Math.max(20, roadHalf() * 0.34);
+          const h = w * 1.9;
+          c.fillStyle = '#1a1a1f';
+          c.fillRect(laneX(t.lane) - w / 2, yy - h / 2, w, h);
         });
-        if (hit) { crash(); paint(); return; }
+        const x = road.x0 + px0 * (road.x1 - road.x0);
+        c.fillStyle = '#141418';
+        c.fillRect(x - W * 0.05, H * 0.72, W * 0.1, H * 0.14);
+        c.fillStyle = '#e10600';
+        c.fillRect(x - W * 0.05, H * 0.86, W * 0.1, 6);
+        if (distEl) distEl.textContent = Math.round(dist) + ' m';
+        if (speedEl) speedEl.textContent = Math.round(speed) + ' km/h';
+      } catch (e) {}
+    }
+    let midErrLogged = 0;
+    function tick() {
+      if (panel && panel.hidden) return;
+      try { step(); } catch (err) {
+        if (!midErrLogged) { midErrLogged = 1; try { console.error('[Motion Garage] midnight-stap:', err); } catch (e2) {} }
+      }
+      try { paint(); } catch (err) {
+        if (!midErrLogged) { midErrLogged = 1; try { console.error('[Motion Garage] midnight-teken:', err); } catch (e2) {} }
+        paintSafe();
       }
     }
     let loop0 = null;
 
     loop0 = function () {
       if (panel && panel.hidden) { rafMid = window.requestAnimationFrame(loop0); return; }
-      paint();
+      tick();
       rafMid = window.requestAnimationFrame(loop0);
     };
     let rafMid = null;
@@ -3758,16 +3802,30 @@
     if (againBtn) againBtn.addEventListener('click', start);
     bindPointer();
     bindKeys();
-    resize();
+    /* v46: de opstart kan nooit meer afsterven voor de loop - elke hapering valt terug op de veilige weergave */
+    try {
+      resize();
+    } catch (err) {
+      try { console.error('[Motion Garage] midnight-resize:', err); } catch (e2) {}
+      try { paintSafe(); } catch (e3) {}
+    }
     state = 'idle';
     setOverlays();
     try {
-      window.addEventListener('resize', resize);
+      window.addEventListener('resize', () => {
+        try { resize(); } catch (err2) { try { paintSafe(); } catch (e4) {} }
+      });
       if (window.ResizeObserver) {
-        new ResizeObserver(() => resize()).observe(cv.parentElement || cv);
+        new ResizeObserver(() => {
+          try { resize(); } catch (err3) { try { paintSafe(); } catch (e5) {} }
+        }).observe(cv.parentElement || cv);
       }
     } catch (e) {}
-    if (!reduceMotion) { rafMid = window.requestAnimationFrame(loop0); } else { paint(); }
+    if (!reduceMotion) { rafMid = window.requestAnimationFrame(loop0); }
+    else {
+      try { tick(); } catch (e) {}
+      try { window.setInterval(function () { try { tick(); } catch (e2) {} }, 60); } catch (e3) {}
+    }
   }
 
   /* ---------- Init (hardened: each step isolated) ---------- */

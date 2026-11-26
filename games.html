@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=50" />
+  <link rel="stylesheet" href="css/style.css?v=51" />
   <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
   <style>
     body { padding-bottom: 0; }
@@ -521,6 +521,13 @@
     .page-dyno.gas .curve-line { stroke: #ff2213; }
     .page-dyno.maxed .curve-line { filter: drop-shadow(0 0 7px rgba(225,6,0,0.85)); }
     .page-dyno.maxed .dyno-hold { color: #e10600; animation: holdPulse 0.7s ease infinite; }
+    .dyno-lights { display: flex; justify-content: center; gap: 7px; margin: 2px 0 7px; }
+    .dyno-lights i { width: 9px; height: 9px; border-radius: 50%; background: rgba(245,245,245,0.1); border: 1px solid rgba(245,245,245,0.16); transition: background 0.12s ease, box-shadow 0.12s ease; }
+    .dyno-lights i.on { background: #e10600; box-shadow: 0 0 8px rgba(225,6,0,0.75); }
+    .dyno-lights i.green { background: #38d05c; box-shadow: 0 0 10px rgba(56,208,92,0.8); }
+    .dyno-shifts i:nth-child(4), .dyno-shifts i:nth-child(5) { outline: 1px solid rgba(80,220,80,0.45); outline-offset: 1px; }
+    .dyno-dragrow { display: flex; justify-content: space-between; align-items: center; margin: 8px 2px 0; font-size: 10px; letter-spacing: 0.1em; color: #94949c; text-transform: uppercase; }
+    .dyno-dragrow b { font-size: 12px; color: #f5f5f5; letter-spacing: 0.05em; }
     .dyno-trace { filter: drop-shadow(0 0 3px rgba(245,245,245,0.55)); }
     .dyno-boostbar { height: 5px; background: rgba(245,245,245,0.09); border-radius: 3px; overflow: hidden; margin: 8px 2px 0; }
     .dyno-boostbar span { display: block; width: 0; height: 100%; background: linear-gradient(90deg, rgba(225,6,0,0.45), #e10600); box-shadow: 0 0 8px rgba(225,6,0,0.6); transition: width 0.12s linear; }
@@ -817,6 +824,7 @@
               <div><b>1.550</b><span>kg</span></div>
             </div>
             <div class="dyno-curve" data-dyno-pad>
+              <div class="dyno-lights" data-dyno-lights aria-hidden="true"><i></i><i></i><i></i></div>
               <svg viewBox="0 0 300 150" preserveAspectRatio="none" aria-hidden="true">
                 <path d="M0 40H300M0 80H300M0 120H300" stroke="#232326" stroke-width="1"/>
                 <path d="M4 130 C 60 128, 90 118, 120 95 S 180 42, 210 30 S 270 24, 296 26 L 296 146 L 4 146 Z" fill="rgba(225,6,0,0.12)" stroke="none"/>
@@ -828,12 +836,14 @@
               <span class="dyno-axis"><i>toeren</i><i>vermogen</i></span>
               <div class="dyno-shifts" data-dyno-shifts aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
               <div class="dyno-meter"><span data-dyno-gear>N</span> &bull; <span data-dyno-rpm>1.200</span> RPM &bull; <span data-dyno-boost>0,4</span> bar</div>
+              <div class="dyno-meter"><span data-dyno-spd>0</span> km/u &bull; <span data-dyno-tim>0,00</span> s</div>
               <div class="dyno-boostbar" aria-hidden="true"><span data-dyno-boostbar></span></div>
-              <div class="dyno-hold">HOUD INGEDRUKT VOOR GAS</div>
+              <div class="dyno-hold">GAS = VASTHOUDEN &bull; ZET DE TOEREN IN HET GROENE VAK VOOR GROEN LICHT</div>
               <div class="dyno-result" data-dyno-result>&nbsp;</div>
             <div class="dyno-history" data-dyno-history></div>
             </div>
-            <p class="page-app-note">Krachtcurve van de fleet-top: de hybride-turbo's slaan vanaf 4000 tpm pas écht aan en het piekvermogen zit rond 8.250 tpm — daarboven valt hij terug. De witte trace tekent je meting live op de karakteristiek, het rode stipje markeert je piek, en je laatste drie runs staan onder de bank. Je hoogst behaalde PK wordt als record bewaard (zie de app-rij).</p>
+            <div class="dyno-dragrow"><span>0&ndash;100 record</span><b data-record="mgDynoDrag" data-record-unit="s" data-record-lower="1">nog geen record</b></div>
+            <p class="page-app-note">Krachtcurve van de fleet-top: de hybride-turbo's slaan vanaf 4000 tpm pas écht aan en het piekvermogen zit rond 8.250 tpm — daarboven valt hij terug. De witte trace tekent je meting live op de karakteristiek, het rode stipje markeert je piek, en je laatste drie runs staan onder de bank. Je hoogst behaalde PK wordt als record bewaard (zie de app-rij). En: houd het startlicht in de gaten &mdash; zodra je gas geeft tellen drie rode lichten af, en op groen vertrek je voor een sprint 0&ndash;100. Je toeren op het moment van groen bepalen je start: in het groene vak = perfecte launch.</p>
             <button class="home-indicator garage-indicator" type="button" data-close-app aria-label="Terug naar de apps"><span></span></button>
           </div>
 
@@ -970,7 +980,7 @@
       }
     })();
   </script>
-  <script src="js/main.js?v=50"></script>
+  <script src="js/main.js?v=51"></script>
   <script>
     (function () {
       /* in-phone navigatie: apps <-> garage-collectie */
@@ -1009,7 +1019,7 @@
           if (!box) return;
           var items = [];
           try {
-            var rows = [['LAUNCH', 'mgDragBest', ' s'], ['REDLINE', 'mgRedBest', ' pt'], ['SPEC MATCH', 'mgMatchBest', ' zetten'], ['MIDNIGHT', 'mgMidBest', ' m']];
+            var rows = [['LAUNCH', 'mgDragBest', ' s'], ['REDLINE', 'mgRedBest', ' pt'], ['SPEC MATCH', 'mgMatchBest', ' zetten'], ['MIDNIGHT', 'mgMidBest', ' m'], ['DYNO DRAG', 'mgDynoDrag', ' s']];
             for (var r = 0; r < rows.length; r++) {
               var raw = window.localStorage.getItem(rows[r][1]);
               if (raw === null) continue;
@@ -1113,7 +1123,7 @@
         });
         var wipe = document.querySelector('[data-wipe-records]');
         if (wipe) wipe.addEventListener('click', function () {
-          try { ['mgDragBest', 'mgRedBest', 'mgMatchBest', 'mgMidBest', 'mgDynoBest', 'mgDynoLog'].forEach(function (k) { window.localStorage.removeItem(k); }); } catch (e) {}
+          try { ['mgDragBest', 'mgRedBest', 'mgMatchBest', 'mgMidBest', 'mgDynoBest', 'mgDynoLog', 'mgDynoDrag'].forEach(function (k) { window.localStorage.removeItem(k); }); } catch (e) {}
           Array.prototype.forEach.call(document.querySelectorAll('[data-record]'), function (el) { el.textContent = 'nog geen record'; });
         });
 
@@ -1159,6 +1169,72 @@
           var len = 0, rpm = 1200, gas = 0, raf = null, last = 0, peakPk = 0, peakRpm = 0, maxF = 0;
           var osc = null, gain = null, osc2 = null, gain2 = null;
           var LIM = 9000;
+          /* v51: DYNO DRAG — toeren regelen met vasthouden/loslaten, launch op groen */
+          var mode = 'stage', counting = false, countTimers = [], spd = 0, runT = 0, qk = 1;
+          var lightsWrap = document.querySelector('[data-dyno-lights]');
+          var lightDots = lightsWrap ? Array.prototype.slice.call(lightsWrap.children) : [];
+          var spdEl = document.querySelector('[data-dyno-spd]');
+          var timEl = document.querySelector('[data-dyno-tim]');
+          var bestDrag = 0;
+          try { bestDrag = parseFloat(window.localStorage.getItem('mgDynoDrag')) || 0; } catch (e) {}
+          function lightsReset() {
+            for (var i = 0; i < lightDots.length; i++) lightDots[i].classList.remove('on', 'green');
+          }
+          function beginCountdown() {
+            if (counting) return;
+            counting = true;
+            lightsReset();
+            countTimers.push(window.setTimeout(function () { if (lightDots[0]) lightDots[0].classList.add('on'); }, 350));
+            countTimers.push(window.setTimeout(function () { if (lightDots[1]) lightDots[1].classList.add('on'); }, 1050));
+            countTimers.push(window.setTimeout(function () { if (lightDots[2]) lightDots[2].classList.add('on'); }, 1750));
+            countTimers.push(window.setTimeout(greenLaunch, 2450));
+          }
+          function greenLaunch() {
+            counting = false;
+            mode = 'run';
+            spd = 0; runT = 0;
+            for (var i = 0; i < lightDots.length; i++) lightDots[i].classList.remove('on');
+            for (var j = 0; j < lightDots.length; j++) lightDots[j].classList.add('green');
+            countTimers.push(window.setTimeout(lightsReset, 900));
+            /* startkwaliteit op basis van de toeren op het moment van groen */
+            if (rpm >= 4200 && rpm <= 5800) { qk = 1.18; if (resEl) resEl.textContent = 'PERFECTE START!'; }
+            else if (rpm > 2500 && rpm < 7200) { qk = 1.0; if (resEl) resEl.textContent = 'Goede start'; }
+            else if (rpm <= 2500) { qk = 0.78; if (resEl) resEl.textContent = 'Te laag gestart — verzuurd'; }
+            else { qk = 0.85; if (resEl) resEl.textContent = 'Te hoog — wheelspin'; }
+            resEl && resEl.classList.remove('record');
+            peakPk = 0; peakRpm = 0;
+            gas = 1;
+            app.classList.add('gas');
+            if (!raf) { last = window.performance.now(); raf = window.requestAnimationFrame(loop); }
+          }
+          function finishRun() {
+            mode = 'result';
+            gas = 0;
+            app.classList.remove('gas');
+            toneOff();
+            recordPeak();
+            var t = runT, txt = t.toFixed(2).replace('.', ',');
+            var isNew = !bestDrag || t < bestDrag;
+            if (isNew) {
+              bestDrag = t;
+              try { window.localStorage.setItem('mgDynoDrag', String(t)); } catch (e) {}
+              Array.prototype.forEach.call(document.querySelectorAll('[data-record="mgDynoDrag"]'), function (el) { el.textContent = t.toFixed(2) + ' s'; });
+            }
+            if (resEl) {
+              resEl.textContent = '0–100 IN ' + txt + ' s — ' + resEl.textContent + (isNew ? ' — NIEUW RECORD' : '');
+              resEl.classList.toggle('record', isNew);
+            }
+            raf = null;
+          }
+          function resetRun() {
+            mode = 'stage';
+            counting = false;
+            for (var i = 0; i < countTimers.length; i++) window.clearTimeout(countTimers[i]);
+            countTimers = [];
+            lightsReset();
+            spd = 0; runT = 0;
+            if (resEl) { resEl.classList.remove('record'); resEl.innerHTML = '&nbsp;'; }
+          }
 
           function toneOn() {
             try {
@@ -1228,6 +1304,8 @@
               } catch (e) {}
             }
             if (boostBar) boostBar.style.width = (Math.min(Math.max(f, 0), 1) * 100).toFixed(1) + '%';
+            if (spdEl) spdEl.textContent = String(Math.round(mode === 'run' ? spd : 0));
+            if (timEl) timEl.textContent = (mode === 'run' ? runT : 0).toFixed(2).replace('.', ',');
             app.classList.toggle('maxed', rpm > LIM - 120);
             if (gas && rpm > peakRpm) peakRpm = rpm;
             if (gearEl) gearEl.textContent = gas ? 'G' + (1 + Math.min(7, Math.floor(Math.max(f, 0) * 7.999))) : 'N';
@@ -1239,6 +1317,16 @@
           function loop(t) {
             var dt = Math.min(0.05, (t - last) / 1000 || 0.016);
             last = t;
+            if (mode === 'run') {
+              runT += dt;
+              spd += (102 - spd) * dt * 1.15 * qk;
+              rpm = 1200 + Math.min(spd, 100) / 100 * 6600;
+              paint();
+              if (spd >= 100) { finishRun(); return; }
+              if (gas) toneOn();
+              raf = window.requestAnimationFrame(loop);
+              return;
+            }
             rpm += (gas ? (LIM - rpm) * dt * 1.35 : -(rpm - 1200) * dt * 1.5);
             if (rpm > LIM) rpm = LIM;
             if (rpm < 1200) { rpm = 1200; paint(); raf = null; toneOff(); return; }
@@ -1247,27 +1335,27 @@
             raf = window.requestAnimationFrame(loop);
           }
           function start() {
+            if (mode === 'run') return;
+            if (mode === 'result') resetRun();
             gas = 1;
             peakPk = 0; peakRpm = 0; maxF = 0;
-            if (resEl) { resEl.classList.remove('record'); resEl.innerHTML = '&nbsp;'; }
             if (traceEl) { traceEl.setAttribute('d', ''); traceEl.setAttribute('opacity', '0'); }
             if (peakDot) peakDot.setAttribute('opacity', '0');
             app.classList.add('gas');
+            beginCountdown();
             if (!raf) { last = window.performance.now(); raf = window.requestAnimationFrame(loop); }
           }
           /* v44: record — hoogste PK losgelaten (mgDynoBest, hoger = beter) */
-          function saveRecord() {
-            if (!peakPk) { if (resEl) resEl.innerHTML = '&nbsp;'; return; }
+          /* v51: piek registreren (mgDynoBest + historie + piekdot) zonder de resultaat-tekst aan te passen,
+             zodat ook een DYNO DRAG-sprint meetelt voor de Dyno 2.0-record en -historie */
+          function recordPeak() {
+            if (!peakPk) return false;
             var best = 0, isNew = false;
             try { best = parseInt(window.localStorage.getItem('mgDynoBest') || '0', 10) || 0; } catch (e) {}
             isNew = peakPk > best;
             if (isNew) {
               try { window.localStorage.setItem('mgDynoBest', String(peakPk)); } catch (e) {}
               Array.prototype.forEach.call(document.querySelectorAll('[data-record="mgDynoBest"]'), function (el) { el.textContent = peakPk + ' PK'; });
-            }
-            if (resEl) {
-              resEl.textContent = 'PIEK ' + peakPk + ' PK @ ' + Math.round(peakRpm).toLocaleString('nl-NL') + ' RPM' + (isNew ? ' — NIEUW RECORD' : '');
-              resEl.classList.toggle('record', isNew);
             }
             if (hasPath && peakDot && peakRpm) {
               try {
@@ -1287,6 +1375,16 @@
             try { window.localStorage.setItem('mgDynoLog', JSON.stringify(log)); } catch (e3) {}
             renderHist();
             peakPk = 0; peakRpm = 0;
+            return isNew;
+          }
+          function saveRecord() {
+            var pkNow = peakPk, rpmNow = peakRpm;
+            if (!pkNow) { if (resEl) resEl.innerHTML = '&nbsp;'; return; }
+            var isNew = recordPeak();
+            if (resEl) {
+              resEl.textContent = 'PIEK ' + pkNow + ' PK @ ' + Math.round(rpmNow).toLocaleString('nl-NL') + ' RPM' + (isNew ? ' — NIEUW RECORD' : '');
+              resEl.classList.toggle('record', isNew);
+            }
           }
           function renderHist() {
             if (!histEl) return;
@@ -1301,6 +1399,7 @@
           }
           try { renderHist(); } catch (e) {}
           function stop() {
+            if (mode === 'run') return;
             gas = 0;
             app.classList.remove('gas');
             saveRecord();

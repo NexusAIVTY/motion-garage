@@ -359,8 +359,16 @@
       /* sheet begint onder de statusbalk zodat dynamic island/klok zichtbaar blijven */
       inset: 44px 0 0;
     }
-    .phone-screen .car-modal-panel { grid-template-columns: 1fr; grid-template-rows: 32% 1fr; overflow: hidden; border-radius: 20px 20px 0 0; }
-    .phone-screen .car-modal-media { height: 32%; background: #0b0b0c; }
+    /* de hele sheet scrolt: ook swipe op de foto of onder de tekst schuift de auto mee (info = in de flow) */
+    .phone-screen .car-modal-panel {
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      border-radius: 20px 20px 0 0;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+    }
+    .phone-screen .car-modal-media { flex: 0 0 32%; min-height: 0; background: #0b0b0c; }
     .phone-screen .car-modal-media img { object-fit: contain; }
     .phone-screen .car-modal-close {
       top: 12px; right: 12px;
@@ -379,10 +387,8 @@
     .phone-screen .car-modal-info {
       justify-content: flex-start;
       gap: 10px;
-      padding: 14px 16px 36px;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-      overscroll-behavior: contain;
+      padding: 14px 16px 46px;
+      overflow: visible;
     }
     .phone-screen .car-modal-name { font-size: 23px; letter-spacing: 2px; line-height: 1.05; }
     .phone-screen .car-modal-alias { margin: 0; font-size: 12px; letter-spacing: 0.14em; }
@@ -698,6 +704,11 @@
       var close = function (e) { if (e) e.preventDefault(); if (ps) ps.classList.remove('garage-open'); };
       Array.prototype.forEach.call(document.querySelectorAll('[data-open-garage]'), function (el) { el.addEventListener('click', open); });
       Array.prototype.forEach.call(document.querySelectorAll('[data-close-garage]'), function (el) { el.addEventListener('click', close); });
+
+      /* sluitknop hoort bij de sheet (niet bij de scrollende inhoud): verplaats hem zodat hij blijft staan */
+      var cm = document.getElementById('carModal');
+      var xc = cm && cm.querySelector('.car-modal-close');
+      if (cm && xc && xc.parentNode !== cm) cm.appendChild(xc);
 
       /* live weer (open-meteo) met nette fallback */
       try {

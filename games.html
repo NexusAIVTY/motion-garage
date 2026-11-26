@@ -368,8 +368,9 @@
       -webkit-overflow-scrolling: touch;
       overscroll-behavior: contain;
     }
-    .phone-screen .car-modal-media { flex: 0 0 32%; min-height: 0; background: #0b0b0c; }
+    .phone-screen .car-modal-media { flex: 0 0 32%; min-height: 0; background: #0b0b0c; pointer-events: none; }
     .phone-screen .car-modal-media img { object-fit: contain; }
+    .phone-screen .car-modal-panel { touch-action: pan-y; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
     .phone-screen .car-modal-close {
       top: 12px; right: 12px;
       width: 30px; height: 30px;
@@ -385,6 +386,7 @@
     .phone-screen .car-modal-close:hover { border-color: rgba(245, 245, 245, 0.6); color: #fff; transform: none; }
     /* niet centreren: bij overflow klappen anders naam (boven) en knop (onder) buiten beeld */
     .phone-screen .car-modal-info {
+      flex: none; /* nooit schalen/krimpen: de sheet moet zelf kunnen overlopen (anders geen scroll) */
       justify-content: flex-start;
       gap: 10px;
       padding: 14px 16px 46px;
@@ -709,6 +711,29 @@
       var cm = document.getElementById('carModal');
       var xc = cm && cm.querySelector('.car-modal-close');
       if (cm && xc && xc.parentNode !== cm) cm.appendChild(xc);
+
+      /* muis-Sheet: met de muis slepen = scrollen (touch gebruikt gewoon native scroll) */
+      try {
+        var sheet = cm && cm.querySelector('.car-modal-panel');
+        if (sheet) {
+          var dragging = false, dsx = 0, dsy = 0, dsTop = 0, didMove = false;
+          sheet.addEventListener('pointerdown', function (e) {
+            if (e.pointerType !== 'mouse' || e.button !== 0) return;
+            dragging = true; didMove = false;
+            dsx = e.clientX; dsy = e.clientY; dsTop = sheet.scrollTop;
+          });
+          sheet.addEventListener('pointermove', function (e) {
+            if (!dragging || e.pointerType !== 'mouse') return;
+            var dy = dsy - e.clientY;
+            if (!didMove && Math.abs(dy) > 6) didMove = true;
+            if (didMove) sheet.scrollTop = dsTop + dy;
+          });
+          sheet.addEventListener('pointerup', function () { dragging = false; });
+          sheet.addEventListener('click', function (e) {
+            if (didMove) { didMove = false; e.stopPropagation(); e.preventDefault(); }
+          }, true);
+        }
+      } catch (err) {}
 
       /* live weer (open-meteo) met nette fallback */
       try {

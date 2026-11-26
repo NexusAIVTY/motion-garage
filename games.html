@@ -521,6 +521,18 @@
     .page-dyno.gas .curve-line { stroke: #ff2213; }
     .page-dyno.maxed .curve-line { filter: drop-shadow(0 0 7px rgba(225,6,0,0.85)); }
     .page-dyno.maxed .dyno-hold { color: #e10600; animation: holdPulse 0.7s ease infinite; }
+    /* v44c: rijker dyno-bord */
+    .dyno-stats.klein { margin: 6px 0 12px; }
+    .dyno-stats.klein div { padding: 7px 4px; }
+    .dyno-stats.klein b { font-size: 14px; color: #f5f5f5; letter-spacing: 0.5px; }
+    .dyno-stats.klein span { font-size: 7.5px; }
+    .dyno-shifts { display: flex; justify-content: center; gap: 5px; padding-top: 9px; }
+    .dyno-shifts i { width: 14px; height: 5px; border-radius: 999px; background: rgba(245,245,245,0.1); transition: background 0.08s ease, box-shadow 0.08s ease; }
+    .dyno-shifts i.on { background: #f5f5f5; box-shadow: 0 0 8px rgba(245,245,245,0.55); }
+    .dyno-shifts i:nth-child(n+6).on { background: #ff2213; box-shadow: 0 0 9px rgba(255,34,19,0.65); }
+    .dyno-result { text-align: center; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #f5f5f5; padding-top: 8px; min-height: 15px; }
+    .dyno-result.record { color: var(--red); font-weight: 600; letter-spacing: 0.2em; animation: resultPop 0.5s ease; }
+    @keyframes resultPop { 0% { transform: scale(1.28); } 100% { transform: scale(1); } }
 
     .set-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 14px; background: rgba(21,21,22,0.7); border: 1px solid rgba(245,245,245,0.08); border-radius: 12px; }
     .set-row + .set-row { margin-top: 8px; }
@@ -791,7 +803,12 @@
             <div class="dyno-stats">
               <div><b data-dyno-pk>650</b><span>PK</span></div>
               <div><b data-dyno-nm>800</b><span>NM</span></div>
-              <div><b data-dyno-kmh>351</b><span>km/u</span></div>
+              <div><b data-dyno-kmh>351</b><span>top</span></div>
+            </div>
+            <div class="dyno-stats klein">
+              <div><b>2,9</b><span>0&ndash;100 s</span></div>
+              <div><b>9.000</b><span>redline</span></div>
+              <div><b>1.550</b><span>kg</span></div>
             </div>
             <div class="dyno-curve" data-dyno-pad>
               <svg viewBox="0 0 300 150" preserveAspectRatio="none" aria-hidden="true">
@@ -801,10 +818,12 @@
                 <circle class="curve-dot" data-dyno-dot cx="-20" cy="-20" r="3.2" fill="#f5f5f5"/>
               </svg>
               <span class="dyno-axis"><i>toeren</i><i>vermogen</i></span>
-              <div class="dyno-meter"><span data-dyno-rpm>1.200</span> RPM &bull; <span data-dyno-boost>0,4</span> bar</div>
+              <div class="dyno-shifts" data-dyno-shifts aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+              <div class="dyno-meter"><span data-dyno-gear>N</span> &bull; <span data-dyno-rpm>1.200</span> RPM &bull; <span data-dyno-boost>0,4</span> bar</div>
               <div class="dyno-hold">HOUD INGEDRUKT VOOR GAS</div>
+              <div class="dyno-result" data-dyno-result>&nbsp;</div>
             </div>
-            <p class="page-app-note">Krachtcurve van de fleet-top: de hybride-turbo's slaan vanaf 4000 tpm pas écht aan.</p>
+            <p class="page-app-note">Krachtcurve van de fleet-top: de hybride-turbo's slaan vanaf 4000 tpm pas écht aan en het piekvermogen zit rond 8.250 tpm — daarboven valt hij terug. Je hoogst behaalde PK wordt als record bewaard (zie de app-rij).</p>
             <button class="home-indicator garage-indicator" type="button" data-close-app aria-label="Terug naar de apps"><span></span></button>
           </div>
 
@@ -1118,8 +1137,12 @@
           var pkEl = document.querySelector('[data-dyno-pk]');
           var nmEl = document.querySelector('[data-dyno-nm]');
           var boEl = document.querySelector('[data-dyno-boost]');
+          var gearEl = document.querySelector('[data-dyno-gear]');
+          var resEl = document.querySelector('[data-dyno-result]');
+          var shiftWrap = document.querySelector('[data-dyno-shifts]');
+          var shiftDots = shiftWrap ? Array.prototype.slice.call(shiftWrap.children) : [];
           var hasPath = !!(path && path.getTotalLength);
-          var len = 0, rpm = 1200, gas = 0, raf = null, last = 0, peakPk = 0;
+          var len = 0, rpm = 1200, gas = 0, raf = null, last = 0, peakPk = 0, peakRpm = 0;
           var osc = null, gain = null;
           var LIM = 9000;
 
@@ -1166,6 +1189,12 @@
               } catch (e) {}
             }
             app.classList.toggle('maxed', rpm > LIM - 120);
+            if (gas && rpm > peakRpm) peakRpm = rpm;
+            if (gearEl) gearEl.textContent = gas ? 'G' + (1 + Math.min(7, Math.floor(Math.max(f, 0) * 7.999))) : 'N';
+            if (shiftDots.length) {
+              var lit = Math.min(shiftDots.length, Math.floor(Math.max(f, 0) * shiftDots.length * 1.15));
+              for (var i = 0; i < shiftDots.length; i++) shiftDots[i].classList.toggle('on', i < lit);
+            }
           }
           function loop(t) {
             var dt = Math.min(0.05, (t - last) / 1000 || 0.016);
@@ -1179,19 +1208,26 @@
           }
           function start() {
             gas = 1;
+            peakPk = 0; peakRpm = 0;
+            if (resEl) { resEl.classList.remove('record'); resEl.innerHTML = '&nbsp;'; }
             app.classList.add('gas');
             if (!raf) { last = window.performance.now(); raf = window.requestAnimationFrame(loop); }
           }
           /* v44: record — hoogste PK losgelaten (mgDynoBest, hoger = beter) */
           function saveRecord() {
-            if (!peakPk) return;
-            var best = 0;
+            if (!peakPk) { if (resEl) resEl.innerHTML = '&nbsp;'; return; }
+            var best = 0, isNew = false;
             try { best = parseInt(window.localStorage.getItem('mgDynoBest') || '0', 10) || 0; } catch (e) {}
-            if (peakPk > best) {
+            isNew = peakPk > best;
+            if (isNew) {
               try { window.localStorage.setItem('mgDynoBest', String(peakPk)); } catch (e) {}
               Array.prototype.forEach.call(document.querySelectorAll('[data-record="mgDynoBest"]'), function (el) { el.textContent = peakPk + ' PK'; });
             }
-            peakPk = 0;
+            if (resEl) {
+              resEl.textContent = 'PIEK ' + peakPk + ' PK @ ' + Math.round(peakRpm).toLocaleString('nl-NL') + ' RPM' + (isNew ? ' — NIEUW RECORD' : '');
+              resEl.classList.toggle('record', isNew);
+            }
+            peakPk = 0; peakRpm = 0;
           }
           function stop() {
             gas = 0;

@@ -199,6 +199,63 @@
         ['Top', '350 km/h']
       ]
     },
+    {
+      img: 'assets/cars/card-918.jpg',
+      tag: 'Hybrid',
+      name: 'PORSCHE 918 SPYDER',
+      alias: 'Weissach',
+      copy: 'Vloeibaar zilver uit de Weissach-ontwikkelafdeling: een hybride die in de nacht vast als beton ligt en klinkt als een opgewekte storm.',
+      fact: 'De 918 jageerde in 2013 in 6:57 over de N\u00fcrburgring \u2014 als eerste straat-legale hybride onder de 7 minuten.',
+      specs: [
+        ['Vermogen', '887 PK'],
+        ['Motor', 'V8 + 2 e-motoren'],
+        ['0 \u2013 100', '2.5 s'],
+        ['Top', '345 km/h']
+      ]
+    },
+    {
+      img: 'assets/cars/card-gtr.jpg',
+      tag: 'JDM',
+      name: 'NISSAN GT-R',
+      alias: 'Godzilla',
+      copy: 'Gemaakt om supercars te vernederen voor een fractie van de prijs. Ronde vormen, de vier ringen van de achterlichten \u2014 de nacht herkent haar aan het geluid.',
+
+      fact: 'Elke GT-R-motor wordt door \u00e9\u00e9n takumi-monteur met de hand gebouwd; het naamplaatje draagt diens naam.',
+      specs: [
+        ['Vermogen', '570 PK'],
+        ['Motor', 'V6 biturbo'],
+        ['0 \u2013 100', '2.8 s'],
+        ['Top', '315 km/h']
+      ]
+    },
+    {
+      img: 'assets/cars/card-db11.jpg',
+      tag: 'Grand Tour',
+      name: 'ASTON MARTIN DB11',
+      alias: 'Knightfall',
+      copy: 'Britse grand tour in de regen: lange motorkap, laag dak en het rauwe geluid van twaalf cilinders onder een natte tunnel.',
+      fact: 'De DB11 opende Astons \u201cSecond Century\u201d-plan \u2014 met een dubbele turbo-V12 in plaats van het grote naturally aspirated blok.',
+      specs: [
+        ['Vermogen', '608 PK'],
+        ['Motor', '5.2 V12 biturbo'],
+        ['0 \u2013 100', '3.9 s'],
+        ['Top', '301 km/h']
+      ]
+    },
+    {
+      img: 'assets/cars/card-fordgt.jpg',
+      tag: 'Le Mans',
+      name: 'FORD GT',
+      alias: 'Jetstream',
+      copy: 'Een raceauto met kenteken: laagliggende cabine, vliegtuigvleugel-profiel, alles van de Le Mans-winnaars \u2014 en in de nacht net zo scherp.',
+      fact: 'De Ford GT won de 24 uur van Le Mans 2016 \u2014 exact 50 jaar na de legendarische 1-2-3-finish van Ford in 1966.',
+      specs: [
+        ['Vermogen', '660 PK'],
+        ['Motor', '3.5 V6 biturbo'],
+        ['0 \u2013 100', '3.0 s'],
+        ['Top', '347 km/h']
+      ]
+    },
   ];
 
   /* ---------- Text helpers ---------- */
@@ -648,6 +705,7 @@
       return __mgSharedAC;
     } catch (e) { return null; }
   }
+  window.mgAudioCtx = mgAudioCtx;
 
   /* favorieten: één auto mag benchmark worden (hartje op de kaart, wallpaper in de telefoon) */
   function mgUpdateFavs() {
@@ -734,7 +792,7 @@
           easing: 'easeOutElastic(1, .55)'
         });
       });
-      if (i >= 6) {
+      if (i >= 8) {
         card.classList.add('collection-extra');
         card.classList.remove('reveal');
       }
@@ -746,7 +804,7 @@
     mgUpdateFavs();
 
     const phoneMode = !!grid.closest('.page-garage');
-    const extras = cards.slice(6);
+    const extras = cards.slice(8);
     if (!phoneMode) extras.forEach((el) => { el.style.display = 'none'; });
     const moreBtn = document.getElementById('collectionMore');
     if (!phoneMode && moreBtn && extras.length) {
@@ -1754,8 +1812,8 @@
     if (bestEl) bestEl.textContent = best ? best.toFixed(2) + ' s' : '\u2014';
 
     /* echte modellen: eigen toerenlimiet, topsnelheid, vermogen en 0-100 */
-    const REDLINES = [9000, 7000, 7600, 7500, 6900, 8700, 9000, 8500, 5800, 7200, 8500, 8500];
-    const PAINT = ['#e10600', '#101013', '#16335e', '#131315', '#e6e6ec', '#14141a', '#1e1e22', '#e8620a', '#18181c', '#131316', '#c9ccd4', '#1b3a7a'];
+    const REDLINES = [9000, 7000, 7600, 7500, 6900, 8700, 9000, 8500, 5800, 7200, 8500, 8500, 8600, 7000, 7000, 7500];
+    const PAINT = ['#e10600', '#101013', '#16335e', '#131315', '#e6e6ec', '#14141a', '#1e1e22', '#e8620a', '#18181c', '#131316', '#c9ccd4', '#1b3a7a', '#8f949c', '#4a4f55', '#244a2f', '#0f2f4f'];
     const RATIO = [0, 0.267, 0.442, 0.605, 0.75, 0.878, 1.0];
     const DEF_BASE = [0, 56, 43, 34, 27, 21, 16];
     const IDLE = 1200;
@@ -2034,7 +2092,11 @@
       { bodyH: 0.76, cab0: 0.40, cab1: 0.92, wing: 0 },
       { bodyH: 0.72, cab0: 0.30, cab1: 0.74, wing: 1 },
       { bodyH: 0.56, cab0: 0.34, cab1: 0.82, wing: 0 },
-      { bodyH: 0.54, cab0: 0.38, cab1: 0.84, wing: 0 }
+      { bodyH: 0.54, cab0: 0.38, cab1: 0.84, wing: 0 },
+      { bodyH: 0.58, cab0: 0.36, cab1: 0.78, wing: 1 },
+      { bodyH: 0.72, cab0: 0.30, cab1: 0.80, wing: 1 },
+      { bodyH: 0.66, cab0: 0.24, cab1: 0.72, wing: 0 },
+      { bodyH: 0.52, cab0: 0.42, cab1: 0.72, wing: 1 }
     ];
 
     function drawCar(x, gw, color, wheelSpin) {
@@ -3036,9 +3098,9 @@
     tabs.forEach((t) => t.addEventListener('click', () => activate(t.getAttribute('data-game-tab'))));
 
     /* deep-link vanaf games.html: #game-launch / #game-red / #game-match */
-    const hm = (window.location.hash || '').match(/^#game-(dash|launch|red|redline|match)$/i);
+    const hm = (window.location.hash || '').match(/^#game-(dash|launch|red|redline|match|mid|midnight)$/i);
     if (hm) {
-      const map = { dash: 'dash', launch: 'dash', red: 'redline', redline: 'redline', match: 'match' };
+      const map = { dash: 'dash', launch: 'dash', red: 'redline', redline: 'redline', match: 'match', mid: 'midnight', midnight: 'midnight' };
       const name = map[hm[1].toLowerCase()];
       if (name) {
         activate(name);
@@ -3408,6 +3470,306 @@
     window.addEventListener('resize', resize);
   }
 
+  /* ---------- MIDNIGHT \u2014 oneindige nachtrit ---------- */
+  function buildMidnight() {
+    const cv = document.getElementById('midCanvas');
+    if (!cv) return;
+    const panel = cv.closest('[data-game-panel]');
+    const c = cv.getContext ? cv.getContext('2d') : null;
+    if (!c) return;
+    const startEl = document.querySelector('[data-mid-start]');
+    const goBtn = document.querySelector('[data-mid-go]');
+    const overEl = document.querySelector('[data-mid-over]');
+    const againBtn = document.querySelector('[data-mid-again]');
+    const distEl = document.querySelector('[data-mid-dist]');
+    const speedEl = document.querySelector('[data-mid-speed]');
+    const bestEl = document.querySelector('[data-mid-best]');
+    const finalEl = document.querySelector('[data-mid-final]');
+    const noteEl = document.querySelector('[data-mid-note]');
+
+    let best = 0;
+    try {
+      const raw = parseFloat(localStorage.getItem('mgMidBest'));
+      if (isFinite(raw)) best = raw;
+    } catch (e) {}
+    if (bestEl) bestEl.textContent = best ? Math.round(best) + ' m' : '\u2014';
+
+    let dpr = 1, W = 0, H = 0;
+    function resize() {
+      const r = cv.getBoundingClientRect();
+      dpr = Math.min(2, window.devicePixelRatio || 1);
+      W = Math.max(300, r.width);
+      H = Math.max(380, r.height);
+      cv.width = Math.round(W * dpr);
+      cv.height = Math.round(H * dpr);
+      c.setTransform(dpr, 0, 0, dpr, 0, 0);
+      buildSky();
+      buildWay();
+      if (state !== 'run') paint();
+    }
+
+    /* vaste sterrenhemel + wegmarkering (offscreen basis) */
+    let sky = null, road = null;
+    const stars = [];
+    function buildSky() {
+      stars.length = 0;
+      let seed = 20260144;
+      const rnd = () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+      for (let i = 0; i < 46; i++) stars.push({ x: rnd(), y: rnd() * 0.45, a: 0.2 + rnd() * 0.6, r: rnd() * 1.2 + 0.4 });
+    }
+    function buildWay() {
+      road = { x0: W * 0.5 - Math.min(W * 0.36, 220), x1: W * 0.5 + Math.min(W * 0.36, 220) };
+    }
+    const laneX = (i) => road.x0 + ((i + 0.5) * (road.x1 - road.x0)) / 3;
+    const roadHalf = () => (road.x1 - road.x0) * 0.5;
+
+    let state = 'idle';
+    let dist = 0, speed = 0, lane = 1, px0 = 0.5, dash = 0, blink = 0;
+    let cars = [];
+    let spawnAt = 60;
+
+    function reset() {
+      dist = 0; speed = 0; lane = 1; px0 = 0.5; dash = 0;
+      cars = [];
+      spawnAt = 40;
+    }
+    function setOverlays() {
+      if (startEl) startEl.hidden = state !== 'idle';
+      if (overEl) overEl.hidden = state !== 'over';
+    }
+    function start() {
+      if (state === 'run') return;
+      reset();
+      state = 'run';
+      setOverlays();
+      if (lastMsgEl) lastMsgEl.textContent = '';
+    }
+    let lastMsgEl = document.querySelector('[data-mid-hint]');
+
+    function crash() {
+      state = 'over';
+      setOverlays();
+      try { mgAudioCtx(); } catch (e) {}
+      /* crashtik */
+      try {
+        const ctx = mgAudioCtx();
+        if (ctx && window.localStorage.getItem('mgSound') !== '0') {
+          const o = ctx.createOscillator(), g = ctx.createGain();
+          o.type = 'square'; o.frequency.value = 92;
+          g.gain.setValueAtTime(0.09, ctx.currentTime);
+          g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.45);
+          o.connect(g); g.connect(ctx.destination);
+          o.start(); o.stop(ctx.currentTime + 0.5);
+        }
+      } catch (e) {}
+      const m = Math.round(dist);
+      if (finalEl) finalEl.textContent = m + ' m';
+      let note = m >= 3000 ? 'Oneindige nacht voorbij \u2014 dit is chauffeursniveau.' : m >= 1500 ? 'Sterk gereden \u2014 de nacht begint je te kennen.' : m >= 600 ? 'Goed bezig \u2014 de weg wordt wakker.' : 'Elke rit begint in het donker.';
+      const isBest = m > best && m > 0;
+      if (isBest) {
+        best = m;
+        note = 'NIEUW RECORD \u2014 ' + m + ' m in het donker!';
+        try { localStorage.setItem('mgMidBest', String(m)); } catch (e) {}
+        document.querySelectorAll('[data-record="mgMidBest"]').forEach((el) => { el.textContent = m + ' m'; });
+        if (bestEl) bestEl.textContent = m + ' m';
+      }
+      if (noteEl) noteEl.textContent = note;
+    }
+
+    /* input: tik linker/rechterhelft, pijltjes of A/D */
+    function steer(dir) {
+      if (state !== 'run') return;
+      lane = Math.max(0, Math.min(2, lane + dir));
+    }
+    function bindPointer() {
+      cv.addEventListener('pointerdown', (e) => {
+        if (state !== 'run') return;
+        e.preventDefault();
+        const r = cv.getBoundingClientRect();
+        steer((e.clientX - r.left) < r.width / 2 ? -1 : 1);
+      });
+    }
+    function bindKeys() {
+      window.addEventListener('keydown', (e) => {
+        if (panel && panel.hidden) return;
+        if (e.code === 'ArrowLeft' || e.code === 'KeyA') { steer(-1); e.preventDefault(); }
+        if (e.code === 'ArrowRight' || e.code === 'KeyD') { steer(1); e.preventDefault(); }
+        if (e.code === 'Space') {
+          e.preventDefault();
+          if (state === 'idle' && panel && !panel.hidden) start();
+          else if (state === 'over' && panel && !panel.hidden) start();
+        }
+      });
+    }
+
+    function drawPlayer(y) {
+      const x = road.x0 + px0 * (road.x1 - road.x0);
+      const w = roadHalf() * 0.42, h = w * 1.9;
+      /* gloed onder de auto */
+      c.fillStyle = 'rgba(225,6,0,0.16)';
+      c.beginPath(); c.ellipse(x, y + h * 0.55, w * 0.9, h * 0.22, 0, 0, Math.PI * 2); c.fill();
+      /* carrosserie */
+      c.fillStyle = '#141418';
+      c.beginPath();
+      c.moveTo(x - w * 0.36, y + h * 0.5);
+      c.lineTo(x - w * 0.46, y + h * 0.1);
+      c.lineTo(x - w * 0.30, y - h * 0.42);
+      c.lineTo(x + w * 0.30, y - h * 0.42);
+      c.lineTo(x + w * 0.46, y + h * 0.1);
+      c.lineTo(x + w * 0.36, y + h * 0.5);
+      c.closePath(); c.fill();
+      /* cabine-glas */
+      c.fillStyle = 'rgba(148,148,156,0.28)';
+      c.fillRect(x - w * 0.2, y - h * 0.34, w * 0.4, h * 0.26);
+      /* koplampen */
+      c.fillStyle = 'rgba(245,245,245,0.9)';
+      c.fillRect(x - w * 0.34, y - h * 0.46, w * 0.14, h * 0.045);
+      c.fillRect(x + w * 0.20, y - h * 0.46, w * 0.14, h * 0.045);
+      /* achterlichten (rood) */
+      blink = (blink + 1) % 50;
+      c.fillStyle = '#e10600';
+      c.fillRect(x - w * 0.42, y + h * 0.34, w * 0.2, h * 0.055);
+      c.fillRect(x + w * 0.22, y + h * 0.34, w * 0.2, h * 0.055);
+      c.shadowColor = 'rgba(225,6,0,0.9)';
+      c.shadowBlur = 12;
+      c.fillRect(x - w * 0.42, y + h * 0.34, w * 0.2, h * 0.055);
+      c.fillRect(x + w * 0.22, y + h * 0.34, w * 0.2, h * 0.055);
+      c.shadowBlur = 0;
+      return { x, w, h, y };
+    }
+
+    function spawnCar() {
+      const l = Math.floor(Math.random() * 3);
+      /* geen muur van drie */
+      let tries = 0;
+      while (cars.some((t) => t.lane === l && t.z > -3) && tries < 8) { l = (l + 1) % 3; tries++; }
+      const glow = 0.5 + Math.random() * 0.5;
+      cars.push({ lane: l, z: -1.5, glow, wob: Math.random() * Math.PI * 2 });
+    }
+
+    function paint() {
+      /* nachthemel */
+      c.fillStyle = '#07070a';
+      c.fillRect(0, 0, W, H);
+      c.fillStyle = '#f5f5f5';
+      stars.forEach((s) => {
+        c.globalAlpha = s.a;
+        c.fillRect(s.x * W, s.y * H, s.r, s.r);
+      });
+      c.globalAlpha = 1;
+      /* horizon-gloed */
+      const hy = H * 0.16;
+      const gr = c.createLinearGradient(0, hy - 40, 0, hy + 30);
+      gr.addColorStop(0, 'rgba(225,6,0,0)');
+      gr.addColorStop(0.5, 'rgba(225,6,0,0.12)');
+      gr.addColorStop(1, 'rgba(225,6,0,0)');
+      c.fillStyle = gr;
+      c.fillRect(0, hy - 40, W, 70);
+
+      /* weg */
+      c.fillStyle = '#0c0c0f';
+      c.fillRect(road.x0, hy, road.x1 - road.x0, H - hy);
+      /* randen LED */
+      c.fillStyle = 'rgba(225,6,0,0.55)';
+      c.fillRect(road.x0 - 2, hy, 2, H - hy);
+      c.fillRect(road.x1, hy, 2, H - hy);
+      /* track-middellijnen + bewegende streepjeslijnen */
+      c.strokeStyle = 'rgba(245,245,245,0.16)';
+      c.lineWidth = 2;
+      for (let i = 1; i <= 2; i++) {
+        const lx = road.x0 + (i * (road.x1 - road.x0)) / 3;
+        c.beginPath();
+        c.moveTo(lx, hy);
+        c.lineTo(lx, H);
+        c.stroke();
+      }
+      const gap = 90;
+      const off = dash % gap;
+      c.fillStyle = 'rgba(245,245,245,0.4)';
+      for (let y = hy - gap + off; y < H; y += gap) {
+        c.fillRect(W / 2 - 2, Math.max(hy, y), 4, 34);
+      }
+      /* verkeer: grijze dozen met rode achterlichten */
+      cars.forEach((t) => {
+        const tz = t.z;
+        const yy = hy + tz * (H - hy);
+        const sc = 0.34 + 0.66 * tz;
+        const w = roadHalf() * 0.4 * sc, h = w * 1.9;
+        const x = laneX(t.lane);
+        c.fillStyle = '#1a1a1f';
+        c.beginPath();
+        c.moveTo(x - w * 0.38, yy - h * 0.5);
+        c.lineTo(x - w * 0.46, yy - h * 0.14);
+        c.lineTo(x - w * 0.34, yy + h * 0.5);
+        c.lineTo(x + w * 0.34, yy + h * 0.5);
+        c.lineTo(x + w * 0.46, yy - h * 0.14);
+        c.lineTo(x + w * 0.38, yy - h * 0.5);
+        c.closePath(); c.fill();
+        c.fillStyle = 'rgba(225,6,0,' + (0.5 + 0.5 * t.glow).toFixed(2) + ')';
+        c.fillRect(x - w * 0.4, yy - h * 0.5, w * 0.24, h * 0.06);
+        c.fillRect(x + w * 0.16, yy - h * 0.5, w * 0.24, h * 0.06);
+        c.shadowColor = 'rgba(225,6,0,0.8)';
+        c.shadowBlur = 10 * sc;
+        c.fillRect(x - w * 0.4, yy - h * 0.5, w * 0.24, h * 0.06);
+        c.fillRect(x + w * 0.16, yy - h * 0.5, w * 0.24, h * 0.06);
+        c.shadowBlur = 0;
+      });
+
+      const pu = drawPlayer(H * 0.82);
+
+      /* score / snelheid */
+      if (distEl) distEl.textContent = Math.round(dist) + ' m';
+      if (speedEl) speedEl.textContent = Math.round(speed) + ' km/h';
+
+      if (state === 'run') {
+        /* fysica: tempo groeit met de afstand, verkeer komt dichterbij */
+        const dtm = 1 / 60;
+        speed = Math.min(236, 64 + dist / 12);
+        dist += (speed / 3.6) * 1.2 * dtm;
+        dash += speed * 0.62;
+        px0 += ((lane + 0.5) / 3 - px0) * 0.22;
+        cars.forEach((t) => { t.z += (speed * 0.45 / 3.6) * 1.2 * dtm / 30; t.wob += 0.1; });
+        cars = cars.filter((t) => t.z < 1.08);
+        spawnAt -= 1;
+        if (spawnAt <= 0) {
+          spawnCar();
+          spawnAt = Math.max(26, 58 - Math.round(dist / 110));
+        }
+        /* botsing */
+        const hit = cars.some((t) => {
+          if (t.z <= 0.6 || t.z >= 0.99) return false;
+          const tx = laneX(t.lane);
+          const ax = road.x0 + px0 * (road.x1 - road.x0);
+          return Math.abs(tx - ax) < roadHalf() * 0.3;
+        });
+        if (hit) { crash(); paint(); return; }
+      }
+    }
+    let loop0 = null;
+
+    loop0 = function () {
+      if (panel && panel.hidden) { rafMid = window.requestAnimationFrame(loop0); return; }
+      paint();
+      rafMid = window.requestAnimationFrame(loop0);
+    };
+    let rafMid = null;
+
+    if (goBtn) goBtn.addEventListener('click', start);
+    if (againBtn) againBtn.addEventListener('click', start);
+    bindPointer();
+    bindKeys();
+    resize();
+    state = 'idle';
+    setOverlays();
+    try {
+      window.addEventListener('resize', resize);
+      if (window.ResizeObserver) {
+        new ResizeObserver(() => resize()).observe(cv.parentElement || cv);
+      }
+    } catch (e) {}
+    if (!reduceMotion) { rafMid = window.requestAnimationFrame(loop0); } else { paint(); }
+  }
+
   /* ---------- Init (hardened: each step isolated) ---------- */
   window.addEventListener('DOMContentLoaded', () => {
     const steps = [
@@ -3432,6 +3794,7 @@
       ['buildLaunch', buildLaunch],
       ['buildRedline', buildRedline],
       ['buildMatch', buildMatch],
+      ['buildMidnight', buildMidnight],
       ['buildDyno', buildDyno],
       ['wireGameTabs', wireGameTabs],
       ['setupObserver', setupObserver],

@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=43" />
+  <link rel="stylesheet" href="css/style.css?v=44" />
   <link rel="stylesheet" href="css/arcade-enhanced.css?v=27" />
   <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
   <style>
@@ -168,7 +168,8 @@
     }
     .phone-screen .game-frame-match { overflow: hidden; display: flex; flex-direction: column; height: 100%; }
     .phone-screen #launchCanvas,
-    .phone-screen #rlCanvas { height: 100%; }
+    .phone-screen #rlCanvas,
+    .phone-screen #midCanvas { height: 100%; touch-action: manipulation; }
     .phone-screen .home-indicator { text-decoration: none; cursor: pointer; }
     .phone-screen .home-indicator span { transition: width 0.25s ease, background 0.25s ease; }
     .phone-screen .home-indicator:hover span,
@@ -350,6 +351,31 @@
               </div>
             </div>
 
+            <div class="game-panel" data-game-panel="midnight" hidden>
+              <div class="game-frame reveal" data-mid-frame>
+                <canvas id="midCanvas" aria-label="Midnight speelveld"></canvas>
+
+                <div class="game-hud" aria-hidden="true">
+                  <span>Afstand <strong data-mid-dist>0 m</strong></span>
+                  <span>Tempo <strong data-mid-speed>0 km/h</strong></span>
+                  <span>Record <strong data-mid-best>&mdash;</strong></span>
+                </div>
+
+                <div class="game-overlay" data-mid-start>
+                  <h3>MIDNIGHT</h3>
+                  <p>De oneindige nachtrit: stuur tussen de auto’s op een donkere, natte snelweg. Tik de linker- of rechterhelft van het scherm (of stuur met de pijltjestoetsen) om uit te wijken &mdash; hoe verder je komt, hoe dichter het verkeer komt. E&eacute;n botsing en de nacht is voorbij.</p>
+                  <button class="btn btn-primary" data-mid-go type="button">Vertrek &nearr;</button>
+                </div>
+
+                <div class="game-overlay" data-mid-over hidden>
+                  <h3>&mdash; Nacht voorbij &mdash;</h3>
+                  <p class="gameover-score" data-mid-final>&mdash;</p>
+                  <p class="gameover-note" data-mid-note></p>
+                  <button class="btn btn-ghost" data-mid-again type="button">Nog een rit &nearr;</button>
+                </div>
+              </div>
+            </div>
+
             <div class="game-panel" data-game-panel="match" hidden>
               <div class="game-frame game-frame-match reveal" data-match-frame>
                 <div class="match-hud game-hud" aria-hidden="true">
@@ -379,8 +405,8 @@
   <script>
     /* Kies het panel o.b.v. ?g= vóórdat main.js de games bouwt */
     (function () {
-      var map = { launch: 'dash', dash: 'dash', red: 'redline', redline: 'redline', match: 'match' };
-      var q = (window.location.search || '').match(/[?&]g=(dash|launch|red|redline|match)/i);
+      var map = { launch: 'dash', dash: 'dash', red: 'redline', redline: 'redline', match: 'match', mid: 'midnight', midnight: 'midnight' };
+      var q = (window.location.search || '').match(/[?&]g=(dash|launch|red|redline|match|mid|midnight)/i);
       var name = map[(q && q[1].toLowerCase()) || 'launch'] || 'dash';
 
       var panels = document.querySelectorAll('[data-game-panel]');
@@ -397,9 +423,10 @@
       });
 
       var titles = {
-        dash: ['LAUNCH', 'app 01 / 03', 'LAUNCH \u2014 GARAGE OS | Motion Garage'],
-        redline: ['REDLINE', 'app 02 / 03', 'REDLINE \u2014 GARAGE OS | Motion Garage'],
-        match: ['SPEC MATCH', 'app 03 / 03', 'SPEC MATCH \u2014 GARAGE OS | Motion Garage']
+        dash: ['LAUNCH', 'app 01 / 04', 'LAUNCH \u2014 GARAGE OS | Motion Garage'],
+        redline: ['REDLINE', 'app 02 / 04', 'REDLINE \u2014 GARAGE OS | Motion Garage'],
+        match: ['SPEC MATCH', 'app 03 / 04', 'SPEC MATCH \u2014 GARAGE OS | Motion Garage'],
+        midnight: ['MIDNIGHT', 'app 04 / 04', 'MIDNIGHT \u2014 GARAGE OS | Motion Garage']
       };
       var t = titles[name];
       if (t) {
@@ -467,7 +494,7 @@
       }
     })();
   </script>
-  <script src="js/main.js?v=43"></script>
+  <script src="js/main.js?v=44"></script>
   <script src="js/launch-car.js?v=1"></script>
 </body>
 </html>

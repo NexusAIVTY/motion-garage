@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=43" />
+  <link rel="stylesheet" href="css/style.css?v=44" />
   <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
   <style>
     body { padding-bottom: 0; }
@@ -259,7 +259,19 @@
     .garage-card-temp { font-size: 30px; font-weight: 300; color: #e10600; line-height: 1; font-family: var(--font-display); letter-spacing: 1px; }
     .garage-card-main { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 7px; }
     .garage-card-desc { font-size: 10.5px; color: rgba(245, 245, 245, 0.7); line-height: 1.5; }
-    .app-item.dock-app { background: transparent; border: none; padding: 0; font: inherit; }
+    /* v44: alle button-app-items (Dyno, Instellingen, dock) zonder browser-witte default */
+    button.app-item, .app-item.dock-app {
+      background: transparent;
+      border: none;
+      padding: 0;
+      font: inherit;
+      color: inherit;
+      text-align: center;
+      appearance: none;
+      -webkit-appearance: none;
+      -webkit-tap-highlight-color: transparent;
+      outline: none;
+    }
     .home-dock {
       margin-top: 14px;
       display: flex;
@@ -422,13 +434,20 @@
     .screen-wallpaper.on { opacity: 1; }
     .screen-home { position: relative; z-index: 1; }
     .screen-pages {
+      flex: 1 1 auto;
+      min-height: 0;
       display: flex;
       overflow-x: auto;
+      overflow-y: hidden;
       scroll-snap-type: x mandatory;
       scrollbar-width: none;
     }
-    .screen-page { flex: 0 0 100%; min-width: 100%; scroll-snap-align: start; box-sizing: border-box; padding: 0 0 4px; }
-    .page-dots { display: flex; gap: 7px; justify-content: center; padding: 0 0 12px; }
+    .screen-page {
+      flex: 0 0 100%; min-width: 100%; height: 100%;
+      scroll-snap-align: start; box-sizing: border-box; padding: 0 0 4px;
+      overflow: hidden;
+    }
+    .page-dots { flex: 0 0 auto; display: flex; gap: 7px; justify-content: center; padding: 10px 0 12px; margin-top: auto; }
     .page-dots button { width: 6px; height: 6px; border-radius: 50%; border: none; padding: 0; background: rgba(245,245,245,0.25); cursor: pointer; }
     .page-dots button.on { background: #f5f5f5; }
     .status-range { font-size: 9px; letter-spacing: 0.08em; color: rgba(245,245,245,0.55); margin-right: 2px; }
@@ -493,6 +512,15 @@
     .page-dyno .curve-line { stroke-dasharray: 420; stroke-dashoffset: 420; }
     .page-dyno.on .curve-line { animation: curveDraw 1.6s ease 0.2s forwards; }
     @keyframes curveDraw { to { stroke-dashoffset: 0; } }
+    /* v44: interactieve dyno — houd ingedrukt voor gas */
+    .dyno-meter { display: flex; justify-content: center; gap: 6px; padding-top: 8px; font-size: 11px; letter-spacing: 0.12em; color: #f5f5f5; }
+    .dyno-meter span { font-family: var(--font-display); font-size: 13px; letter-spacing: 1px; color: #e10600; }
+    .dyno-hold { text-align: center; font-size: 9px; letter-spacing: 0.24em; color: rgba(245,245,245,0.45); padding-top: 6px; animation: holdPulse 2.2s ease infinite; }
+    @keyframes holdPulse { 0%,100% { opacity: 0.45; } 50% { opacity: 1; } }
+    .curve-dot { filter: drop-shadow(0 0 5px rgba(245,245,245,0.9)); }
+    .page-dyno.gas .curve-line { stroke: #ff2213; }
+    .page-dyno.maxed .curve-line { filter: drop-shadow(0 0 7px rgba(225,6,0,0.85)); }
+    .page-dyno.maxed .dyno-hold { color: #e10600; animation: holdPulse 0.7s ease infinite; }
 
     .set-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 14px; background: rgba(21,21,22,0.7); border: 1px solid rgba(245,245,245,0.08); border-radius: 12px; }
     .set-row + .set-row { margin-top: 8px; }
@@ -507,6 +535,9 @@
 
     /* widgets-pagina (tweede thuisscherm-pagina) */
     .widget { background: rgba(21,21,22,0.7); border: 1px solid rgba(245,245,245,0.08); border-radius: 14px; padding: 11px 12px; margin-bottom: 10px; }
+    .widget-dyno { cursor: pointer; transition: transform 0.15s ease, border-color 0.2s ease; }
+    .widget-dyno:hover { transform: translateY(-2px); border-color: rgba(225,6,0,0.5); }
+    .widget-dyno:active { transform: scale(0.985); }
     .widget-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
     .widget-head strong { font-size: 10.5px; letter-spacing: 0.18em; color: #f5f5f5; }
     .widget-head span { font-size: 8.5px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--red); }
@@ -676,13 +707,13 @@
                 <span class="app-sub">geluid &bull; weer</span>
               </button>
 
-              <span class="app-item soon">
+              <a class="app-item" href="play.html?g=mid">
                 <span class="app-icon" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="#94949c" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8.4"/><path d="M12 7.6V12l3 1.8"/></svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#f5f5f5" stroke-width="1.8" stroke-linecap="round"><path d="M20.6 14.2A8.6 8.6 0 0 1 9.8 3.4a8.6 8.6 0 1 0 10.8 10.8Z" stroke="#e10600"/><path d="M4 12h4M5.5 16h4M5.5 8h4" stroke="#94949c" stroke-dasharray="1.5 2.5"/></svg>
                 </span>
-                <span class="app-name">Binnenkort</span>
-                <span class="app-sub">we bouwen</span>
-              </span>
+                <span class="app-name">Midnight</span>
+                <span class="app-sub" data-record="mgMidBest" data-record-unit="m">nog geen record</span>
+              </a>
             </div>
 
             <div class="garage-card">
@@ -691,7 +722,7 @@
                 <span class="garage-card-temp">1250 <small style="font-size:11px; letter-spacing:0.1em;">PK</small></span>
               </div>
               <div class="garage-card-main">
-                <span class="garage-card-desc">Asfalt 4&deg;C &bull; grip perfect &bull; 12 auto&rsquo;s present</span>
+                <span class="garage-card-desc">Asfalt 4&deg;C &bull; grip perfect &bull; 16 auto&rsquo;s present</span>
                 <span class="garage-card-updated" style="align-self:flex-end;">live</span>
               </div>
             </div>
@@ -730,7 +761,7 @@
                   <svg viewBox="0 0 24 24" fill="none" stroke="#f5f5f5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20V9l9-5 9 5v11"/><path d="M6.5 20v-8h11v8" stroke="#e10600"/><path d="M9.5 13h5M9.5 15.5h5"/></svg>
                 </span>
                 <span class="app-name">De Garage</span>
-                <span class="app-sub">12 auto&rsquo;s</span>
+                <span class="app-sub">16 auto&rsquo;s</span>
               </button>
             </div>
 
@@ -755,20 +786,23 @@
           <div class="page-app page-dyno" data-page="dyno">
             <div class="page-app-head">
               <strong>THE DYNO</strong>
-              <small>Live van de bank &mdash; 650 PK</small>
+              <small>Live van de bank &mdash; houd ingedrukt voor gas</small>
             </div>
             <div class="dyno-stats">
-              <div><b>650</b><span>PK</span></div>
-              <div><b>2,9</b><span>0-100 s</span></div>
-              <div><b>351</b><span>km/u</span></div>
+              <div><b data-dyno-pk>650</b><span>PK</span></div>
+              <div><b data-dyno-nm>800</b><span>NM</span></div>
+              <div><b data-dyno-kmh>351</b><span>km/u</span></div>
             </div>
-            <div class="dyno-curve">
+            <div class="dyno-curve" data-dyno-pad>
               <svg viewBox="0 0 300 150" preserveAspectRatio="none" aria-hidden="true">
                 <path d="M0 40H300M0 80H300M0 120H300" stroke="#232326" stroke-width="1"/>
                 <path d="M4 130 C 60 128, 90 118, 120 95 S 180 42, 210 30 S 270 24, 296 26 L 296 146 L 4 146 Z" fill="rgba(225,6,0,0.12)" stroke="none"/>
-                <path class="curve-line" d="M4 130 C 60 128, 90 118, 120 95 S 180 42, 210 30 S 270 24, 296 26" fill="none" stroke="#e10600" stroke-width="2.2" stroke-linecap="round"/>
+                <path class="curve-line" id="dynoPath" d="M4 130 C 60 128, 90 118, 120 95 S 180 42, 210 30 S 270 24, 296 26" fill="none" stroke="#e10600" stroke-width="2.2" stroke-linecap="round"/>
+                <circle class="curve-dot" data-dyno-dot cx="-20" cy="-20" r="3.2" fill="#f5f5f5"/>
               </svg>
               <span class="dyno-axis"><i>toeren</i><i>vermogen</i></span>
+              <div class="dyno-meter"><span data-dyno-rpm>1.200</span> RPM &bull; <span data-dyno-boost>0,4</span> bar</div>
+              <div class="dyno-hold">HOUD INGEDRUKT VOOR GAS</div>
             </div>
             <p class="page-app-note">Krachtcurve van de fleet-top: de hybride-turbo's slaan vanaf 4000 tpm pas écht aan.</p>
             <button class="home-indicator garage-indicator" type="button" data-close-app aria-label="Terug naar de apps"><span></span></button>
@@ -795,7 +829,7 @@
             <div class="garage-page-head">
               <span>
                 <strong>GARAGE FLEET</strong>
-                <small>Twaalf machines</small>
+                <small>Zestien machines</small>
               </span>
             </div>
 
@@ -907,7 +941,7 @@
       }
     })();
   </script>
-  <script src="js/main.js?v=43"></script>
+  <script src="js/main.js?v=44"></script>
   <script>
     (function () {
       /* in-phone navigatie: apps <-> garage-collectie */
@@ -946,7 +980,7 @@
           if (!box) return;
           var items = [];
           try {
-            var rows = [['LAUNCH', 'mgDragBest', ' s'], ['REDLINE', 'mgRedBest', ' pt'], ['SPEC MATCH', 'mgMatchBest', ' zetten']];
+            var rows = [['LAUNCH', 'mgDragBest', ' s'], ['REDLINE', 'mgRedBest', ' pt'], ['SPEC MATCH', 'mgMatchBest', ' zetten'], ['MIDNIGHT', 'mgMidBest', ' m']];
             for (var r = 0; r < rows.length; r++) {
               var raw = window.localStorage.getItem(rows[r][1]);
               if (raw === null) continue;
@@ -1050,7 +1084,7 @@
         });
         var wipe = document.querySelector('[data-wipe-records]');
         if (wipe) wipe.addEventListener('click', function () {
-          try { ['mgDragBest', 'mgRedBest', 'mgMatchBest'].forEach(function (k) { window.localStorage.removeItem(k); }); } catch (e) {}
+          try { ['mgDragBest', 'mgRedBest', 'mgMatchBest', 'mgMidBest'].forEach(function (k) { window.localStorage.removeItem(k); }); } catch (e) {}
           Array.prototype.forEach.call(document.querySelectorAll('[data-record]'), function (el) { el.textContent = 'nog geen record'; });
         });
 
@@ -1071,6 +1105,109 @@
         setTimeout(favApply, 700);
         setTimeout(favApply, 1800);
       } catch (e) {}
+
+      /* v44: THE DYNO interactief \u2014 houd ingedrukt voor gas (toeren, koppel, boost, geluid) */
+      (function () {
+        try {
+          var pad = document.querySelector('[data-dyno-pad]');
+          var app = document.querySelector('.page-app.page-dyno');
+          if (!pad || !app) return;
+          var path = document.getElementById('dynoPath');
+          var dotEl = document.querySelector('[data-dyno-dot]');
+          var rpmEl = document.querySelector('[data-dyno-rpm]');
+          var pkEl = document.querySelector('[data-dyno-pk]');
+          var nmEl = document.querySelector('[data-dyno-nm]');
+          var boEl = document.querySelector('[data-dyno-boost]');
+          var hasPath = !!(path && path.getTotalLength);
+          var len = 0, rpm = 1200, gas = 0, raf = null, last = 0;
+          var osc = null, gain = null;
+          var LIM = 9000;
+
+          function toneOn() {
+            try {
+              if (!window.mgAudioCtx) return;
+              var ctx = window.mgAudioCtx();
+              if (!ctx) return;
+              if (!osc) {
+                osc = ctx.createOscillator();
+                gain = ctx.createGain();
+                osc.type = 'sawtooth';
+                gain.gain.value = 0;
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.start();
+              }
+              osc.frequency.setTargetAtTime(48 + (rpm / LIM) * 300, ctx.currentTime, 0.05);
+              gain.gain.setTargetAtTime(0.045, ctx.currentTime, 0.08);
+            } catch (e) {}
+          }
+          function toneOff() {
+            try {
+              if (gain && osc && window.mgAudioCtx) gain.gain.setTargetAtTime(0, window.mgAudioCtx().currentTime, 0.12);
+            } catch (e) {}
+          }
+
+          function paint() {
+            var f = (rpm - 1200) / (LIM - 1200);
+            if (rpmEl) rpmEl.textContent = Math.round(rpm).toLocaleString('nl-NL');
+            var pk = Math.round(650 * Math.pow(Math.max(f, 0.02), 0.82) + (rpm < 2200 ? 70 : 0));
+            if (rpm > 8250) pk = Math.round(650 - (rpm - 8250) / 750 * 40);
+            if (pkEl) pkEl.textContent = String(pk);
+            var nm = Math.round(800 * (0.32 + 0.68 * Math.pow(f, 0.35)));
+            if (nmEl) nmEl.textContent = String(nm);
+            if (boEl) boEl.textContent = (0.4 + f * 1.3).toFixed(1).replace('.', ',');
+            if (hasPath && dotEl) {
+              try {
+                if (!len) len = path.getTotalLength();
+                var p = path.getPointAtLength(len * Math.min(Math.max(f, 0), 1));
+                dotEl.setAttribute('cx', p.x.toFixed(1));
+                dotEl.setAttribute('cy', p.y.toFixed(1));
+                dotEl.setAttribute('opacity', '1');
+              } catch (e) {}
+            }
+            app.classList.toggle('maxed', rpm > LIM - 120);
+          }
+          function loop(t) {
+            var dt = Math.min(0.05, (t - last) / 1000 || 0.016);
+            last = t;
+            rpm += (gas ? (LIM - rpm) * dt * 1.35 : -(rpm - 1200) * dt * 1.5);
+            if (rpm > LIM) rpm = LIM;
+            if (rpm < 1200) { rpm = 1200; paint(); raf = null; toneOff(); return; }
+            paint();
+            if (gas) toneOn();
+            raf = window.requestAnimationFrame(loop);
+          }
+          function start() {
+            gas = 1;
+            app.classList.add('gas');
+            if (!raf) { last = window.performance.now(); raf = window.requestAnimationFrame(loop); }
+          }
+          function stop() {
+            gas = 0;
+            app.classList.remove('gas');
+          }
+          pad.addEventListener('pointerdown', function (e) { e.preventDefault(); start(); });
+          ['pointerup', 'pointerleave', 'pointercancel'].forEach(function (ev) {
+            pad.addEventListener(ev, stop);
+          });
+        } catch (e) {}
+      })();
+
+      /* v44: de THE DYNO-widget opent de dyno-app */
+      (function () {
+        try {
+          var w = document.querySelector('.widget-dyno');
+          if (!w) return;
+          w.setAttribute('role', 'button');
+          w.setAttribute('tabindex', '0');
+          w.setAttribute('aria-label', 'Open de dyno-app');
+          var open = function () {
+            var b = document.querySelector('[data-open-page="dyno"]');
+            if (b) b.click();
+          };
+          w.addEventListener('click', open);
+          w.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+        } catch (e) {}
+      })();
 
       /* live weer (open-meteo) met nette fallback */
       try {

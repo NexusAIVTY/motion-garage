@@ -3483,6 +3483,7 @@
     const againBtn = document.querySelector('[data-mid-again]');
     const distEl = document.querySelector('[data-mid-dist]');
     const speedEl = document.querySelector('[data-mid-speed]');
+    const levelEl = document.querySelector('[data-mid-level]');
     const bestEl = document.querySelector('[data-mid-best]');
     const finalEl = document.querySelector('[data-mid-final]');
     const noteEl = document.querySelector('[data-mid-note]');
@@ -3525,6 +3526,7 @@
 
     let state = 'idle';
     let dist = 0, speed = 0, lane = 1, px0 = 0.5, dash = 0, blink = 0;
+    let lastLevel = 1, lvlFlashT0 = 0;
     let cars = [];
     let spawnAt = 60;
 
@@ -3532,6 +3534,8 @@
       dist = 0; speed = 0; lane = 1; px0 = 0.5; dash = 0;
       cars = [];
       spawnAt = 40;
+      lastLevel = 1; lvlFlashT0 = 0;
+      if (levelEl) levelEl.textContent = '1';
     }
     function setOverlays() {
       if (startEl) startEl.hidden = state !== 'idle';
@@ -3563,7 +3567,8 @@
         }
       } catch (e) {}
       const m = Math.round(dist);
-      if (finalEl) finalEl.textContent = m + ' m';
+      const reached = Math.min(1000, 1 + Math.floor(dist / 25));
+      if (finalEl) finalEl.textContent = m + ' m \u00b7 niveau ' + reached;
       let note = m >= 3000 ? 'Oneindige nacht voorbij \u2014 dit is chauffeursniveau.' : m >= 1500 ? 'Sterk gereden \u2014 de nacht begint je te kennen.' : m >= 600 ? 'Goed bezig \u2014 de weg wordt wakker.' : 'Elke rit begint in het donker.';
       const isBest = m > best && m > 0;
       if (isBest) {
@@ -3573,6 +3578,7 @@
         document.querySelectorAll('[data-record="mgMidBest"]').forEach((el) => { el.textContent = m + ' m'; });
         if (bestEl) bestEl.textContent = m + ' m';
       }
+      if (reached >= 1000) note += ' NIVEAU 1000: legende van de nacht.';
       if (noteEl) noteEl.textContent = note;
     }
 
@@ -3717,6 +3723,32 @@
 
       const pu = drawPlayer(H * 0.82);
 
+      /* v47: niveau-up flits */
+      const fl = lvlFlashT0 ? Date.now() - lvlFlashT0 : 99999;
+      if (fl < 1500) {
+        const k = fl / 1500;
+        const pulse = 0.65 + 0.35 * (0.5 + 0.5 * Math.sin(Date.now() * 0.02));
+        c.save();
+        c.globalAlpha = (1 - k) * pulse;
+        c.fillStyle = '#e10600';
+        c.font = '400 ' + Math.round(34 * dpr) + 'px "Anton", sans-serif';
+        c.textAlign = 'center';
+        c.textBaseline = 'middle';
+        c.shadowColor = 'rgba(225,6,0,0.8)';
+        c.shadowBlur = 18;
+        c.fillText('NIVEAU ' + lastLevel, W / 2, H * 0.3);
+        c.shadowBlur = 0;
+        c.globalAlpha = (1 - k) * 0.7;
+        c.strokeStyle = 'rgba(225,6,0,0.8)';
+        c.lineWidth = 2;
+        c.beginPath();
+        c.arc(W / 2, H * 0.3, 26 + fl * 0.16, 0, Math.PI * 2);
+        c.stroke();
+        c.restore();
+        c.textAlign = 'left';
+        c.textBaseline = 'alphabetic';
+      }
+
       /* score / snelheid */
       if (distEl) distEl.textContent = Math.round(dist) + ' m';
       if (speedEl) speedEl.textContent = Math.round(speed) + ' km/h';
@@ -3726,7 +3758,29 @@
     function step() {
       if (state !== 'run') return;
       const dtm = 1 / 60;
-      speed = Math.min(236, 64 + dist / 12);
+      /* v47: niveausysteem - elke 25 m een niveau, plafond 1000 (≈ 25 km per rit) */
+      const lvl = Math.min(1000, 1 + Math.floor(dist / 25));
+      if (lvl !== lastLevel) {
+        lastLevel = lvl;
+        lvlFlashT0 = Date.now();
+        if (levelEl) levelEl.textContent = String(lvl);
+        try {
+          const actx = mgAudioCtx();
+          if (actx && window.localStorage.getItem('mgSound') !== '0') {
+            const o = actx.createOscillator(), g = actx.createGain();
+            o.type = 'square';
+            o.frequency.setValueAtTime(520, actx.currentTime);
+            o.frequency.exponentialRampToValueAtTime(880, actx.currentTime + 0.12);
+            g.gain.setValueAtTime(0.06, actx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + 0.22);
+            o.connect(g); g.connect(actx.destination);
+            o.start(); o.stop(actx.currentTime + 0.24);
+          }
+        } catch (e) {}
+      }
+      /* v47: tempo groeit met afnemende stap (asymptoot), plafond 238 - ook op niveau 1000 prima te rijden */
+      const target = Math.min(238, 88 + 150 * (1 - Math.exp(-(lastLevel - 1) / 140)));
+      speed = Math.min(target, 42 + dist / 8);
       dist += (speed / 3.6) * 1.2 * dtm;
       dash += speed * 0.62;
       px0 += ((lane + 0.5) / 3 - px0) * 0.22;
@@ -3734,8 +3788,12 @@
       cars = cars.filter((t) => t.z < 1.08);
       spawnAt -= 1;
       if (spawnAt <= 0) {
+        /* v47: verkeersdichtheid stijgt afvlakkend mee met het niveau, met plafond */
+        const density = 1 - Math.exp(-(lastLevel - 1) / 120);
+        spawnAt = Math.max(18, Math.round(56 - 36 * density));
+        /* eerlijkheids-klep: max 2 auto's tegelijk in de gevarenzone, dus er is altijd een rijstrook vrij */
+        if (cars.filter((t) => t.z > -0.9).length >= 2) spawnAt = 8;
         spawnCar();
-        spawnAt = Math.max(26, 58 - Math.round(dist / 110));
       }
       const hit = cars.some((t) => {
         if (t.z <= 0.6 || t.z >= 0.99) return false;

@@ -3645,10 +3645,14 @@
     }
 
     function spawnCar() {
-      const l = Math.floor(Math.random() * 3);
-      /* geen muur van drie */
-      let tries = 0;
-      while (cars.some((t) => t.lane === l && t.z > -3) && tries < 8) { l = (l + 1) % 3; tries++; }
+      /* v49: echt willekeurige strookkeuze (geen links-midden-rechts-ritme):
+         kies random uit de stroken die op dit moment niet in de gevarenzone bezet zijn */
+      const danger = cars.filter((t) => t.z > -0.9);
+      if (danger.length >= 2) { spawnAt = Math.min(spawnAt || 6, 6); return; }
+      const busy = new Set(danger.map((t) => t.lane));
+      const free = [0, 1, 2].filter((l) => !busy.has(l));
+      if (!free.length) return;
+      const l = free[Math.floor(Math.random() * free.length)];
       const glow = 0.5 + Math.random() * 0.5;
       cars.push({ lane: l, z: -1.5, glow, wob: Math.random() * Math.PI * 2 });
     }

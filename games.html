@@ -696,7 +696,7 @@
                   <svg viewBox="0 0 24 24" fill="none" stroke="#f5f5f5" stroke-width="1.8" stroke-linecap="round"><path d="M3 20c3-1 4-8 8-8s5 4 10-6" /><path d="M3 20h18" stroke="#94949c" stroke-dasharray="2 3"/><circle cx="21" cy="6" r="1.8" fill="#e10600" stroke="none"/></svg>
                 </span>
                 <span class="app-name">Dyno</span>
-                <span class="app-sub">650 PK</span>
+                <span class="app-sub" data-record="mgDynoBest" data-record-unit="PK">nog geen record</span>
               </button>
 
               <button class="app-item" type="button" data-open-page="settings">
@@ -1084,7 +1084,7 @@
         });
         var wipe = document.querySelector('[data-wipe-records]');
         if (wipe) wipe.addEventListener('click', function () {
-          try { ['mgDragBest', 'mgRedBest', 'mgMatchBest', 'mgMidBest'].forEach(function (k) { window.localStorage.removeItem(k); }); } catch (e) {}
+          try { ['mgDragBest', 'mgRedBest', 'mgMatchBest', 'mgMidBest', 'mgDynoBest'].forEach(function (k) { window.localStorage.removeItem(k); }); } catch (e) {}
           Array.prototype.forEach.call(document.querySelectorAll('[data-record]'), function (el) { el.textContent = 'nog geen record'; });
         });
 
@@ -1119,7 +1119,7 @@
           var nmEl = document.querySelector('[data-dyno-nm]');
           var boEl = document.querySelector('[data-dyno-boost]');
           var hasPath = !!(path && path.getTotalLength);
-          var len = 0, rpm = 1200, gas = 0, raf = null, last = 0;
+          var len = 0, rpm = 1200, gas = 0, raf = null, last = 0, peakPk = 0;
           var osc = null, gain = null;
           var LIM = 9000;
 
@@ -1150,6 +1150,7 @@
             var f = (rpm - 1200) / (LIM - 1200);
             if (rpmEl) rpmEl.textContent = Math.round(rpm).toLocaleString('nl-NL');
             var pk = Math.round(650 * Math.pow(Math.max(f, 0.02), 0.82) + (rpm < 2200 ? 70 : 0));
+            if (gas && pk > peakPk) peakPk = pk;
             if (rpm > 8250) pk = Math.round(650 - (rpm - 8250) / 750 * 40);
             if (pkEl) pkEl.textContent = String(pk);
             var nm = Math.round(800 * (0.32 + 0.68 * Math.pow(f, 0.35)));
@@ -1181,9 +1182,21 @@
             app.classList.add('gas');
             if (!raf) { last = window.performance.now(); raf = window.requestAnimationFrame(loop); }
           }
+          /* v44: record — hoogste PK losgelaten (mgDynoBest, hoger = beter) */
+          function saveRecord() {
+            if (!peakPk) return;
+            var best = 0;
+            try { best = parseInt(window.localStorage.getItem('mgDynoBest') || '0', 10) || 0; } catch (e) {}
+            if (peakPk > best) {
+              try { window.localStorage.setItem('mgDynoBest', String(peakPk)); } catch (e) {}
+              Array.prototype.forEach.call(document.querySelectorAll('[data-record="mgDynoBest"]'), function (el) { el.textContent = peakPk + ' PK'; });
+            }
+            peakPk = 0;
+          }
           function stop() {
             gas = 0;
             app.classList.remove('gas');
+            saveRecord();
           }
           pad.addEventListener('pointerdown', function (e) { e.preventDefault(); start(); });
           ['pointerup', 'pointerleave', 'pointercancel'].forEach(function (ev) {

@@ -3779,18 +3779,19 @@
         } catch (e) {}
       }
       /* v47: tempo groeit met afnemende stap (asymptoot), plafond 238 - ook op niveau 1000 prima te rijden */
-      const target = Math.min(238, 88 + 150 * (1 - Math.exp(-(lastLevel - 1) / 140)));
+      const target = Math.min(242, 118 + 122 * (1 - Math.exp(-(lastLevel - 1) / 90)));
       speed = Math.min(target, 42 + dist / 8);
       dist += (speed / 3.6) * 1.2 * dtm;
       dash += speed * 0.62;
       px0 += ((lane + 0.5) / 3 - px0) * 0.22;
-      cars.forEach((t) => { t.z += (speed * 0.45 / 3.6) * 1.2 * dtm / 30; t.wob += 0.1; });
+      const closeK = 0.45 + Math.min(0.22, lastLevel * 0.0005);
+      cars.forEach((t) => { t.z += (speed * closeK / 3.6) * 1.2 * dtm / 30; t.wob += 0.1; });
       cars = cars.filter((t) => t.z < 1.08);
       spawnAt -= 1;
       if (spawnAt <= 0) {
         /* v47: verkeersdichtheid stijgt afvlakkend mee met het niveau, met plafond */
-        const density = 1 - Math.exp(-(lastLevel - 1) / 120);
-        spawnAt = Math.max(18, Math.round(56 - 36 * density));
+        const density = 1 - Math.exp(-(lastLevel - 1) / 70);
+        spawnAt = Math.max(13, Math.round(48 - 34 * density));
         /* eerlijkheids-klep: max 2 auto's tegelijk in de gevarenzone, dus er is altijd een rijstrook vrij */
         if (cars.filter((t) => t.z > -0.9).length >= 2) spawnAt = 8;
         spawnCar();

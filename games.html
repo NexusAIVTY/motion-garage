@@ -415,30 +415,7 @@
       .phone-wrap { justify-self: center; }
       .iphone-frame { transform: none !important; }
       @media (hover: hover) { .phone-wrap:hover .iphone-frame { transform: none !important; } }
-    }
-    /* echte mobiel: kop + telefoon samen vullen exact het scherm (niets bokt/scrollt) */
-    @media (max-width: 500px) {
-      .arcade-head { padding: 0 4vw; height: 46px; }
-      .arcade-logo { font-size: 16px; }
-      .arcade-back { font-size: 10px; padding: 6px 10px; }
-      .arcade-intro { display: none; }
-      .arcade-main {
-        display: block;
-        padding: 8px 0 10px;
-        height: calc(100vh - 64px);
-        height: calc(100dvh - 64px);
-      }
-      .phone-wrap { padding: 0 8px; height: 100%; box-sizing: border-box; }
-      .iphone-frame {
-        max-width: none;
-        height: 100%;
-        min-height: 0;
-        border-radius: 40px;
-        padding: 9px;
-      }
-      .phone-screen { border-radius: 32px; }
-    }
-    @media (prefers-reduced-motion: reduce) {
+    }    @media (prefers-reduced-motion: reduce) {
       .iphone-frame { transition: none; transform: none; }
       .app-item:hover .app-icon { transform: none; }
     }

@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=44" />
+  <link rel="stylesheet" href="css/style.css?v=45" />
   <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
   <style>
     body { padding-bottom: 0; }
@@ -506,7 +506,7 @@
     .dyno-stats div { flex: 1; text-align: center; background: rgba(21,21,22,0.7); border: 1px solid rgba(245,245,245,0.08); border-radius: 12px; padding: 10px 4px; }
     .dyno-stats b { display: block; font-family: var(--font-display); font-weight: 400; font-size: 22px; color: var(--red); letter-spacing: 1px; }
     .dyno-stats span { font-size: 8.5px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
-    .dyno-curve { flex: 1; min-height: 0; display: flex; flex-direction: column; background: rgba(21,21,22,0.55); border: 1px solid rgba(245,245,245,0.08); border-radius: 14px; padding: 10px; }
+    .dyno-curve { flex: 1; min-height: 0; display: flex; flex-direction: column; background: rgba(21,21,22,0.55); border: 1px solid rgba(245,245,245,0.08); border-radius: 14px; padding: 10px; touch-action: none; -webkit-user-select: none; user-select: none; cursor: pointer; }
     .dyno-curve svg { flex: 1; width: 100%; min-height: 0; }
     .dyno-axis { display: flex; justify-content: space-between; font-size: 8.5px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(245,245,245,0.35); padding-top: 6px; }
     .page-dyno .curve-line { stroke-dasharray: 420; stroke-dashoffset: 420; }
@@ -578,7 +578,7 @@
     }
     /* opstart-animatie in het scherm (zoals de home-page) */
     .phone-boot {
-      position: absolute; inset: 0; z-index: 90;
+      position: absolute; inset: 0; z-index: 90; pointer-events: none;
       background: #050506;
       display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;
     }
@@ -960,7 +960,7 @@
       }
     })();
   </script>
-  <script src="js/main.js?v=44"></script>
+  <script src="js/main.js?v=45"></script>
   <script>
     (function () {
       /* in-phone navigatie: apps <-> garage-collectie */
@@ -1234,10 +1234,28 @@
             app.classList.remove('gas');
             saveRecord();
           }
+          var inUI = function (e) {
+            return !!(e && e.target && e.target.closest && e.target.closest('button, a, [data-dyno-pad]'));
+          };
           pad.addEventListener('pointerdown', function (e) { e.preventDefault(); start(); });
           ['pointerup', 'pointerleave', 'pointercancel'].forEach(function (ev) {
             pad.addEventListener(ev, stop);
           });
+          /* v45: druk bijna overal in de dyno-app voor gas (zoals Redline); eigen knoppen uitgezonderd */
+          app.addEventListener('pointerdown', function (e) {
+            if (inUI(e)) return;
+            e.preventDefault();
+            start();
+          });
+          ['pointerup', 'pointerleave', 'pointercancel'].forEach(function (ev) {
+            app.addEventListener(ev, function (e) { if (!inUI(e)) stop(); });
+          });
+          /* v45: oudere apparaten zonder PointerEvent */
+          if (!window.PointerEvent) {
+            pad.addEventListener('touchstart', function (e) { e.preventDefault(); start(); }, { passive: false });
+            ['touchend', 'touchcancel'].forEach(function (ev) { pad.addEventListener(ev, stop); });
+          }
+          window.addEventListener('blur', stop);
         } catch (e) {}
       })();
 
